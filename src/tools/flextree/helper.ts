@@ -6,7 +6,7 @@ type TreeData = {
   children?: TreeData[]
   x: number
   y: number
-} & { [key: string]: any }
+}
 interface Box {
   left: number
   right: number
@@ -50,7 +50,7 @@ class Layout {
    *
    * See getSize() for more explanation.
    */
-  layout (treeData: TreeData): { result: TreeData, boundingBox: Box } {
+  layout<T extends TreeData> (treeData: T): { result: T, boundingBox: Box } {
     const tree = this.convert(treeData)
     layout(tree)
     const { boundingBox, result } = this.assignLayout(tree, treeData)
@@ -118,7 +118,7 @@ class Layout {
   /**
    * This function does assignCoordinates and getSize in one pass.
    */
-  assignLayout (tree: Tree, treeData: TreeData, box?: Box): { result: TreeData, boundingBox: Box } {
+  assignLayout<T extends TreeData> (tree: Tree, treeData: T, box?: Box): { result: T, boundingBox: Box } {
     const { x, y } = this.bb.removeBoundingBox(tree.x, tree.y)
     treeData.x = x
     treeData.y = y
@@ -133,7 +133,7 @@ class Layout {
     box.bottom = Math.max(box.bottom, y + height)
 
     for (let i = 0; i < tree.c.length; i++) {
-      this.assignLayout(tree.c[i], (treeData.children as TreeData[])[i], box)
+      this.assignLayout(tree.c[i], (treeData.children as T[])[i], box)
     }
 
     return { result: treeData, boundingBox: box }

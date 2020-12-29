@@ -5,7 +5,7 @@
 <script lang="ts">
 import learn from '../public/learn.json'
 import { defineComponent } from 'vue'
-import Mindmap from './components/Mindmap.vue'
+import Mindmap from './components/Mindmap'
 
 export default defineComponent({
   name: 'App',

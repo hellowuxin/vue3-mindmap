@@ -1,6 +1,16 @@
 import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as d3Scale from 'd3-scale'
 import { Data, Mdata } from '@/interface'
+import { BoundingBox, Layout } from '@/tools/flextree'
+interface TreeData {
+  rawData: Data
+  width: number
+  height: number
+  x: number
+  y: number
+  children?: TreeData[]
+  [key: string]: any
+}
 
 const colorScale = d3Scale.scaleOrdinal(d3ScaleChromatic.schemePaired) // 颜色列表
 let colorNumber = 0
@@ -49,10 +59,7 @@ function _getSource (d: Mdata) { // 返回源数据
 function initId (d: Mdata, id = '0') { // 初始化唯一标识：待优化
   d.id = id
   d.gKey = d.gKey || (gKey += 1)
-  d.width = 0
-  d.height = 0
-  d.x = 0
-  d.y = 0
+  d.depth = Math.floor(d.id.length / 2)
   const { children, _children } = d
 
   if (children?.length && _children?.length) {
@@ -96,25 +103,72 @@ function initLeft (d: Mdata, left = false) {
   }
 }
 
+// rawData width height x y children
+function initTreeData (d: Data) {
+  const data: any = {}
+  data.rawData = d
+  data.width = 0
+  data.height = 0
+  data.x = 0
+  data.y = 0
+
+  const { children } = d
+  if (children) {
+    const dataChildren: any[] = data.children = []
+    children.forEach((child) => {
+      dataChildren.push(initTreeData(child))
+    })
+  }
+
+  return data as TreeData
+}
+// id gKey depth dx dy name left color _children
+function init (d: TreeData, id = '0', c?: string) {
+  [d.x, d.y] = [d.y, d.x]
+  d.id = id
+  d.gKey = d.gKey || (gKey += 1)
+  d.depth = Math.floor(d.id.length / 2)
+  d.name = d.rawData.name
+
+  let color: string
+  if (id === '0') {
+    d.left = false
+    d.parent = null
+    d.dx = 0
+    d.dy = 0
+    d.color = ''
+  } else {
+    d.left = d.parent.left || false
+    d.dx = d.x - d.parent.x
+    d.dy = d.y - d.parent.y
+    color = d.color = c || colorScale(`${colorNumber += 1}`)
+  }
+
+  if (d.depth === 1) {
+    d.left = d.rawData.left || false
+  }
+
+  const { children } = d
+  if (children) {
+    children.forEach((child, i) => {
+      child.parent = d
+      init(child, `${id}-${i}`, color)
+    })
+  }
+
+  return d as Mdata
+}
+
 class ImData {
   data: Mdata
-  constructor (d: Data) {
-    this.data = JSON.parse(JSON.stringify(d))
-    initId(this.data)
-    initColor(this.data)
+  constructor (d: Data, xGap: number, yGap: number) {
+    const data = initTreeData(d)
 
-    this.data.left = false
-    const { children, _children } = this.data
-    if (children) {
-      for (let i = 0; i < children.length; i += 1) {
-        initLeft(children[i], children[i].left)
-      }
-    }
-    if (_children) {
-      for (let i = 0; i < _children.length; i += 1) {
-        initLeft(_children[i], _children[i].left)
-      }
-    }
+    const bb = new BoundingBox(yGap, xGap)
+    const layout = new Layout(bb)
+    layout.layout(data)
+
+    this.data = init(data)
   }
 
   getSource (id = '0'): Data {

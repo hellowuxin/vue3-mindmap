@@ -6,32 +6,20 @@ export interface Data {
 }
 
 export interface Mdata {
+  rawData: Data
   name: string
-  id: string
-  color: string
-  gKey: number
+  parent: Mdata
   children?: Array<Mdata>
   _children?: Array<Mdata>
   left: boolean
+  id: string
+  color: string
+  gKey: number
   width: number
   height: number
+  depth: number
   x: number
   y: number
-}
-
-export interface FlexNode {
-  children: FlexNode[]
-  data: Mdata
-  depth: number
   dx: number
   dy: number
-  height: number
-  length: number
-  parent: FlexNode | null
-  x: number
-  y: number
-  each: () => void
-  size: number[]
-  px: number
-  py: number
 }
