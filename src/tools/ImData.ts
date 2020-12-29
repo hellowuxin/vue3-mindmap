@@ -2,6 +2,8 @@ import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as d3Scale from 'd3-scale'
 import { Data, Mdata } from '@/interface'
 import { BoundingBox, Layout } from '@/tools/flextree'
+
+type GetSize = (text: string) => { width: number, height: number }
 interface TreeData {
   rawData: Data
   width: number
@@ -104,11 +106,12 @@ function initLeft (d: Mdata, left = false) {
 }
 
 // rawData width height x y children
-function initTreeData (d: Data) {
+function initTreeData (d: Data, getSize: GetSize) {
   const data: any = {}
+  const size = getSize(d.name)
   data.rawData = d
-  data.width = 0
-  data.height = 0
+  data.width = size.height
+  data.height = size.width
   data.x = 0
   data.y = 0
 
@@ -116,7 +119,7 @@ function initTreeData (d: Data) {
   if (children) {
     const dataChildren: any[] = data.children = []
     children.forEach((child) => {
-      dataChildren.push(initTreeData(child))
+      dataChildren.push(initTreeData(child, getSize))
     })
   }
 
@@ -125,6 +128,7 @@ function initTreeData (d: Data) {
 // id gKey depth dx dy name left color _children
 function init (d: TreeData, id = '0', c?: string) {
   [d.x, d.y] = [d.y, d.x]
+  ;[d.width, d.height] = [d.height, d.width]
   d.id = id
   d.gKey = d.gKey || (gKey += 1)
   d.depth = Math.floor(d.id.length / 2)
@@ -161,8 +165,8 @@ function init (d: TreeData, id = '0', c?: string) {
 
 class ImData {
   data: Mdata
-  constructor (d: Data, xGap: number, yGap: number) {
-    const data = initTreeData(d)
+  constructor (d: Data, xGap: number, yGap: number, getSize: GetSize) {
+    const data = initTreeData(d, getSize)
 
     const bb = new BoundingBox(yGap, xGap)
     const layout = new Layout(bb)

@@ -3,6 +3,7 @@
     <svg :class="style['svg']" ref="svgEle">
       <g ref="gEle"></g>
     </svg>
+    <svg ref="asstSvgEle"></svg>
   </div>
 </template>
 
@@ -11,6 +12,7 @@ import { defineComponent, onMounted, PropType, Ref, ref } from 'vue'
 import { Data, Mdata } from '@/interface'
 import style from './Mindmap.module.scss'
 import { d3, ImData, reflow } from '@/tools'
+import { D3ZoomEvent } from 'd3-zoom'
 
 export default defineComponent({
   name: 'Mindmap',
@@ -73,67 +75,79 @@ export default defineComponent({
   setup (props) {
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
     const gEle: Ref<SVGGElement | undefined> = ref()
-    const svg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
-    const g: Ref<d3.Selection<SVGGElement, Mdata, null, undefined> | undefined> = ref()
-    const zoom = d3.zoom() as d3.ZoomBehavior<SVGSVGElement, unknown>
-
-    const mmdata = new ImData(
-      JSON.parse(JSON.stringify(props.modelValue[0])),
-      props.xSpacing,
-      props.ySpacing
-    )
+    const asstSvgEle: Ref<SVGSVGElement | undefined> = ref()
+    const svg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
+    const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
+    const asstSvg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
+    const zoom = d3.zoom() as d3.ZoomBehavior<SVGSVGElement, null>
 
     onMounted(() => {
-      if (svgEle.value && gEle.value) {
-        svg.value = d3.select(svgEle.value)
-        g.value = d3.select(gEle.value)
+      if (!svgEle.value || !gEle.value || !asstSvgEle.value) { return }
+      svg.value = d3.select(svgEle.value)
+      g.value = d3.select(gEle.value)
+      asstSvg.value = d3.select(asstSvgEle.value)
 
-        draw()
-        makeZoom()
+      const mmdata = new ImData(
+        JSON.parse(JSON.stringify(props.modelValue[0])),
+        props.xSpacing,
+        props.ySpacing,
+        getSize
+      )
 
-        reflow(svgEle.value)
-        zoom.translateTo(svg.value, 0, 0)
-      }
+      draw([mmdata.data], g.value)
+      makeZoom()
+
+      reflow(svgEle.value)
+      zoom.translateTo(svg.value, 0, 0)
+      console.log(mmdata.data)
     })
 
     const getGKey = (d: Mdata) => { return d.gKey }
     const getGClass = (d: Mdata) => { return `.depth-${d.depth}` }
     const getGTransform = (d: Mdata) => { return `translate(${d.dx},${d.dy})` }
-    const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata>) => {
+    const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, undefined | Mdata>) => {
       const enterG = enter.append('g').attr('class', getGClass).attr('transform', getGTransform)
       enterG.append('text').text((d) => d.name)
+      enterG.append('rect').attr('width', (d) => d.width).attr('height', (d) => d.height)
+
+      enterG.each((d, i) => {
+        if (!d.children) { return }
+        draw(d.children, enterG.filter((a, b) => i === b))
+      })
+
       return enterG
     }
-    const updateNode = (update: d3.Selection<any, any, any, any>) => {
-      return update
-    }
-    const exitNode = (exit: any) => {
-      return exit
-    }
-    const draw = () => {
-      if (!g.value) { return }
-      const d = [mmdata.data]
-
-      ;(g.value.selectAll(`g${getGClass(d[0])}`) as d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata>)
-        .data(d, getGKey)
-        .join(appendNode, updateNode, exitNode)
+    // const updateNode = (update: d3.Selection<any, any, any, any>) => {
+    //   return update
+    // }
+    // const exitNode = (exit: any) => {
+    //   return exit
+    // }
+    const draw = (d: Mdata[], sele: d3.Selection<SVGGElement, any, any, undefined | Mdata>) => {
+      const temp = sele.selectAll(`g${getGClass(d[0])}`) as d3.Selection<SVGGElement, Mdata, SVGGElement, undefined | Mdata>
+      temp.data(d, getGKey).join(appendNode)
     }
     const makeZoom = () => {
       if (!svg.value) { return }
-
-      zoom.on('zoom', (e) => {
-        console.log(e)
+      zoom.on('zoom', (e: D3ZoomEvent<SVGSVGElement, null>) => {
         if (!g.value) { return }
-        g.value.attr('transform', e.transform)
+        g.value.attr('transform', e.transform.toString())
       })
-
-      svg.value.call(zoom)
+      zoom(svg.value)
+    }
+    const getSize = (text: string): { width: number, height: number } => {
+      if (!asstSvg.value) { throw new Error('asstSvg undefined') }
+      const t = asstSvg.value.append('text').text(text).node() as SVGTextElement
+      const tBox = t.getBBox()
+      t.remove()
+      return { width: tBox.width, height: tBox.height }
     }
 
     return {
       svgEle,
       gEle,
-      style
+      style,
+      asstSvgEle
     }
   }
 })
