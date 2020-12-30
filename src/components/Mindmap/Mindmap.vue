@@ -129,8 +129,29 @@ export default defineComponent({
       return multiline.map((name) => ({ name, height }))
     }
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, undefined | Mdata>) => {
+      const isRoot = !enter.data()[0].depth
       const enterG = enter.append('g').attr('class', getGClass).attr('transform', getGTransform)
-      enterG.append('text')
+      const gText = enterG.append('g').attr('class', 'text')
+      if (isRoot) {
+        const rectPadding = 10
+        const radius = 6
+        gText.append('rect')
+          .attr('x', -rectPadding)
+          .attr('y', -rectPadding)
+          .attr('rx', radius)
+          .attr('ry', radius)
+          .attr('width', (d) => d.width + rectPadding * 2)
+          .attr('height', (d) => d.height + rectPadding * 2)
+          .attr('fill', 'white')
+      } else {
+        // gText.append('rect')
+        //   .attr('width', (d) => d.width)
+        //   .attr('height', (d) => d.height)
+        //   .attr('fill', 'none')
+        //   .attr('stroke-width', 1)
+        //   .attr('stroke', 'black')
+      }
+      gText.append('text')
         .selectAll('tspan')
         .data(getTspanData)
         .enter()
@@ -139,19 +160,13 @@ export default defineComponent({
         .text((d) => d.name)
         .attr('x', 0)
         .attr('dy', (d, i) => i ? d.height : 0)
-      enterG.append('rect')
-        .attr('width', (d) => d.width)
-        .attr('height', (d) => d.height)
-        .attr('fill', 'none')
-        .attr('stroke-width', 1)
-        .attr('stroke', 'black')
       enterG.append('path').attr('d', getPath).attr('stroke', getColor).attr('stroke-width', pathWidth)
 
       enterG.each((d, i) => {
         if (!d.children) { return }
         draw(d.children, enterG.filter((a, b) => i === b))
       })
-
+      gText.raise()
       return enterG
     }
     // const updateNode = (update: d3.Selection<any, any, any, any>) => {

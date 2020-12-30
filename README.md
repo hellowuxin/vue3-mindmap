@@ -1,24 +1,4 @@
-# vue3-mindmap
+# vue3-mindmap（开发中）
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+> 相比[mindmap](https://github.com/hellowuxin/mindmap)更新了技术栈：Vue3、d3v6  
+> 目前打算对项目进行重构，解决一些老旧问题（图片生成、加载慢...）
