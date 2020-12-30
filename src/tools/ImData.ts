@@ -125,7 +125,7 @@ function initTreeData (d: Data, getSize: GetSize) {
 
   return data as TreeData
 }
-// id gKey depth dx dy name left color _children
+// id gKey depth dx dy name left color _children px py
 function init (d: TreeData, id = '0', c?: string) {
   [d.x, d.y] = [d.y, d.x]
   ;[d.width, d.height] = [d.height, d.width]
@@ -133,6 +133,8 @@ function init (d: TreeData, id = '0', c?: string) {
   d.gKey = d.gKey || (gKey += 1)
   d.depth = Math.floor(d.id.length / 2)
   d.name = d.rawData.name
+  d.px = 0
+  d.py = 0
 
   let color: string
   if (id === '0') {

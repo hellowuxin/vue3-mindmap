@@ -8,7 +8,7 @@ export interface Data {
 export interface Mdata {
   rawData: Data
   name: string
-  parent: Mdata
+  parent: Mdata | null
   children?: Array<Mdata>
   _children?: Array<Mdata>
   left: boolean
@@ -22,4 +22,6 @@ export interface Mdata {
   y: number
   dx: number
   dy: number
+  px: number
+  py: number
 }

@@ -1,9 +1,14 @@
 .container {
   position: relative;
-  display: flex;
-  height: 700px;
+  height: 900px;
 }
 
 .svg {
-  flex: auto;
+  width: 100%;
+  height: 100%;
+
+  path {
+    fill: none;
+    stroke-linecap: round;
+  }
 }

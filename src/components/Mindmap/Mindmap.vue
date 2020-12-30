@@ -25,7 +25,7 @@ export default defineComponent({
     },
     ySpacing: {
       type: Number,
-      default: 20
+      default: 10
     },
     strokeWidth: {
       type: Number,
@@ -73,6 +73,7 @@ export default defineComponent({
     }
   },
   setup (props) {
+    const pathWidth = 4
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
     const gEle: Ref<SVGGElement | undefined> = ref()
     const asstSvgEle: Ref<SVGSVGElement | undefined> = ref()
@@ -80,6 +81,7 @@ export default defineComponent({
     const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
     const asstSvg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
     const zoom = d3.zoom() as d3.ZoomBehavior<SVGSVGElement, null>
+    const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value) { return }
@@ -93,22 +95,57 @@ export default defineComponent({
         props.ySpacing,
         getSize
       )
-
-      draw([mmdata.data], g.value)
+      const { data } = mmdata
+      draw([data], g.value)
       makeZoom()
 
       reflow(svgEle.value)
-      zoom.translateTo(svg.value, 0, 0)
-      console.log(mmdata.data)
+      zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2) // 中心
     })
 
     const getGKey = (d: Mdata) => { return d.gKey }
     const getGClass = (d: Mdata) => { return `.depth-${d.depth}` }
     const getGTransform = (d: Mdata) => { return `translate(${d.dx},${d.dy})` }
+    const getColor = (d: Mdata) => { return d.color }
+    const getPath = (d: Mdata) => {
+      let dpw = 0
+      let dph = 0
+      if (d.parent) {
+        dpw = d.parent.width
+        dph = d.parent.height
+        if (d.parent.depth === 0) {
+          dpw /= 2
+          dph /= 2
+        }
+      }
+      const temp = pathWidth / 2
+      const source = [-d.dx + dpw, -d.dy + dph + temp] as [number, number]
+      const target = [0, d.height + temp] as [number, number]
+      return `${link({ source, target })}L${d.width},${target[1]}`
+    }
+    const getTspanData = (d: Mdata) => {
+      const multiline = d.name.split('\n')
+      const height = d.height / multiline.length
+      return multiline.map((name) => ({ name, height }))
+    }
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, undefined | Mdata>) => {
       const enterG = enter.append('g').attr('class', getGClass).attr('transform', getGTransform)
-      enterG.append('text').text((d) => d.name)
-      enterG.append('rect').attr('width', (d) => d.width).attr('height', (d) => d.height)
+      enterG.append('text')
+        .selectAll('tspan')
+        .data(getTspanData)
+        .enter()
+        .append('tspan')
+        .attr('alignment-baseline', 'before-edge')
+        .text((d) => d.name)
+        .attr('x', 0)
+        .attr('dy', (d, i) => i ? d.height : 0)
+      enterG.append('rect')
+        .attr('width', (d) => d.width)
+        .attr('height', (d) => d.height)
+        .attr('fill', 'none')
+        .attr('stroke-width', 1)
+        .attr('stroke', 'black')
+      enterG.append('path').attr('d', getPath).attr('stroke', getColor).attr('stroke-width', pathWidth)
 
       enterG.each((d, i) => {
         if (!d.children) { return }
@@ -137,10 +174,18 @@ export default defineComponent({
     }
     const getSize = (text: string): { width: number, height: number } => {
       if (!asstSvg.value) { throw new Error('asstSvg undefined') }
-      const t = asstSvg.value.append('text').text(text).node() as SVGTextElement
-      const tBox = t.getBBox()
+      const multiline = text.split('\n')
+      const t = asstSvg.value.append('text')
+      t.selectAll('tspan')
+        .data(multiline)
+        .enter()
+        .append('tspan')
+        .text((d) => d)
+        .attr('x', 0)
+      const tBox = (t.node() as SVGTextElement).getBBox()
       t.remove()
-      return { width: tBox.width, height: tBox.height }
+      // console.log(multiline, tBox)
+      return { width: tBox.width, height: tBox.height * multiline.length }
     }
 
     return {
