@@ -1,6 +1,6 @@
 import { layout, Tree } from './algorithm'
 
-type TreeData = {
+export type TreeData = {
   width: number
   height: number
   children?: TreeData[]

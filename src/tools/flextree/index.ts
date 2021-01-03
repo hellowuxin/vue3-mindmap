@@ -1,4 +1,4 @@
 import { layout, Tree } from './algorithm'
-import { BoundingBox, Layout } from './helper'
+import { BoundingBox, Layout, TreeData } from './helper'
 
-export { layout, Tree, BoundingBox, Layout }
+export { layout, Tree, BoundingBox, Layout, TreeData }
