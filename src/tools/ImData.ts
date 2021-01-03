@@ -1,7 +1,7 @@
 import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as d3Scale from 'd3-scale'
 import { Data, Mdata } from '@/interface'
-import { BoundingBox, Layout } from '@/tools/flextree'
+import { BoundingBox, Layout, TreeData as TD } from '@/tools/flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
 interface TreeData {
@@ -107,23 +107,24 @@ function initLeft (d: Mdata, left = false) {
 
 // rawData width height x y children
 function initTreeData (d: Data, getSize: GetSize) {
-  const data: any = {}
   const size = getSize(d.name)
-  data.rawData = d
-  data.width = size.height
-  data.height = size.width
-  data.x = 0
-  data.y = 0
+  const data: TreeData = {
+    rawData: d,
+    width: size.height,
+    height: size.width,
+    x: 0,
+    y: 0
+  }
 
   const { children } = d
   if (children) {
-    const dataChildren: any[] = data.children = []
+    const dataChildren: TreeData[] = data.children = []
     children.forEach((child) => {
       dataChildren.push(initTreeData(child, getSize))
     })
   }
 
-  return data as TreeData
+  return data
 }
 // id gKey depth dx dy name left color _children px py
 function init (d: TreeData, id = '0', c?: string) {
@@ -165,16 +166,50 @@ function init (d: TreeData, id = '0', c?: string) {
   return d as Mdata
 }
 
+function swapWidthAndHeight<T extends { width: number, height: number, children?: T[] }> (d: T) {
+  [d.width, d.height] = [d.height, d.width]
+  d.children?.forEach((child) => {
+    swapWidthAndHeight(child)
+  })
+}
+
+function renewAfterSetBoundingBox (d: Mdata) {
+  [d.x, d.y] = [d.y, d.x]
+  ;[d.width, d.height] = [d.height, d.width]
+
+  if (d.parent) {
+    d.dx = d.x - d.parent.x
+    d.dy = d.y - d.parent.y
+  } else {
+    d.dx = 0
+    d.dy = 0
+  }
+
+  d.children?.forEach((child) => {
+    renewAfterSetBoundingBox(child)
+  })
+
+  return d
+}
+
+function layout<T extends TD> (d: T, xGap: number, yGap: number) {
+  const bb = new BoundingBox(yGap, xGap)
+  const layout = new Layout(bb)
+  layout.layout(d)
+}
+
 class ImData {
   data: Mdata
   constructor (d: Data, xGap: number, yGap: number, getSize: GetSize) {
     const data = initTreeData(d, getSize)
-
-    const bb = new BoundingBox(yGap, xGap)
-    const layout = new Layout(bb)
-    layout.layout(data)
-
+    layout(data, xGap, yGap)
     this.data = init(data)
+  }
+
+  setBoundingBox (xGap: number, yGap: number): void {
+    swapWidthAndHeight(this.data)
+    layout(this.data, xGap, yGap)
+    this.data = renewAfterSetBoundingBox(this.data)
   }
 
   getSource (id = '0'): Data {
