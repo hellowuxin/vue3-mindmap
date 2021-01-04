@@ -17,3 +17,62 @@
     fill: #4B4B4B
   }
 }
+
+.button-list {
+  position: absolute;
+
+  &.right-bottom { bottom: 0; right: 0; }
+  &.top-right { top: 0; right: 0; display: flex; flex-direction: row; }
+
+  i { filter: invert(25%) sepia(40%) saturate(5050%) hue-rotate(227deg) brightness(78%) contrast(74%); }
+  button.disabled i { filter: invert(85%) sepia(20%) saturate(0%) hue-rotate(125deg) brightness(86%) contrast(93%); }
+}
+
+.button-list button:focus { outline: none; }
+
+.button-list button {
+  position: relative;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  color: #3f51b5;
+
+  &::before {
+    background-color: currentColor;
+    border-radius: inherit;
+    content: "";
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+  }
+
+  &:hover::before { opacity: 0.1; }
+
+  &.disabled {
+    cursor: not-allowed;
+    &:hover::before { opacity: 0; }
+  }
+
+  i {
+    width: 24px;
+    height: 24px;
+
+    &.gps { background-image: url(~@/../public/icons/24px/crosshairs-gps.png) }
+    &.fit { background-image: url(~@/../public/icons/24px/fit-to-page-outline.png) }
+    &.download { background-image: url(~@/../public/icons/24px/download.png) }
+    &.undo { background-image: url(~@/../public/icons/24px/undo.png) }
+    &.redo { background-image: url(~@/../public/icons/24px/redo.png) }
+    &.close { background-image: url(~@/../public/icons/24px/close.png) }
+  }
+}

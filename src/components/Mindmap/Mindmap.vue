@@ -4,6 +4,11 @@
       <g ref="gEle"></g>
     </svg>
     <svg ref="asstSvgEle"></svg>
+    <div :class="[style['button-list'], style['right-bottom']]">
+      <button v-if="centerBtn" @click="centerView()"><i :class="style['gps']"></i></button>
+      <button v-if="fitBtn" @click="fitView()"><i :class="style['fit']"></i></button>
+      <button v-if="downloadBtn" @click="showPopUps=true"><i class="download"></i></button>
+    </div>
   </div>
 </template>
 
@@ -11,7 +16,7 @@
 import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata } from '@/interface'
 import style from './Mindmap.module.scss'
-import { d3, ImData, reflow } from '@/tools'
+import { d3, ImData } from '@/tools'
 import { D3ZoomEvent } from 'd3-zoom'
 
 export default defineComponent({
@@ -31,41 +36,41 @@ export default defineComponent({
       type: Number,
       default: 4
     },
-    draggable: {
+    centerBtn: {
       type: Boolean,
-      default: true
+      default: false
     },
-    gps: {
+    fitBtn: {
       type: Boolean,
-      default: true
+      default: false
     },
-    fitView: {
+    downloadBtn: {
       type: Boolean,
-      default: true
+      default: false
     },
-    download: {
+    undoBtn: {
       type: Boolean,
-      default: true
+      default: false
     },
     keyboard: {
       type: Boolean,
-      default: true
+      default: false
     },
     showNodeAdd: {
       type: Boolean,
-      default: true
+      default: false
     },
     contextMenu: {
       type: Boolean,
-      default: true
+      default: false
     },
-    zoomable: {
+    zoom: {
       type: Boolean,
-      default: true
+      default: false
     },
-    showUndo: {
+    draggable: {
       type: Boolean,
-      default: true
+      default: false
     },
     modelValue: {
       type: Array as PropType<Data[]>,
@@ -79,7 +84,10 @@ export default defineComponent({
     const svg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
     const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
     const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
-    const zoom = d3.zoom<SVGSVGElement, null>()
+    const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', (e: D3ZoomEvent<SVGSVGElement, null>) => {
+      if (!g.value) { return }
+      g.value.attr('transform', e.transform.toString())
+    })
     const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
     let mmdata: ImData
 
@@ -95,12 +103,11 @@ export default defineComponent({
         props.ySpacing,
         getSize
       )
-      const { data } = mmdata
-      draw()
-      makeZoom()
 
-      reflow(svgEle.value)
-      zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2) // 中心
+      draw()
+      centerView()
+      //
+      makeZoom(props.zoom)
     })
 
     watch(() => props.branchWidth, () => { draw() })
@@ -108,9 +115,7 @@ export default defineComponent({
       mmdata.setBoundingBox(val[0], val[1])
       draw()
     })
-    watch(() => props.fitView, (val) => {
-      console.log(val, typeof val)
-    })
+    watch(() => props.zoom, (val) => { makeZoom(val) })
     // 每个属性的计算方法
     const getGKey = (d: Mdata) => { return d.gKey }
     const getGClass = (d: Mdata) => { return `depth-${d.depth}` }
@@ -202,13 +207,13 @@ export default defineComponent({
       const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getGClass(d[0])}`)
       temp.data(d, getGKey).join(appendNode, updateNode)
     }
-    const makeZoom = () => {
+    const makeZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
-      zoom.on('zoom', (e: D3ZoomEvent<SVGSVGElement, null>) => {
-        if (!g.value) { return }
-        g.value.attr('transform', e.transform.toString())
-      })
-      zoom(svg.value)
+      if (zoomable) {
+        zoom(svg.value)
+      } else {
+        svg.value.on('.zoom', null)
+      }
     }
     const getSize = (text: string): { width: number, height: number } => {
       if (!asstSvg.value) { throw new Error('asstSvg undefined') }
@@ -225,12 +230,22 @@ export default defineComponent({
       // console.log(multiline, tBox)
       return { width: tBox.width, height: tBox.height * multiline.length }
     }
+    const centerView = () => {
+      if (!svg.value) { return }
+      const { data } = mmdata
+      zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
+    }
+    const fitView = () => {
+      //
+    }
 
     return {
       svgEle,
       gEle,
       style,
-      asstSvgEle
+      asstSvgEle,
+      centerView,
+      fitView
     }
   }
 })

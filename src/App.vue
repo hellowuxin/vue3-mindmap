@@ -12,11 +12,13 @@
       :branch-width="rangeList['branch-width'].value"
       :x-spacing="rangeList['x-spacing'].value"
       :y-spacing="rangeList['y-spacing'].value"
-      :fit-view="checkboxList['fit-view'].value"
+      :zoom="checkboxList['zoom'].value"
+      :fit-btn="checkboxList['fit-btn'].value"
+      :center-btn="checkboxList['center-btn'].value"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
-        <input type="checkbox" :name="key" v-model="item.value">
+        <input type="checkbox" :name="key" v-model="item.value" :disabled="item.disabled">
         <label :for="key">{{ key }}</label>
       </div>
       <div v-for="(item, key) in rangeList" :key="key">
@@ -31,23 +33,25 @@
 import learn from '../public/learn.json'
 import { defineComponent, reactive } from 'vue'
 import Mindmap from './components/Mindmap'
-
+type checkbox = { [key: string]: { value: boolean, disabled?: boolean } }
 export default defineComponent({
   name: 'App',
   components: {
     Mindmap
   },
   setup () {
-    const checkboxList = reactive({
-      gps: { value: false },
-      'fit-view': { value: false },
+    const checkboxList = reactive<checkbox>({
+      'center-btn': { value: true },
+      'fit-btn': { value: true },
+      'undo-btn': { value: false },
+      'download-btn': { value: false },
       keyboard: { value: false },
       draggable: { value: false },
       showNodeAdd: { value: false },
       contextMenu: { value: false },
-      zoomable: { value: false },
-      showUndo: { value: false },
-      download: { value: false }
+      zoom: { value: true },
+      'sharp-corner': { value: false, disabled: true },
+      vertical: { value: false, disabled: true }
     })
     const rangeList = reactive({
       'branch-width': { value: 4, min: 0, max: 10 },
@@ -106,5 +110,13 @@ export default defineComponent({
   padding: 0 12px;
   display: flex;
   align-items: center;
+}
+
+input[type='checkbox'] {
+  cursor: pointer;
+}
+
+input:disabled {
+  cursor: not-allowed;
 }
 </style>
