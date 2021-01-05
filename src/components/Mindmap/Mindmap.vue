@@ -87,7 +87,7 @@ export default defineComponent({
     const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', (e: D3ZoomEvent<SVGSVGElement, null>) => {
       if (!g.value) { return }
       g.value.attr('transform', e.transform.toString())
-    })
+    }).scaleExtent([0.1, 8])
     const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
     let mmdata: ImData
 
@@ -106,10 +106,11 @@ export default defineComponent({
 
       draw()
       centerView()
+      fitView()
       //
       makeZoom(props.zoom)
     })
-
+    // watch
     watch(() => props.branchWidth, () => { draw() })
     watch(() => [props.xSpacing, props.ySpacing], (val) => {
       mmdata.setBoundingBox(val[0], val[1])
@@ -203,6 +204,7 @@ export default defineComponent({
     // const exitNode = (exit: any) => {
     //   return exit
     // }
+    // 其他
     const draw = (d = [mmdata.data], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
       const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getGClass(d[0])}`)
       temp.data(d, getGKey).join(appendNode, updateNode)
@@ -235,8 +237,14 @@ export default defineComponent({
       const { data } = mmdata
       zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
     }
-    const fitView = () => {
-      //
+    const fitView = () => { // 缩放至合适大小并移动至全部可见
+      // bug: 缩放后的大小与容器不一致
+      if (!svg.value || !gEle.value || !svgEle.value) { return }
+      const gBB = gEle.value.getBBox()
+      const svgBCR = svgEle.value.getBoundingClientRect()
+      const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
+      const t = d3.zoomIdentity.scale(multiple).translate(-gBB.x, -gBB.y)
+      zoom.transform(svg.value, t)
     }
 
     return {

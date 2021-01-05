@@ -195,7 +195,7 @@ function renewAfterSetBoundingBox (d: Mdata) {
 function layout<T extends TD> (d: T, xGap: number, yGap: number) {
   const bb = new BoundingBox(yGap, xGap)
   const layout = new Layout(bb)
-  layout.layout(d)
+  return layout.layout(d)
 }
 
 class ImData {

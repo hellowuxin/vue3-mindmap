@@ -43,9 +43,9 @@ export default defineComponent({
     const checkboxList = reactive<checkbox>({
       'center-btn': { value: true },
       'fit-btn': { value: true },
-      'undo-btn': { value: false },
-      'download-btn': { value: false },
-      keyboard: { value: false },
+      'undo-btn': { value: false, disabled: true },
+      'download-btn': { value: false, disabled: true },
+      keyboard: { value: false, disabled: true },
       draggable: { value: false },
       showNodeAdd: { value: false },
       contextMenu: { value: false },
