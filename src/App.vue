@@ -9,9 +9,9 @@
     <mindmap
       class="left-bottom"
       v-model="learn"
-      :branch-width="rangeList['branch-width'].value"
-      :x-spacing="rangeList['x-spacing'].value"
-      :y-spacing="rangeList['y-spacing'].value"
+      :branch="rangeList['branch'].value"
+      :x-gap="rangeList['x-gap'].value"
+      :y-gap="rangeList['y-gap'].value"
       :zoom="checkboxList['zoom'].value"
       :fit-btn="checkboxList['fit-btn'].value"
       :center-btn="checkboxList['center-btn'].value"
@@ -54,9 +54,9 @@ export default defineComponent({
       vertical: { value: false, disabled: true }
     })
     const rangeList = reactive({
-      'branch-width': { value: 4, min: 0, max: 10 },
-      'x-spacing': { value: 50, min: 0, max: 100 },
-      'y-spacing': { value: 10, min: 0, max: 100 }
+      branch: { value: 4, min: 0, max: 10 },
+      'x-gap': { value: 50, min: 0, max: 100 },
+      'y-gap': { value: 10, min: 0, max: 100 }
     })
     return {
       learn,

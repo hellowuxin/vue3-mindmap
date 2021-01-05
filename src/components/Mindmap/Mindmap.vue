@@ -24,15 +24,15 @@ export default defineComponent({
   props: {
     width: Number,
     height: Number,
-    xSpacing: {
+    xGap: {
       type: Number,
       default: 50
     },
-    ySpacing: {
+    yGap: {
       type: Number,
       default: 10
     },
-    branchWidth: {
+    branch: {
       type: Number,
       default: 4
     },
@@ -99,8 +99,8 @@ export default defineComponent({
 
       mmdata = new ImData(
         JSON.parse(JSON.stringify(props.modelValue[0])),
-        props.xSpacing,
-        props.ySpacing,
+        props.xGap,
+        props.yGap,
         getSize
       )
 
@@ -111,8 +111,8 @@ export default defineComponent({
       makeZoom(props.zoom)
     })
     // watch
-    watch(() => props.branchWidth, () => { draw() })
-    watch(() => [props.xSpacing, props.ySpacing], (val) => {
+    watch(() => props.branch, () => { draw() })
+    watch(() => [props.xGap, props.yGap], (val) => {
       mmdata.setBoundingBox(val[0], val[1])
       draw()
     })
@@ -133,7 +133,7 @@ export default defineComponent({
           dph /= 2
         }
       }
-      const temp = props.branchWidth / 2
+      const temp = props.branch / 2
       const source = [-d.dx + dpw, -d.dy + dph + temp] as [number, number]
       const target = [0, d.height + temp] as [number, number]
       return `${link({ source, target })}L${d.width},${target[1]}`
@@ -165,7 +165,7 @@ export default defineComponent({
         .attr('fill', 'white')
     }
     const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>) => {
-      return p.attr('d', getPath).attr('stroke', getColor).attr('stroke-width', props.branchWidth)
+      return p.attr('d', getPath).attr('stroke', getColor).attr('stroke-width', props.branch)
     }
     // 绘制节点的方法
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
