@@ -15,6 +15,7 @@
       :zoom="checkboxList['zoom'].value"
       :fit-btn="checkboxList['fit-btn'].value"
       :center-btn="checkboxList['center-btn'].value"
+      :edit="checkboxList['edit'].value"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -51,12 +52,13 @@ export default defineComponent({
       contextMenu: { value: false },
       zoom: { value: true },
       'sharp-corner': { value: false, disabled: true },
-      vertical: { value: false, disabled: true }
+      vertical: { value: false, disabled: true },
+      edit: { value: true }
     })
     const rangeList = reactive({
       branch: { value: 4, min: 0, max: 10 },
       'x-gap': { value: 50, min: 0, max: 100 },
-      'y-gap': { value: 10, min: 0, max: 100 }
+      'y-gap': { value: 18, min: 0, max: 100 }
     })
     return {
       learn,

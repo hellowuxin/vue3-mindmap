@@ -1,3 +1,5 @@
+$seleColor: rgba($color: blue, $alpha: 0.15);
+
 .container {
   position: relative;
   height: 100%;
@@ -14,7 +16,28 @@
   }
 
   text {
-    fill: #4B4B4B
+    fill: #4B4B4B;
+    cursor: default;
+  }
+
+  rect {
+    fill: none;
+  }
+
+  .selected > g > rect {
+    fill: $seleColor;
+    stroke-width: 1;
+    stroke: white;
+  }
+
+  .root > g > rect {
+    fill: white;
+  }
+
+  .root.selected > g > rect {
+    fill: white;
+    stroke-width: 3;
+    stroke: $seleColor;
   }
 }
 
