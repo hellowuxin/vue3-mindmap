@@ -17,7 +17,6 @@ import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata } from '@/interface'
 import style from './Mindmap.module.scss'
 import { d3, ImData } from '@/tools'
-import { D3ZoomEvent } from 'd3-zoom'
 
 export default defineComponent({
   name: 'Mindmap',
@@ -45,11 +44,11 @@ export default defineComponent({
     downloadBtn: Boolean,
     undoBtn: Boolean,
     edit: Boolean,
+    drag: Boolean,
     keyboard: Boolean,
     showNodeAdd: Boolean,
     contextMenu: Boolean,
-    zoom: Boolean,
-    draggable: Boolean
+    zoom: Boolean
   },
   setup (props) {
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
@@ -58,11 +57,12 @@ export default defineComponent({
     const svg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
     const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
     const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
-    const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', (e: D3ZoomEvent<SVGSVGElement, null>) => {
+    const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
+    const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', (e: d3.D3ZoomEvent<SVGSVGElement, null>) => {
       if (!g.value) { return }
       g.value.attr('transform', e.transform.toString())
     }).scaleExtent([0.1, 8])
-    const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
+    const drag = d3.drag<SVGGElement, Mdata>().on('start', onDragStart).on('drag', onDragMove).on('end', onDragEnd)
     let mmdata: ImData
 
     onMounted(() => {
@@ -83,6 +83,7 @@ export default defineComponent({
       fitView()
 
       makeZoom(props.zoom)
+      makeDrag(props.drag)
       // makeEdit(props.edit)
     })
     // watch
@@ -92,10 +93,11 @@ export default defineComponent({
       draw()
     })
     watch(() => props.zoom, (val) => { makeZoom(val) })
+    watch(() => props.drag, (val) => { makeDrag(val) })
     // 每个属性的计算方法
     const getGKey = (d: Mdata) => { return d.gKey }
     const getGClass = (d: Mdata) => {
-      const arr = [`depth-${d.depth}`]
+      const arr = [`depth-${d.depth}`, 'node']
       if (d.depth === 0) { arr.push(style.root) }
       return arr
     }
@@ -224,6 +226,32 @@ export default defineComponent({
       const t = d3.zoomIdentity.scale(multiple).translate(-gBB.x, -gBB.y)
       zoom.transform(svg.value, t)
     }
+    const selectGNode = (d: Mdata) => {
+      const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
+      const oldSele = document.querySelector(`.${style.selected}`)
+      if (ele) {
+        if (oldSele) {
+          if (oldSele !== ele) {
+            oldSele.classList.remove(style.selected)
+            ele.classList.add(style.selected)
+          }
+        } else {
+          ele.classList.add(style.selected)
+        }
+      } else {
+        throw new Error(`g[data-id='${getDataId(d)}'] is null`)
+      }
+    }
+    // 监听事件
+    function onDragStart (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+      selectGNode(d)
+    }
+    function onDragMove (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+      //
+    }
+    function onDragEnd (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+      //
+    }
     // 插件
     const makeZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
@@ -233,28 +261,14 @@ export default defineComponent({
         svg.value.on('.zoom', null)
       }
     }
-    const makeEdit = (editable: boolean) => {
-      if (editable && g.value) {
-        g.value.selectAll<SVGGElement, Mdata>('g.text')
-          .on('mousedown', (e: MouseEvent, d) => {
-            const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
-            const oldSele = document.querySelector(`.${style.selected}`)
-            if (oldSele && ele && oldSele !== ele) {
-              oldSele.classList.remove(style.selected)
-              ele.classList.add(style.selected)
-            } else if (!oldSele && ele) {
-              ele.classList.add(style.selected)
-            }
-            console.log('click', d.name, ele)
-          })
-          .on('mouseup', (e: MouseEvent, d) => {
-            console.log('up')
-            const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
-            const s = document.querySelector(`.${style.selected}`)
-            if (s === ele) { // 进入编辑
-              console.log('编辑')
-            }
-          })
+    // const makeEdit = (editable: boolean) => {}
+    const makeDrag = (draggable: boolean) => {
+      if (!g.value) { return }
+      const temp = g.value.selectAll<SVGGElement, Mdata>('g.node')
+      if (draggable) {
+        drag(temp)
+      } else {
+        temp.on('.drag', null)
       }
     }
 
