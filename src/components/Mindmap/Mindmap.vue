@@ -83,7 +83,7 @@ export default defineComponent({
       fitView()
 
       makeZoom(props.zoom)
-      makeEdit(props.edit)
+      // makeEdit(props.edit)
     })
     // watch
     watch(() => props.branch, () => { draw() })
@@ -235,17 +235,26 @@ export default defineComponent({
     }
     const makeEdit = (editable: boolean) => {
       if (editable && g.value) {
-        g.value.selectAll<SVGGElement, Mdata>('g.text').on('mousedown', (e: MouseEvent, d) => {
-          const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
-          const s = document.querySelector(`.${style.selected}`)
-          if (s) {
-            s.classList.remove(style.selected)
-          }
-          if (ele) {
-            ele.classList.add(style.selected)
-          }
-          console.log('click', d.name, ele)
-        })
+        g.value.selectAll<SVGGElement, Mdata>('g.text')
+          .on('mousedown', (e: MouseEvent, d) => {
+            const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
+            const oldSele = document.querySelector(`.${style.selected}`)
+            if (oldSele && ele && oldSele !== ele) {
+              oldSele.classList.remove(style.selected)
+              ele.classList.add(style.selected)
+            } else if (!oldSele && ele) {
+              ele.classList.add(style.selected)
+            }
+            console.log('click', d.name, ele)
+          })
+          .on('mouseup', (e: MouseEvent, d) => {
+            console.log('up')
+            const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
+            const s = document.querySelector(`.${style.selected}`)
+            if (s === ele) { // 进入编辑
+              console.log('编辑')
+            }
+          })
       }
     }
 
