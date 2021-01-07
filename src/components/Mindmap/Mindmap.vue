@@ -109,7 +109,7 @@ export default defineComponent({
       if (d.depth === 0) { arr.push(style.root) }
       return arr
     }
-    const getGTransform = (d: Mdata) => { return `translate(${d.dx},${d.dy})` }
+    const getGTransform = (d: Mdata) => { return `translate(${d.dx + d.px},${d.dy + d.py})` }
     const getColor = (d: Mdata) => { return d.color }
     const getPath = (d: Mdata) => {
       let dpw = 0
@@ -123,7 +123,7 @@ export default defineComponent({
         }
       }
       const temp = props.branch / 2
-      const source = [-d.dx + dpw, -d.dy + dph + temp] as [number, number]
+      const source = [-d.dx + dpw - d.px, -d.dy + dph + temp - d.py] as [number, number]
       const target = [0, d.height + temp] as [number, number]
       return `${link({ source, target })}L${d.width},${target[1]}`
     }
@@ -252,6 +252,13 @@ export default defineComponent({
         throw new Error(`g[data-id='${getDataId(d)}'] is null`)
       }
     }
+    const moveNode = (node: SVGGElement, d: Mdata, p: [number, number], dura = 0) => {
+      const tran = d3.transition<Mdata>().duration(dura).ease(d3.easePolyOut) as d3.Transition<any, Mdata, null, undefined>
+      d.px = p[0]
+      d.py = p[1]
+      d3.select<SVGGElement, Mdata>(node).transition(tran).attr('transform', getGTransform)
+      d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`).transition(tran).attr('d', getPath)
+    }
     // 监听事件
     function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {
       if (!g.value) { return }
@@ -260,12 +267,14 @@ export default defineComponent({
     function onDragStart (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       selectGNode(d)
     }
-    function onDragMove (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+    function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       dragFlag = true
+      moveNode(this, d, [e.x - d.x, e.y - d.y])
     }
-    function onDragEnd (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+    function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       if (dragFlag) {
         dragFlag = false
+        moveNode(this, d, [0, 0], 500)
       } else {
         if (editFlag) {
           editFlag = false

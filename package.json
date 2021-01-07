@@ -13,6 +13,7 @@
     "d3-scale-chromatic": "^2.0.0",
     "d3-selection": "^2.0.0",
     "d3-shape": "^2.0.0",
+    "d3-transition": "^2.0.0",
     "d3-zoom": "^2.0.0",
     "vue": "^3.0.0"
   },
@@ -23,6 +24,7 @@
     "@types/d3-scale-chromatic": "^2.0.0",
     "@types/d3-selection": "^2.0.0",
     "@types/d3-shape": "^2.0.0",
+    "@types/d3-transition": "^2.0.0",
     "@types/d3-zoom": "^2.0.0",
     "@types/resize-observer-browser": "^0.1.4",
     "@typescript-eslint/eslint-plugin": "^4.11.1",
