@@ -1,7 +1,11 @@
 <template>
   <div :class="style['container']">
     <svg :class="style['svg']" ref="svgEle">
-      <g ref="gEle"></g>
+      <g ref="gEle">
+        <foreignObject ref="foreignEle">
+          <div ref="foreignDivEle" contenteditable></div>
+        </foreignObject>
+      </g>
     </svg>
     <svg ref="asstSvgEle"></svg>
     <div :class="[style['button-list'], style['right-bottom']]">
@@ -54,22 +58,25 @@ export default defineComponent({
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
     const gEle: Ref<SVGGElement | undefined> = ref()
     const asstSvgEle: Ref<SVGSVGElement | undefined> = ref()
+    const foreignEle: Ref<SVGForeignObjectElement | undefined> = ref()
+    const foreignDivEle: Ref<HTMLDivElement | undefined> = ref()
     const svg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
     const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
     const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
+    const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
     const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
-    const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', (e: d3.D3ZoomEvent<SVGSVGElement, null>) => {
-      if (!g.value) { return }
-      g.value.attr('transform', e.transform.toString())
-    }).scaleExtent([0.1, 8])
+    const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent([0.1, 8])
     const drag = d3.drag<SVGGElement, Mdata>().on('start', onDragStart).on('drag', onDragMove).on('end', onDragEnd)
     let mmdata: ImData
+    let dragFlag = false
+    let editFlag = false
 
     onMounted(() => {
-      if (!svgEle.value || !gEle.value || !asstSvgEle.value) { return }
+      if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value) { return }
       svg.value = d3.select(svgEle.value)
       g.value = d3.select(gEle.value)
       asstSvg.value = d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0)
+      foreign.value = d3.select(foreignEle.value)
 
       mmdata = new ImData(
         JSON.parse(JSON.stringify(props.modelValue[0])),
@@ -79,12 +86,13 @@ export default defineComponent({
       )
 
       draw()
+      foreign.value.raise()
       centerView()
       fitView()
 
       makeZoom(props.zoom)
       makeDrag(props.drag)
-      // makeEdit(props.edit)
+      makeEdit(props.edit)
     })
     // watch
     watch(() => props.branch, () => { draw() })
@@ -234,6 +242,8 @@ export default defineComponent({
           if (oldSele !== ele) {
             oldSele.classList.remove(style.selected)
             ele.classList.add(style.selected)
+          } else {
+            editFlag = true
           }
         } else {
           ele.classList.add(style.selected)
@@ -243,25 +253,59 @@ export default defineComponent({
       }
     }
     // 监听事件
+    function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {
+      if (!g.value) { return }
+      g.value.attr('transform', e.transform.toString())
+    }
     function onDragStart (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       selectGNode(d)
     }
     function onDragMove (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      //
+      dragFlag = true
     }
     function onDragEnd (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      //
+      if (dragFlag) {
+        dragFlag = false
+      } else {
+        if (editFlag) {
+          editFlag = false
+          const seleText = document.querySelector<SVGTextElement>(`.${style.selected} > g.text > text`)
+          if (seleText) {
+            console.log(d.x)
+          }
+          if (foreignEle.value) {
+            const div = foreignEle.value.querySelector('div') as HTMLDivElement
+            div.innerText = d.name
+            getSelection()?.selectAllChildren(div)
+          }
+        }
+      }
     }
     // 插件
     const makeZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
       if (zoomable) {
         zoom(svg.value)
+        svg.value.on('dblclick.zoom', null)
       } else {
         svg.value.on('.zoom', null)
       }
     }
-    // const makeEdit = (editable: boolean) => {}
+    const makeEdit = (editable: boolean) => {
+      if (!foreignDivEle.value || !g.value) { return }
+      if (editable) {
+        const observer = new ResizeObserver((arr) => {
+          if (!foreign.value) { return }
+          const temp = arr[0]
+          const target = temp.target
+          const pl = parseInt(getComputedStyle(target).paddingLeft, 10)
+          const b = parseInt(getComputedStyle(target.parentNode as Element).borderTopWidth, 10)
+          const gap = (pl + b) * 2
+          foreign.value.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
+        })
+        observer.observe(foreignDivEle.value)
+      }
+    }
     const makeDrag = (draggable: boolean) => {
       if (!g.value) { return }
       const temp = g.value.selectAll<SVGGElement, Mdata>('g.node')
@@ -277,13 +321,11 @@ export default defineComponent({
       gEle,
       style,
       asstSvgEle,
+      foreignEle,
+      foreignDivEle,
       centerView,
       fitView
     }
   }
 })
 </script>
-
-<style>
-
-</style>

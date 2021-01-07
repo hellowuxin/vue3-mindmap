@@ -39,6 +39,17 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     stroke-width: 3;
     stroke: $seleColor;
   }
+
+  foreignObject {
+    background-color: white;
+    border: 1px solid #aaa;
+
+    div {
+      outline: none;
+      width: max-content;
+      padding: 1px;
+    }
+  }
 }
 
 .button-list {
