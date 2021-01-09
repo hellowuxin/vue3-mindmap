@@ -48,13 +48,13 @@ export default defineComponent({
       'undo-btn': { value: false, disabled: true },
       'download-btn': { value: false, disabled: true },
       keyboard: { value: false, disabled: true },
+      zoom: { value: true },
       drag: { value: true },
+      edit: { value: true },
       showNodeAdd: { value: false },
       contextMenu: { value: false },
-      zoom: { value: true },
       'sharp-corner': { value: false, disabled: true },
-      vertical: { value: false, disabled: true },
-      edit: { value: true }
+      vertical: { value: false, disabled: true }
     })
     const rangeList = reactive({
       branch: { value: 4, min: 0, max: 10 },

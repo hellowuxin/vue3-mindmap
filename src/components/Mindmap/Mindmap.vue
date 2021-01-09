@@ -2,7 +2,7 @@
   <div :class="style['container']">
     <svg :class="style['svg']" ref="svgEle">
       <g ref="gEle">
-        <foreignObject ref="foreignEle">
+        <foreignObject ref="foreignEle" style="display: none">
           <div ref="foreignDivEle" contenteditable></div>
         </foreignObject>
       </g>
@@ -66,13 +66,21 @@ export default defineComponent({
     const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
     const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
     const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent([0.1, 8])
-    const drag = d3.drag<SVGGElement, Mdata>().on('start', onDragStart).on('drag', onDragMove).on('end', onDragEnd)
+    const drag = d3.drag<SVGGElement, Mdata>().on('drag', onDragMove).on('end', onDragEnd)
     let mmdata: ImData
-    let dragFlag = false
     let editFlag = false
+    const observer = new ResizeObserver((arr) => {
+      if (!foreign.value) { return }
+      const temp = arr[0]
+      const target = temp.target
+      const pl = parseInt(getComputedStyle(target).paddingLeft || '0', 10)
+      const b = parseInt(getComputedStyle(target.parentNode as Element).borderTopWidth || '0', 10)
+      const gap = (pl + b) * 2
+      foreign.value.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
+    })
 
     onMounted(() => {
-      if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value) { return }
+      if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
       svg.value = d3.select(svgEle.value)
       g.value = d3.select(gEle.value)
       asstSvg.value = d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0)
@@ -87,21 +95,31 @@ export default defineComponent({
 
       draw()
       foreign.value.raise()
+      foreignDivEle.value.addEventListener('blur', onEditBlur)
       centerView()
       fitView()
-
-      makeZoom(props.zoom)
-      makeDrag(props.drag)
-      makeEdit(props.edit)
+      // mousedown与drag/zoom绑定的先后顺序会有影响
+      svg.value.on('mousedown', () => {
+        const oldSele = document.querySelector(`.${style.selected}`)
+        oldSele?.classList.remove(style.selected)
+      })
+      switchSelect(props.drag || props.edit)
+      switchZoom(props.zoom)
+      switchDrag(props.drag)
+      switchEdit(props.edit)
     })
     // watch
-    watch(() => props.branch, () => { draw() })
+    watch(() => props.branch, () => draw())
     watch(() => [props.xGap, props.yGap], (val) => {
       mmdata.setBoundingBox(val[0], val[1])
       draw()
     })
-    watch(() => props.zoom, (val) => { makeZoom(val) })
-    watch(() => props.drag, (val) => { makeDrag(val) })
+    watch(() => [props.drag, props.edit], (val) => {
+      switchSelect(val[0] || val[1])
+      switchDrag(val[0])
+      switchEdit(val[1])
+    })
+    watch(() => props.zoom, (val) => switchZoom(val))
     // 每个属性的计算方法
     const getGKey = (d: Mdata) => { return d.gKey }
     const getGClass = (d: Mdata) => {
@@ -138,7 +156,7 @@ export default defineComponent({
       return g.attr('class', (d) => getGClass(d).join(' ')).attr('transform', getGTransform).attr('data-id', getDataId)
     }
     const attrTspan = (tspan: d3.Selection<SVGTSpanElement, { name: string, height: number }, SVGTextElement, Mdata>) => {
-      return tspan.attr('alignment-baseline', 'before-edge')
+      return tspan.attr('alignment-baseline', 'text-before-edge')
         .text((d) => d.name)
         .attr('x', 0)
         .attr('dy', (d, i) => i ? d.height : 0)
@@ -149,7 +167,8 @@ export default defineComponent({
     const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>) => {
       return p.attr('d', getPath).attr('stroke', getColor).attr('stroke-width', props.branch)
     }
-    const attrRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>, rectPadding = props.branch + 3, radius = 4) => {
+    const attrRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>, rectPadding = props.yGap / 2 - 1, radius = 4) => {
+      rectPadding = Math.min(rectPadding, 10)
       return rect.attr('x', -rectPadding)
         .attr('y', -rectPadding)
         .attr('rx', radius)
@@ -217,7 +236,6 @@ export default defineComponent({
         .attr('x', 0)
       const tBox = (t.node() as SVGTextElement).getBBox()
       t.remove()
-      // console.log(multiline, tBox)
       return { width: tBox.width, height: tBox.height * multiline.length }
     }
     const centerView = () => {
@@ -264,34 +282,32 @@ export default defineComponent({
       if (!g.value) { return }
       g.value.attr('transform', e.transform.toString())
     }
-    function onDragStart (e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      selectGNode(d)
-    }
     function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      dragFlag = true
       moveNode(this, d, [e.x - d.x, e.y - d.y])
     }
     function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      if (dragFlag) {
-        dragFlag = false
-        moveNode(this, d, [0, 0], 500)
-      } else {
-        if (editFlag) {
-          editFlag = false
-          const seleText = document.querySelector<SVGTextElement>(`.${style.selected} > g.text > text`)
-          if (seleText) {
-            console.log(d.x)
-          }
-          if (foreignEle.value) {
-            const div = foreignEle.value.querySelector('div') as HTMLDivElement
-            div.innerText = d.name
-            getSelection()?.selectAllChildren(div)
-          }
+      moveNode(this, d, [0, 0], 500)
+    }
+    function onEdit (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+      if (editFlag) {
+        editFlag = false
+        if (foreign.value) {
+          foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2).style('display', '')
+        }
+        if (foreignDivEle.value) {
+          const div = foreignDivEle.value
+          div.innerText = d.name
+          getSelection()?.selectAllChildren(div)
         }
       }
     }
+    const onEditBlur = () => {
+      if (foreignEle.value) {
+        foreignEle.value.style.display = 'none'
+      }
+    }
     // 插件
-    const makeZoom = (zoomable: boolean) => {
+    const switchZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
       if (zoomable) {
         zoom(svg.value)
@@ -300,28 +316,36 @@ export default defineComponent({
         svg.value.on('.zoom', null)
       }
     }
-    const makeEdit = (editable: boolean) => {
+    const switchEdit = (editable: boolean) => {
       if (!foreignDivEle.value || !g.value) { return }
+      const gNode = g.value.selectAll<SVGGElement, Mdata>('g.node')
       if (editable) {
-        const observer = new ResizeObserver((arr) => {
-          if (!foreign.value) { return }
-          const temp = arr[0]
-          const target = temp.target
-          const pl = parseInt(getComputedStyle(target).paddingLeft, 10)
-          const b = parseInt(getComputedStyle(target.parentNode as Element).borderTopWidth, 10)
-          const gap = (pl + b) * 2
-          foreign.value.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
-        })
         observer.observe(foreignDivEle.value)
+        gNode.on('click', onEdit)
+      } else {
+        observer.disconnect()
+        gNode.on('click', null)
       }
     }
-    const makeDrag = (draggable: boolean) => {
+    const switchDrag = (draggable: boolean) => {
       if (!g.value) { return }
-      const temp = g.value.selectAll<SVGGElement, Mdata>('g.node')
+      const temp = g.value.selectAll<SVGGElement, Mdata>(`g.node:not(.${style.root})`)
       if (draggable) {
         drag(temp)
       } else {
         temp.on('.drag', null)
+      }
+    }
+    const switchSelect = (selectable: boolean) => {
+      if (!g.value) { return }
+      const temp = g.value.selectAll<SVGGElement, Mdata>('g.node')
+      if (selectable) {
+        temp.on('mousedown', (e: MouseEvent, d) => {
+          e.stopPropagation()
+          selectGNode(d)
+        })
+      } else {
+        temp.on('mousedown', null)
       }
     }
 
