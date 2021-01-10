@@ -22,6 +22,8 @@ import { Data, Mdata } from '@/interface'
 import style from './Mindmap.module.scss'
 import { d3, ImData } from '@/tools'
 
+type TspanData = { name: string, height: number }
+
 export default defineComponent({
   name: 'Mindmap',
   props: {
@@ -67,8 +69,6 @@ export default defineComponent({
     const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
     const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent([0.1, 8])
     const drag = d3.drag<SVGGElement, Mdata>().on('drag', onDragMove).on('end', onDragEnd)
-    let mmdata: ImData
-    let editFlag = false
     const observer = new ResizeObserver((arr) => {
       if (!foreign.value) { return }
       const temp = arr[0]
@@ -78,6 +78,8 @@ export default defineComponent({
       const gap = (pl + b) * 2
       foreign.value.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
     })
+    let mmdata: ImData
+    let editFlag = false
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
@@ -96,6 +98,7 @@ export default defineComponent({
       draw()
       foreign.value.raise()
       foreignDivEle.value.addEventListener('blur', onEditBlur)
+      foreignDivEle.value.addEventListener('mousedown', (e: MouseEvent) => e.stopPropagation())
       centerView()
       fitView()
       // mousedown与drag/zoom绑定的先后顺序会有影响
@@ -145,7 +148,7 @@ export default defineComponent({
       const target = [0, d.height + temp] as [number, number]
       return `${link({ source, target })}L${d.width},${target[1]}`
     }
-    const getTspanData = (d: Mdata) => {
+    const getTspanData = (d: Mdata): TspanData[] => {
       const multiline = d.name.split('\n')
       const height = d.height / multiline.length
       return multiline.map((name) => ({ name, height }))
@@ -155,11 +158,11 @@ export default defineComponent({
     const attrG = (g: d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>) => {
       return g.attr('class', (d) => getGClass(d).join(' ')).attr('transform', getGTransform).attr('data-id', getDataId)
     }
-    const attrTspan = (tspan: d3.Selection<SVGTSpanElement, { name: string, height: number }, SVGTextElement, Mdata>) => {
+    const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
       return tspan.attr('alignment-baseline', 'text-before-edge')
         .text((d) => d.name)
         .attr('x', 0)
-        .attr('dy', (d, i) => i ? d.height : 0)
+        .attr('y', (d, i) => i ? d.height * i : 0)
     }
     const attrRootRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>) => {
       return attrRect(rect, 10, 6)
@@ -177,6 +180,12 @@ export default defineComponent({
         .attr('height', (d) => d.height + rectPadding * 2)
     }
     // 绘制节点的方法
+    const appendTspan = (enter: d3.Selection<d3.EnterElement, TspanData, SVGTextElement, Mdata>) => {
+      return attrTspan(enter.append('tspan'))
+    }
+    const updateTspan = (update: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
+      return attrTspan(update)
+    }
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
       const isRoot = !enter.data()[0]?.depth
       const enterG = attrG(enter.append('g'))
@@ -207,7 +216,10 @@ export default defineComponent({
       } else {
         attrRect(gText.select('rect'))
       }
-      attrTspan(gText.select<SVGTextElement>('text').selectAll('tspan'))
+      gText.select<SVGTextElement>('text')
+        .selectAll<SVGTSpanElement, TspanData>('tspan')
+        .data(getTspanData)
+        .join(appendTspan, updateTspan, exit => exit.remove())
       attrPath(update.selectAll<SVGPathElement, Mdata>(`g.${gClass} > path`))
 
       update.each((d, i) => {
@@ -220,7 +232,7 @@ export default defineComponent({
     //   return exit
     // }
     // 其他
-    const draw = (d = [mmdata.data], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
+    const draw = (d = [mmdata.getData()], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
       const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getGClass(d[0]).join('.')}`)
       temp.data(d, getGKey).join(appendNode, updateNode)
     }
@@ -240,7 +252,7 @@ export default defineComponent({
     }
     const centerView = () => {
       if (!svg.value) { return }
-      const { data } = mmdata
+      const data = mmdata.getData()
       zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
     }
     const fitView = () => { // 缩放至合适大小并移动至全部可见
@@ -289,21 +301,22 @@ export default defineComponent({
       moveNode(this, d, [0, 0], 500)
     }
     function onEdit (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      if (editFlag) {
+      if (editFlag && foreign.value && foreignDivEle.value) {
         editFlag = false
-        if (foreign.value) {
-          foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2).style('display', '')
-        }
-        if (foreignDivEle.value) {
-          const div = foreignDivEle.value
-          div.innerText = d.name
-          getSelection()?.selectAllChildren(div)
-        }
+        foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.getData().y - 2).attr('data-id', d.id).style('display', '')
+        const div = foreignDivEle.value
+        div.textContent = d.name
+        getSelection()?.selectAllChildren(div)
       }
     }
     const onEditBlur = () => {
-      if (foreignEle.value) {
+      if (foreignEle.value && foreignDivEle.value) {
         foreignEle.value.style.display = 'none'
+        const id = foreignEle.value.getAttribute('data-id')
+        const name = foreignDivEle.value.textContent
+        if (id && name) {
+          rename(id, name)
+        }
       }
     }
     // 插件
@@ -347,6 +360,11 @@ export default defineComponent({
       } else {
         temp.on('mousedown', null)
       }
+    }
+    // 一次操作
+    const rename = (id: string, name: string) => {
+      mmdata.rename(id, name)
+      draw()
     }
 
     return {

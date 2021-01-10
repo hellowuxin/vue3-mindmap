@@ -10,7 +10,6 @@ export interface Mdata {
   name: string
   parent: Mdata | null
   children?: Array<Mdata>
-  _children?: Array<Mdata>
   left: boolean
   id: string
   color: string
