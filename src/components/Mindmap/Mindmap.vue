@@ -232,7 +232,7 @@ export default defineComponent({
     //   return exit
     // }
     // 其他
-    const draw = (d = [mmdata.getData()], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
+    const draw = (d = [mmdata.data], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
       const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getGClass(d[0]).join('.')}`)
       temp.data(d, getGKey).join(appendNode, updateNode)
     }
@@ -252,7 +252,7 @@ export default defineComponent({
     }
     const centerView = () => {
       if (!svg.value) { return }
-      const data = mmdata.getData()
+      const data = mmdata.data
       zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
     }
     const fitView = () => { // 缩放至合适大小并移动至全部可见
@@ -303,7 +303,7 @@ export default defineComponent({
     function onEdit (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       if (editFlag && foreign.value && foreignDivEle.value) {
         editFlag = false
-        foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.getData().y - 2).attr('data-id', d.id).style('display', '')
+        foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2).attr('data-id', d.id).style('display', '')
         const div = foreignDivEle.value
         div.textContent = d.name
         getSelection()?.selectAllChildren(div)

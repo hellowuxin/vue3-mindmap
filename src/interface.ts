@@ -1,8 +1,8 @@
 export interface Data {
   name: string
   children?: Array<Data>
-  _children?: Array<Data>
   left?: boolean
+  collapse?: boolean
 }
 
 export interface Mdata {

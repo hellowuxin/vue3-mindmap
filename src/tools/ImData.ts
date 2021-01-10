@@ -1,10 +1,11 @@
 import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as d3Scale from 'd3-scale'
 import { Data, Mdata } from '@/interface'
-import { BoundingBox, Layout, TreeData as TD } from '@/tools/flextree'
+import { BoundingBox, Layout } from '@/tools/flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
-type Processer = (d: any) => void
+type Processer = (d: Mdata) => void
+
 interface TreeData {
   rawData: Data
   width: number
@@ -12,7 +13,6 @@ interface TreeData {
   x: number
   y: number
   children?: TreeData[]
-  [key: string]: any
 }
 
 const colorScale = d3Scale.scaleOrdinal(d3ScaleChromatic.schemePaired) // 颜色列表
@@ -41,40 +41,44 @@ function initTreeData (d: Data, getSize: GetSize) {
   return data
 }
 // id gKey depth dx dy name left color _children px py
-function init (d: TreeData, id = '0', c?: string) {
-  [d.x, d.y] = [d.y, d.x]
-  ;[d.width, d.height] = [d.height, d.width]
-  d.id = id
-  d.gKey = d.gKey || (gKey += 1)
-  d.depth = Math.floor(d.id.length / 2)
-  d.name = d.rawData.name
-  d.px = 0
-  d.py = 0
-
-  let color: string
-  if (id === '0') {
-    d.left = false
-    d.parent = null
-    d.dx = 0
-    d.dy = 0
-    d.color = ''
-  } else {
-    d.left = d.parent.left || false
-    d.dx = d.x - d.parent.x
-    d.dy = d.y - d.parent.y
-    color = d.color = c || colorScale(`${colorNumber += 1}`)
+const init = (d: TreeData, id = '0', p: Mdata | null = null, c?: string) => {
+  const x = d.y
+  const y = d.x
+  let color = ''
+  let left = false
+  let px = x
+  let py = y
+  if (p) {
+    left = p.left
+    px = p.x
+    py = p.y
+    color = c || colorScale(`${colorNumber += 1}`)
   }
-
-  if (d.depth === 1) {
-    d.left = d.rawData.left || false
+  const data: Mdata = {
+    x,
+    y,
+    width: d.height,
+    height: d.width,
+    id,
+    gKey: (gKey += 1),
+    depth: Math.floor(id.length / 2),
+    name: d.rawData.name,
+    px: 0,
+    py: 0,
+    rawData: d.rawData,
+    parent: p,
+    color,
+    left,
+    dx: x - px,
+    dy: y - py
   }
-
-  d.children?.forEach((child, i) => {
-    child.parent = d
-    init(child, `${id}-${i}`, color)
-  })
-
-  return d as Mdata
+  if (d.children) {
+    data.children = []
+    d.children.forEach((c, j) => {
+      data.children?.push(init(c, `${id}-${j}`, data, color))
+    })
+  }
+  return data
 }
 
 function swapWidthAndHeight<T extends { width: number, height: number }> (d: T) {
@@ -85,7 +89,7 @@ const swapXAndY = <T extends { x: number, y: number }>(d: T) => {
   [d.x, d.y] = [d.y, d.x]
 }
 
-const renewDelta = <T extends { x: number, y: number, parent?: T, dx: number, dy: number }>(d: T) => {
+const renewDelta = <T extends { x: number, y: number, parent: T | null, dx: number, dy: number }>(d: T) => {
   if (d.parent) {
     d.dx = d.x - d.parent.x
     d.dy = d.y - d.parent.y
@@ -95,7 +99,7 @@ const renewDelta = <T extends { x: number, y: number, parent?: T, dx: number, dy
   }
 }
 
-const traverse = <T extends { children?: T[] }>(d: T, process: Processer[]) => {
+const traverse = (d: Mdata, process: Processer[]) => {
   process.forEach((p) => { p(d) })
   d.children?.forEach((child) => { traverse(child, process) })
 }
@@ -105,7 +109,7 @@ const getLayout = (xGap: number, yGap: number) => {
   return new Layout(bb)
 }
 class ImData {
-  private data: Mdata
+  data: Mdata
   private getSize: GetSize
   private layout: Layout
 
@@ -116,8 +120,6 @@ class ImData {
     this.data = init(data)
     this.getSize = getSize
   }
-
-  getData (): Mdata { return this.data }
 
   setBoundingBox (xGap: number, yGap: number): void {
     this.layout = getLayout(xGap, yGap)
