@@ -3,6 +3,10 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
 .container {
   position: relative;
   height: 100%;
+
+  svg text {
+    white-space: pre;
+  }
 }
 
 .svg {
@@ -21,23 +25,28 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
   }
 
   rect {
-    fill: none;
-  }
-
-  .selected > g > rect {
+    opacity: 0;
     fill: $seleColor;
     stroke-width: 1;
     stroke: white;
   }
+  // 关于selected
+  .selected > .text > rect {
+    opacity: 1;
+  }
 
-  .root > g > rect {
+  .root > .text > rect {
+    opacity: 1;
     fill: white;
   }
 
-  .root.selected > g > rect {
-    fill: white;
+  .root.selected > .text > rect {
     stroke-width: 3;
     stroke: $seleColor;
+  }
+  // 关于edited
+  .edited > .text {
+    opacity: 0;
   }
 
   foreignObject {
@@ -48,8 +57,9 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
       display: inline-block;
       outline: none;
       width: max-content;
+      min-width: 22px;
       padding: 1px;
-      white-space: pre-wrap;
+      white-space: pre;
     }
   }
 }

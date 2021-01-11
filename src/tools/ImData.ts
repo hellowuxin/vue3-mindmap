@@ -144,7 +144,7 @@ class ImData {
   rename (id: string, name: string): Mdata | null { // 修改名称
     if (id.length > 0) {
       const d = this.find(id)
-      if (d) {
+      if (d && d.name !== name) {
         d.name = name
         d.rawData.name = name
         //

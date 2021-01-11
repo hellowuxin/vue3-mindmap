@@ -7,5 +7,7 @@ declare const style: {
   readonly fit: string
   readonly root: string
   readonly selected: string
+  readonly edited: string
+  readonly text: string
 }
 export = style

@@ -103,7 +103,7 @@ export default defineComponent({
       fitView()
       // mousedown与drag/zoom绑定的先后顺序会有影响
       svg.value.on('mousedown', () => {
-        const oldSele = document.querySelector(`.${style.selected}`)
+        const oldSele = document.getElementsByClassName(style.selected)[0]
         oldSele?.classList.remove(style.selected)
       })
       switchSelect(props.drag || props.edit)
@@ -149,20 +149,25 @@ export default defineComponent({
       return `${link({ source, target })}L${d.width},${target[1]}`
     }
     const getTspanData = (d: Mdata): TspanData[] => {
-      const multiline = d.name.split('\n')
+      const multiline = getMultiline(d.name)
       const height = d.height / multiline.length
       return multiline.map((name) => ({ name, height }))
     }
     const getDataId = (d: Mdata) => { return d.id }
+    const getMultiline = (name: string) => {
+      const multiline = name.split('\n')
+      if (multiline[multiline.length - 1] === '') { multiline.pop() }
+      return multiline
+    }
     // 每个图形的绘制方法
     const attrG = (g: d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>) => {
       return g.attr('class', (d) => getGClass(d).join(' ')).attr('transform', getGTransform).attr('data-id', getDataId)
     }
     const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
       return tspan.attr('alignment-baseline', 'text-before-edge')
-        .text((d) => d.name)
+        .text((d) => d.name || ' ')
         .attr('x', 0)
-        .attr('y', (d, i) => i ? d.height * i : 0)
+        .attr('dy', (d, i) => i ? d.height : 0)
     }
     const attrRootRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>) => {
       return attrRect(rect, 10, 6)
@@ -189,7 +194,7 @@ export default defineComponent({
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
       const isRoot = !enter.data()[0]?.depth
       const enterG = attrG(enter.append('g'))
-      const gText = enterG.append('g').attr('class', 'text')
+      const gText = enterG.append('g').attr('class', style.text)
       if (isRoot) {
         attrRootRect(gText.append('rect'))
       } else {
@@ -210,7 +215,7 @@ export default defineComponent({
       const isRoot = !update.data()[0]?.depth
       const gClass = getGClass(update.data()[0] || {}).join('.')
       attrG(update)
-      const gText = update.select<SVGGElement>(`g.${gClass} > g.text`)
+      const gText = update.select<SVGGElement>(`g.${gClass} > g.${style.text}`)
       if (isRoot) {
         attrRootRect(gText.select('rect'))
       } else {
@@ -238,17 +243,15 @@ export default defineComponent({
     }
     const getSize = (text: string): { width: number, height: number } => {
       if (!asstSvg.value) { throw new Error('asstSvg undefined') }
-      const multiline = text.split('\n')
+      const multiline = getMultiline(text)
       const t = asstSvg.value.append('text')
-      t.selectAll('tspan')
-        .data(multiline)
-        .enter()
-        .append('tspan')
-        .text((d) => d)
-        .attr('x', 0)
+      t.selectAll('tspan').data(multiline).enter().append('tspan').text((d) => d).attr('x', 0)
       const tBox = (t.node() as SVGTextElement).getBBox()
       t.remove()
-      return { width: tBox.width, height: tBox.height * multiline.length }
+      return {
+        width: Math.max(tBox.width, 22),
+        height: Math.max(tBox.height, 22) * multiline.length
+      }
     }
     const centerView = () => {
       if (!svg.value) { return }
@@ -266,7 +269,7 @@ export default defineComponent({
     }
     const selectGNode = (d: Mdata) => {
       const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
-      const oldSele = document.querySelector(`.${style.selected}`)
+      const oldSele = document.getElementsByClassName(style.selected)[0]
       if (ele) {
         if (oldSele) {
           if (oldSele !== ele) {
@@ -300,21 +303,27 @@ export default defineComponent({
     function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       moveNode(this, d, [0, 0], 500)
     }
-    function onEdit (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+    function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata) {
       if (editFlag && foreign.value && foreignDivEle.value) {
+        this.classList.add(style.edited)
         editFlag = false
-        foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2).attr('data-id', d.id).style('display', '')
+        foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
+          .attr('data-id', d.id).attr('data-name', d.name).style('display', '')
         const div = foreignDivEle.value
         div.textContent = d.name
+        div.focus()
         getSelection()?.selectAllChildren(div)
       }
     }
     const onEditBlur = () => {
+      document.getElementsByClassName(style.edited)[0]?.classList.remove(style.edited, style.selected)
+
       if (foreignEle.value && foreignDivEle.value) {
         foreignEle.value.style.display = 'none'
         const id = foreignEle.value.getAttribute('data-id')
+        const oldname = foreignEle.value.getAttribute('data-name')
         const name = foreignDivEle.value.textContent
-        if (id && name) {
+        if (id && name && name !== oldname) {
           rename(id, name)
         }
       }
