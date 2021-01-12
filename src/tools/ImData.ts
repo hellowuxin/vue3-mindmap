@@ -108,6 +108,7 @@ const getLayout = (xGap: number, yGap: number) => {
   const bb = new BoundingBox(yGap, xGap)
   return new Layout(bb)
 }
+
 class ImData {
   data: Mdata
   private getSize: GetSize

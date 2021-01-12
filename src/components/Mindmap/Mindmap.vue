@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata } from '@/interface'
 import style from './Mindmap.module.scss'
 import { d3, ImData } from '@/tools'
@@ -80,6 +80,7 @@ export default defineComponent({
     })
     let mmdata: ImData
     let editFlag = false
+    const rectPadding = computed(() => props.yGap / 2 - 1)
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
@@ -175,14 +176,14 @@ export default defineComponent({
     const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>) => {
       return p.attr('d', getPath).attr('stroke', getColor).attr('stroke-width', props.branch)
     }
-    const attrRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>, rectPadding = props.yGap / 2 - 1, radius = 4) => {
-      rectPadding = Math.min(rectPadding, 10)
-      return rect.attr('x', -rectPadding)
-        .attr('y', -rectPadding)
+    const attrRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>, rp = rectPadding.value, radius = 4) => {
+      rp = Math.min(rp, 10)
+      return rect.attr('x', -rp)
+        .attr('y', -rp)
         .attr('rx', radius)
         .attr('ry', radius)
-        .attr('width', (d) => d.width + rectPadding * 2)
-        .attr('height', (d) => d.height + rectPadding * 2)
+        .attr('width', (d) => d.width + rp * 2)
+        .attr('height', (d) => d.height + rp * 2)
     }
     // 绘制节点的方法
     const appendTspan = (enter: d3.Selection<d3.EnterElement, TspanData, SVGTextElement, Mdata>) => {
@@ -304,7 +305,28 @@ export default defineComponent({
       g.value.attr('transform', e.transform.toString())
     }
     function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+      if (!g.value) { return }
       moveNode(this, d, [e.x - d.x, e.y - d.y])
+      // 鼠标相对gEle左上角的位置
+      const mousePos = d3.pointer(e, gEle.value)
+      mousePos[1] += mmdata.data.y
+
+      const temp = g.value.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
+        if (other !== d && other !== d.parent && !other.id.startsWith(d.id)) {
+          const rect = {
+            x0: other.x - rectPadding.value,
+            x1: other.x + other.width + rectPadding.value,
+            y0: other.y - rectPadding.value,
+            y1: other.y + other.height + rectPadding.value
+          }
+          return mousePos[0] > rect.x0 && mousePos[1] > rect.y0 && mousePos[0] < rect.x1 && mousePos[1] < rect.y1
+        }
+        return false
+      })
+      const old = Array.from(document.getElementsByClassName(style.outline))
+      const n = temp.node()
+      old.forEach((o) => { if (o !== n) { o.classList.remove(style.outline) } })
+      n?.classList.add(style.outline)
     }
     function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       moveNode(this, d, [0, 0], 500)

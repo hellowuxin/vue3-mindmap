@@ -30,24 +30,6 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     stroke-width: 1;
     stroke: white;
   }
-  // 关于selected
-  .selected > .text > rect {
-    opacity: 1;
-  }
-
-  .root > .text > rect {
-    opacity: 1;
-    fill: white;
-  }
-
-  .root.selected > .text > rect {
-    stroke-width: 3;
-    stroke: $seleColor;
-  }
-  // 关于edited
-  .edited > .text {
-    opacity: 0;
-  }
 
   foreignObject {
     background-color: white;
@@ -61,6 +43,34 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
       padding: 1px;
       white-space: pre;
     }
+  }
+
+  // 关于selected
+  .selected > .text > rect {
+    opacity: 1;
+  }
+
+  .root.selected > .text > rect {
+    stroke-width: 3;
+    stroke: $seleColor;
+  }
+
+  // 关于edited
+  .edited > .text {
+    opacity: 0;
+  }
+
+  // outline
+  .outline > .text > rect {
+    opacity: 1;
+    fill: transparent;
+    stroke-width: 3;
+    stroke: $seleColor;
+  }
+
+  .root > .text > rect {
+    opacity: 1;
+    fill: white;
   }
 }
 

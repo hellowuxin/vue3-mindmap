@@ -9,5 +9,6 @@ declare const style: {
   readonly selected: string
   readonly edited: string
   readonly text: string
+  readonly outline: string
 }
 export = style
