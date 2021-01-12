@@ -264,8 +264,14 @@ export default defineComponent({
       const gBB = gEle.value.getBBox()
       const svgBCR = svgEle.value.getBoundingClientRect()
       const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
-      const t = d3.zoomIdentity.scale(multiple).translate(-gBB.x, -gBB.y)
-      zoom.transform(svg.value, t)
+      const svgCenter = { x: svgBCR.width / 2, y: svgBCR.height / 2 }
+      // after scale
+      const gCenter = { x: gBB.width * multiple / 2, y: gBB.height * multiple / 2 }
+      const center = d3.zoomIdentity.translate(
+        -gBB.x * multiple + svgCenter.x - gCenter.x,
+        -gBB.y * multiple + svgCenter.y - gCenter.y
+      ).scale(multiple)
+      zoom.transform(svg.value, center)
     }
     const selectGNode = (d: Mdata) => {
       const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)

@@ -14,7 +14,7 @@ interface Box {
   bottom: number
 }
 
-class BoundingBox {
+export class BoundingBox {
   gap: number
   bottomPadding: number
   /**
@@ -38,7 +38,7 @@ class BoundingBox {
   }
 }
 
-class Layout {
+export class Layout {
   bb: BoundingBox
   constructor (boundingBox: BoundingBox) {
     this.bb = boundingBox
@@ -139,5 +139,3 @@ class Layout {
     return { result: treeData, boundingBox: box }
   }
 }
-
-export { Layout, BoundingBox }

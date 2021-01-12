@@ -99,6 +99,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow: scroll;
 
   div {
     display: flex;
