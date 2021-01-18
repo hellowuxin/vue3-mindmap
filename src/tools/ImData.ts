@@ -4,7 +4,7 @@ import { Data, Mdata } from '@/interface'
 import { BoundingBox, Layout } from '@/tools/flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
-type Processer = (d: Mdata) => void
+type Processer = (d: Mdata, id: string) => void
 
 interface TreeData {
   rawData: Data
@@ -99,9 +99,23 @@ const renewDelta = <T extends { x: number, y: number, parent: T | null, dx: numb
   }
 }
 
-const traverse = (d: Mdata, process: Processer[]) => {
-  process.forEach((p) => { p(d) })
-  d.children?.forEach((child) => { traverse(child, process) })
+const renewId = <T extends { id: string }>(d: T, id: string) => {
+  d.id = id
+}
+
+const renewColor = <T extends { color: string, parent: T | null }>(d: T) => {
+  if (d.parent) {
+    if (d.parent.color) {
+      d.color = d.parent.color
+    } else if (!d.color) {
+      d.color = colorScale(`${colorNumber += 1}`)
+    }
+  }
+}
+
+const traverse = (d: Mdata, process: Processer[], id = '0') => {
+  process.forEach((p) => { p(d, id) })
+  d.children?.forEach((child, index) => { traverse(child, process, `${id}-${index}`) })
 }
 
 const getLayout = (xGap: number, yGap: number) => {
@@ -160,6 +174,28 @@ class ImData {
     } else {
       return null
     }
+  }
+
+  reparent (parentId: string, delId: string): Mdata | null { // 节点移动到其他层
+    if (parentId === delId) { return null }
+    const np = this.find(parentId)
+    const del = this.find(delId)
+    const delIndex = delId.split('-').pop()
+    if (delIndex && np && del) {
+      const delParent = del.parent
+      delParent?.children?.splice(~~delIndex, 1)
+      delParent?.rawData.children?.splice(~~delIndex, 1)
+      del.parent = np
+      del.gKey = gKey += 1
+      del.depth = del.parent.depth + 1
+      if (del.depth === 1) { del.color = colorScale(`${colorNumber += 1}`) }
+      np.children ? np.children.push(del) : np.children = [del]
+      np.rawData.children ? np.rawData.children.push(del.rawData) : np.rawData.children = [del.rawData]
+      traverse(this.data, [swapWidthAndHeight])
+      this.layout.layout(this.data)
+      traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta, renewId, renewColor])
+    }
+    return del
   }
 }
 

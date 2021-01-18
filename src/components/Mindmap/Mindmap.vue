@@ -23,6 +23,8 @@ import style from './Mindmap.module.scss'
 import { d3, ImData } from '@/tools'
 
 type TspanData = { name: string, height: number }
+type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
+type Transition = d3.Transition<d3.BaseType, Mdata, SVGGElement, unknown>
 
 export default defineComponent({
   name: 'Mindmap',
@@ -88,6 +90,7 @@ export default defineComponent({
       g.value = d3.select(gEle.value)
       asstSvg.value = d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0)
       foreign.value = d3.select(foreignEle.value)
+      observer.observe(foreignDivEle.value)
 
       mmdata = new ImData(
         JSON.parse(JSON.stringify(props.modelValue[0])),
@@ -107,10 +110,7 @@ export default defineComponent({
         const oldSele = document.getElementsByClassName(style.selected)[0]
         oldSele?.classList.remove(style.selected)
       })
-      switchSelect(props.drag || props.edit)
       switchZoom(props.zoom)
-      switchDrag(props.drag)
-      switchEdit(props.edit)
     })
     // watch
     watch(() => props.branch, () => draw())
@@ -126,9 +126,12 @@ export default defineComponent({
     watch(() => props.zoom, (val) => switchZoom(val))
     // 每个属性的计算方法
     const getGKey = (d: Mdata) => { return d.gKey }
-    const getGClass = (d: Mdata) => {
-      const arr = [`depth-${d.depth}`, 'node']
-      if (d.depth === 0) { arr.push(style.root) }
+    const getGClass = (d?: Mdata) => {
+      const arr = ['node']
+      if (d) {
+        arr.push(`depth-${d.depth}`)
+        if (d.depth === 0) { arr.push(style.root) }
+      }
       return arr
     }
     const getGTransform = (d: Mdata) => { return `translate(${d.dx + d.px},${d.dy + d.py})` }
@@ -161,8 +164,10 @@ export default defineComponent({
       return multiline
     }
     // 每个图形的绘制方法
-    const attrG = (g: d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>) => {
-      return g.attr('class', (d) => getGClass(d).join(' ')).attr('transform', getGTransform).attr('data-id', getDataId)
+    const attrG = (g: SelectionG, tran?: Transition) => {
+      const temp1 = g.attr('class', (d) => getGClass(d).join(' ')).attr('data-id', getDataId)
+      const temp2 = tran ? temp1.transition(tran) : temp1
+      temp2.attr('transform', getGTransform)
     }
     const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
       return tspan.attr('alignment-baseline', 'text-before-edge')
@@ -173,8 +178,10 @@ export default defineComponent({
     const attrRootRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>) => {
       return attrRect(rect, 10, 6)
     }
-    const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>) => {
-      return p.attr('d', getPath).attr('stroke', getColor).attr('stroke-width', props.branch)
+    const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition) => {
+      const temp1 = p.attr('stroke', getColor).attr('stroke-width', props.branch)
+      const temp2 = tran ? temp1.transition(tran) : temp1
+      return temp2.attr('d', getPath)
     }
     const attrRect = (rect: d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>, rp = rectPadding.value, radius = 4) => {
       rp = Math.min(rp, 10)
@@ -194,7 +201,13 @@ export default defineComponent({
     }
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
       const isRoot = !enter.data()[0]?.depth
-      const enterG = attrG(enter.append('g'))
+      const enterG = enter.append('g')
+      attrG(enterG)
+      if (props.drag || props.edit) {
+        enterG.on('mousedown', onSelect)
+        if (props.drag && !isRoot) { drag(enterG) }
+        if (props.edit) { enterG.on('click', onEdit) }
+      }
       const gText = enterG.append('g').attr('class', style.text)
       if (isRoot) {
         attrRootRect(gText.append('rect'))
@@ -212,10 +225,11 @@ export default defineComponent({
       gText.raise()
       return enterG
     }
-    const updateNode = (update: d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>) => {
+    const updateNode = (update: SelectionG) => {
       const isRoot = !update.data()[0]?.depth
       const gClass = getGClass(update.data()[0] || {}).join('.')
-      attrG(update)
+      const tran = makeTransition(500, d3.easePolyOut)
+      attrG(update, tran)
       const gText = update.select<SVGGElement>(`g.${gClass} > g.${style.text}`)
       if (isRoot) {
         attrRootRect(gText.select('rect'))
@@ -226,7 +240,7 @@ export default defineComponent({
         .selectAll<SVGTSpanElement, TspanData>('tspan')
         .data(getTspanData)
         .join(appendTspan, updateTspan, exit => exit.remove())
-      attrPath(update.selectAll<SVGPathElement, Mdata>(`g.${gClass} > path`))
+      attrPath(update.selectAll<SVGPathElement, Mdata>(`g.${gClass} > path`), tran)
 
       update.each((d, i) => {
         if (!d.children) { return }
@@ -234,9 +248,6 @@ export default defineComponent({
       })
       return update
     }
-    // const exitNode = (exit: any) => {
-    //   return exit
-    // }
     // 其他
     const draw = (d = [mmdata.data], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
       const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getGClass(d[0]).join('.')}`)
@@ -293,11 +304,14 @@ export default defineComponent({
       }
     }
     const moveNode = (node: SVGGElement, d: Mdata, p: [number, number], dura = 0) => {
-      const tran = d3.transition<Mdata>().duration(dura).ease(d3.easePolyOut) as d3.Transition<any, Mdata, null, undefined>
+      const tran = makeTransition(dura, d3.easePolyOut)
       d.px = p[0]
       d.py = p[1]
       d3.select<SVGGElement, Mdata>(node).transition(tran).attr('transform', getGTransform)
       d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`).transition(tran).attr('d', getPath)
+    }
+    const makeTransition = (dura: number, easingFn: (normalizedTime: number) => number) => {
+      return d3.transition<Mdata>().duration(dura).ease(easingFn) as d3.Transition<any, Mdata, null, undefined>
     }
     // 监听事件
     function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {
@@ -330,6 +344,17 @@ export default defineComponent({
     }
     function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
       moveNode(this, d, [0, 0], 500)
+
+      const np = document.getElementsByClassName(style.outline)[0]
+      if (np) {
+        np.classList.remove(style.outline)
+        const pid = np.getAttribute('data-id')
+        if (pid) {
+          reparent(pid, d.id)
+        } else {
+          throw new Error('outline data-id null')
+        }
+      }
     }
     function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata) {
       if (editFlag && foreign.value && foreignDivEle.value) {
@@ -356,6 +381,10 @@ export default defineComponent({
         }
       }
     }
+    const onSelect = (e: MouseEvent, d: Mdata) => {
+      e.stopPropagation()
+      selectGNode(d)
+    }
     // 插件
     const switchZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
@@ -370,10 +399,8 @@ export default defineComponent({
       if (!foreignDivEle.value || !g.value) { return }
       const gNode = g.value.selectAll<SVGGElement, Mdata>('g.node')
       if (editable) {
-        observer.observe(foreignDivEle.value)
         gNode.on('click', onEdit)
       } else {
-        observer.disconnect()
         gNode.on('click', null)
       }
     }
@@ -390,10 +417,7 @@ export default defineComponent({
       if (!g.value) { return }
       const temp = g.value.selectAll<SVGGElement, Mdata>('g.node')
       if (selectable) {
-        temp.on('mousedown', (e: MouseEvent, d) => {
-          e.stopPropagation()
-          selectGNode(d)
-        })
+        temp.on('mousedown', onSelect)
       } else {
         temp.on('mousedown', null)
       }
@@ -401,6 +425,10 @@ export default defineComponent({
     // 一次操作
     const rename = (id: string, name: string) => {
       mmdata.rename(id, name)
+      draw()
+    }
+    const reparent = (pid: string, id: string) => {
+      mmdata.reparent(pid, id)
       draw()
     }
 
