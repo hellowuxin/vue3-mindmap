@@ -1,17 +1,19 @@
 <template>
   <div :class="style['container']">
-    <svg :class="style['svg']" ref="svgEle">
-      <g ref="gEle">
-        <foreignObject ref="foreignEle" style="display: none">
-          <div ref="foreignDivEle" contenteditable></div>
-        </foreignObject>
-      </g>
-    </svg>
+    <div :class="style['svg']">
+      <svg :class="style['svg']" ref="svgEle">
+        <g ref="gEle">
+          <foreignObject ref="foreignEle" style="display: none">
+            <div ref="foreignDivEle" contenteditable></div>
+          </foreignObject>
+        </g>
+      </svg>
+    </div>
     <svg ref="asstSvgEle"></svg>
     <div :class="[style['button-list'], style['right-bottom']]">
       <button v-if="centerBtn" @click="centerView()"><i :class="style['gps']"></i></button>
       <button v-if="fitBtn" @click="fitView()"><i :class="style['fit']"></i></button>
-      <button v-if="downloadBtn" @click="showPopUps=true"><i class="download"></i></button>
+      <button v-if="downloadBtn" @click="download()"><i :class="style['download']"></i></button>
     </div>
   </div>
 </template>
@@ -21,6 +23,7 @@ import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 
 import { Data, Mdata } from '@/interface'
 import style from './Mindmap.module.scss'
 import { d3, ImData } from '@/tools'
+import html2canvas from 'html2canvas'
 
 type TspanData = { name: string, height: number }
 type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
@@ -246,6 +249,7 @@ export default defineComponent({
         if (!d.children) { return }
         draw(d.children, update.filter((a, b) => i === b))
       })
+      gText.raise()
       return update
     }
     // 其他
@@ -264,26 +268,6 @@ export default defineComponent({
         width: Math.max(tBox.width, 22),
         height: Math.max(tBox.height, 22) * multiline.length
       }
-    }
-    const centerView = () => {
-      if (!svg.value) { return }
-      const data = mmdata.data
-      zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
-    }
-    const fitView = () => { // 缩放至合适大小并移动至全部可见
-      // bug: 缩放后的大小与容器不一致
-      if (!svg.value || !gEle.value || !svgEle.value) { return }
-      const gBB = gEle.value.getBBox()
-      const svgBCR = svgEle.value.getBoundingClientRect()
-      const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
-      const svgCenter = { x: svgBCR.width / 2, y: svgBCR.height / 2 }
-      // after scale
-      const gCenter = { x: gBB.width * multiple / 2, y: gBB.height * multiple / 2 }
-      const center = d3.zoomIdentity.translate(
-        -gBB.x * multiple + svgCenter.x - gCenter.x,
-        -gBB.y * multiple + svgCenter.y - gCenter.y
-      ).scale(multiple)
-      zoom.transform(svg.value, center)
     }
     const selectGNode = (d: Mdata) => {
       const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
@@ -431,6 +415,41 @@ export default defineComponent({
       mmdata.reparent(pid, id)
       draw()
     }
+    // 辅助按钮的点击事件
+    const centerView = () => {
+      if (!svg.value) { return }
+      const data = mmdata.data
+      zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
+    }
+    const fitView = () => { // 缩放至合适大小并移动至全部可见
+      // bug: 缩放后的大小与容器不一致
+      if (!svg.value || !gEle.value || !svgEle.value) { return }
+      const gBB = gEle.value.getBBox()
+      const svgBCR = svgEle.value.getBoundingClientRect()
+      const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
+      const svgCenter = { x: svgBCR.width / 2, y: svgBCR.height / 2 }
+      // after scale
+      const gCenter = { x: gBB.width * multiple / 2, y: gBB.height * multiple / 2 }
+      const center = d3.zoomIdentity.translate(
+        -gBB.x * multiple + svgCenter.x - gCenter.x,
+        -gBB.y * multiple + svgCenter.y - gCenter.y
+      ).scale(multiple)
+      zoom.transform(svg.value, center)
+    }
+    const download = () => {
+      const svgdiv = document.querySelector<HTMLDivElement>(`div.${style.svg}`)
+      if (svgdiv) {
+        html2canvas(svgdiv).then((canvas) => {
+          const dataUrl = canvas.toDataURL()
+          const window = open()
+          if (window) {
+            window.document.write(`<img src='${dataUrl}'>`)
+            window.document.title = mmdata.data.name
+            window.document.close()
+          }
+        })
+      }
+    }
 
     return {
       svgEle,
@@ -440,7 +459,8 @@ export default defineComponent({
       foreignEle,
       foreignDivEle,
       centerView,
-      fitView
+      fitView,
+      download
     }
   }
 })

@@ -15,6 +15,7 @@
       :zoom="checkboxList['zoom'].value"
       :fit-btn="checkboxList['fit-btn'].value"
       :center-btn="checkboxList['center-btn'].value"
+      :download-btn="checkboxList['download-btn'].value"
       :drag="checkboxList['drag'].value"
       :edit="checkboxList['edit'].value"
     ></mindmap>
@@ -46,7 +47,7 @@ export default defineComponent({
       'center-btn': { value: true },
       'fit-btn': { value: true },
       'undo-btn': { value: false, disabled: true },
-      'download-btn': { value: false, disabled: true },
+      'download-btn': { value: true },
       keyboard: { value: false, disabled: true },
       zoom: { value: true },
       drag: { value: true },

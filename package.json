@@ -15,6 +15,7 @@
     "d3-shape": "^2.0.0",
     "d3-transition": "^2.0.0",
     "d3-zoom": "^2.0.0",
+    "html2canvas": "^1.0.0-rc.7",
     "vue": "^3.0.0"
   },
   "devDependencies": {
