@@ -5,6 +5,7 @@ import { BoundingBox, Layout } from '@/tools/flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
 type Processer = (d: Mdata, id: string) => void
+type IsMdata = Mdata | null
 
 interface TreeData {
   rawData: Data
@@ -40,8 +41,8 @@ function initTreeData (d: Data, getSize: GetSize) {
 
   return data
 }
-// id gKey depth dx dy name left color _children px py
-const init = (d: TreeData, id = '0', p: Mdata | null = null, c?: string) => {
+// id gKey depth dx dy name left color px py
+const init = (d: TreeData, id = '0', p: IsMdata = null, c?: string) => {
   const x = d.y
   const y = d.x
   let color = ''
@@ -143,7 +144,7 @@ class ImData {
     traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta])
   }
 
-  find (id: string): Mdata | null { // 根据id找到数据
+  find (id: string): IsMdata { // 根据id找到数据
     const array = id.split('-').map(n => ~~n)
     let data = this.data
     for (let i = 1; i < array.length; i++) {
@@ -156,7 +157,7 @@ class ImData {
     return data
   }
 
-  rename (id: string, name: string): Mdata | null { // 修改名称
+  rename (id: string, name: string): IsMdata { // 修改名称
     if (id.length > 0) {
       const d = this.find(id)
       if (d && d.name !== name) {
@@ -176,7 +177,7 @@ class ImData {
     }
   }
 
-  reparent (parentId: string, delId: string): Mdata | null { // 节点移动到其他层
+  reparent (parentId: string, delId: string): IsMdata { // 节点移动到其他层
     if (parentId === delId) { return null }
     const np = this.find(parentId)
     const del = this.find(delId)
@@ -196,6 +197,33 @@ class ImData {
       traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta, renewId, renewColor])
     }
     return del
+  }
+
+  move (id: string, referenceId: string, after = 0): IsMdata { // 同层调换顺序
+    const idArr = id.split('-')
+    const refArr = referenceId.split('-')
+    let index: number | string | undefined = idArr.pop()
+    let refIndex: number | string | undefined = refArr.pop()
+    if (id === referenceId || idArr.length !== refArr.length || !index || !refIndex) { return null }
+    const d = this.find(id)
+    if (d && d.parent) {
+      index = parseInt(index, 10)
+      refIndex = parseInt(refIndex, 10)
+      if (index < refIndex) { refIndex -= 1 } // 删除时可能会改变插入的序号
+      const { children } = d.parent
+      const { children: rawChildren } = d.parent.rawData
+      if (children && rawChildren) {
+        children.splice(index, 1)
+        children.splice(refIndex + after, 0, d)
+        rawChildren.splice(index, 1)
+        rawChildren.splice(refIndex + after, 0, d.rawData)
+        traverse(this.data, [swapWidthAndHeight])
+        this.layout.layout(this.data)
+        traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta, renewId])
+        return d
+      }
+    }
+    return null
   }
 }
 

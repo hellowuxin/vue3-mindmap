@@ -3,9 +3,7 @@
     <div class="left-top">
       <a href="https://github.com/hellowuxin/vue3-mindmap" target="_blank">GitHub</a>
     </div>
-    <div class="right-top">
-      <span>Props</span>
-    </div>
+    <div class="right-top"><span>Props</span></div>
     <mindmap
       class="left-bottom"
       v-model="learn"

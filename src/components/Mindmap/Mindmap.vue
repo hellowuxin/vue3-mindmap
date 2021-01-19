@@ -327,8 +327,7 @@ export default defineComponent({
       n?.classList.add(style.outline)
     }
     function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      moveNode(this, d, [0, 0], 500)
-
+      // 判断是否找到了新的父节点
       const np = document.getElementsByClassName(style.outline)[0]
       if (np) {
         np.classList.remove(style.outline)
@@ -338,7 +337,30 @@ export default defineComponent({
         } else {
           throw new Error('outline data-id null')
         }
+        return
       }
+      // 判断是否需要调换节点顺序
+      const p = this.parentNode as SVGGElement
+      let downD = d
+      let upD = d
+      const brothers = d3.select<SVGGElement, Mdata>(p).selectAll<SVGGElement, Mdata>(`g.${getGClass(d).join('.')}`).filter((a) => a !== d)
+      brothers.each((b) => {
+        if (b.y > d.y && b.y < (d.y + d.py) && b.y > upD.y) { upD = b } // 找新哥哥节点
+        if (b.y < d.y && b.y > (d.y + d.py) && b.y < downD.y) { downD = b } // 找新弟弟节点
+      })
+      if (downD !== d) {
+        d.px = 0
+        d.py = 0
+        move(d.id, downD.id)
+        return
+      } else if (upD !== d) {
+        d.px = 0
+        d.py = 0
+        move(d.id, upD.id, 1)
+        return
+      }
+      // 复原
+      moveNode(this, d, [0, 0], 500)
     }
     function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata) {
       if (editFlag && foreign.value && foreignDivEle.value) {
@@ -413,6 +435,10 @@ export default defineComponent({
     }
     const reparent = (pid: string, id: string) => {
       mmdata.reparent(pid, id)
+      draw()
+    }
+    const move = (id: string, referenceId: string, after = 0) => {
+      mmdata.move(id, referenceId, after)
       draw()
     }
     // 辅助按钮的点击事件
