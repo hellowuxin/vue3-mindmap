@@ -11,5 +11,6 @@ declare const style: {
   readonly text: string
   readonly outline: string
   readonly download: string
+  readonly 'add-btn': string
 }
 export = style

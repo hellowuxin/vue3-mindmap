@@ -24,13 +24,6 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     cursor: default;
   }
 
-  rect {
-    opacity: 0;
-    fill: $seleColor;
-    stroke-width: 1;
-    stroke: white;
-  }
-
   foreignObject {
     background-color: white;
     border: 1px solid #aaa;
@@ -43,6 +36,25 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
       padding: 1px;
       white-space: pre;
     }
+  }
+
+  .add-btn {
+    rect {
+      stroke-width: 1;
+      stroke: grey;
+      fill: white;
+    }
+
+    path {
+      fill: #8685ff
+    }
+  }
+
+  .text > rect {
+    opacity: 0;
+    fill: $seleColor;
+    stroke-width: 1;
+    stroke: white;
   }
 
   // 关于selected
