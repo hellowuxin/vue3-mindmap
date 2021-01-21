@@ -22,7 +22,7 @@
 import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata } from '@/interface'
 import style from './Mindmap.module.scss'
-import { d3, ImData, getAddPath } from '@/tools'
+import { d3, ImData, getAddPath, getMultiline } from '@/tools'
 import html2canvas from 'html2canvas'
 
 type TspanData = { name: string, height: number }
@@ -133,7 +133,6 @@ export default defineComponent({
     })
     watch(() => props.zoom, (val) => switchZoom(val))
     // 每个属性的计算方法
-    const getGKey = (d: Mdata) => { return d.gKey }
     const getGClass = (d?: Mdata) => {
       const arr = ['node']
       if (d) {
@@ -143,9 +142,8 @@ export default defineComponent({
       return arr
     }
     const getGTransform = (d: Mdata) => { return `translate(${d.dx + d.px},${d.dy + d.py})` }
-    const getColor = (d: Mdata) => { return d.color }
+    const getDataId = (d: Mdata): string => { return d.id }
     const getPath = (d: Mdata) => {
-      const trp = Math.max(textRectPadding.value - 3, 0)
       let dpw = 0
       let dph = 0
       if (d.parent) {
@@ -159,18 +157,13 @@ export default defineComponent({
       const temp = props.branch / 2
       const source = [-d.dx + dpw - d.px, -d.dy + dph + temp - d.py] as [number, number]
       const target = [0, d.height + temp] as [number, number]
+      const trp = Math.max(textRectPadding.value - 3, 0)
       return `${link({ source, target })}L${d.width + trp},${target[1]}`
     }
     const getTspanData = (d: Mdata): TspanData[] => {
       const multiline = getMultiline(d.name)
       const height = d.height / multiline.length
       return multiline.map((name) => ({ name, height }))
-    }
-    const getDataId = (d: Mdata) => { return d.id }
-    const getMultiline = (name: string) => {
-      const multiline = name.split('\n')
-      if (multiline[multiline.length - 1] === '') { multiline.pop() }
-      return multiline
     }
     const getAddBtnTransform = (d: Mdata, trp: number) => {
       const gap = 8
@@ -184,7 +177,7 @@ export default defineComponent({
       temp2.attr('transform', getGTransform)
     }
     const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition) => {
-      const temp1 = p.attr('stroke', getColor).attr('stroke-width', props.branch)
+      const temp1 = p.attr('stroke', (d) => d.color).attr('stroke-width', props.branch)
       const temp2 = tran ? temp1.transition(tran) : temp1
       temp2.attr('d', getPath)
     }
@@ -298,7 +291,7 @@ export default defineComponent({
     // 其他
     const draw = (d = [mmdata.data], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
       const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getGClass(d[0]).join('.')}`)
-      temp.data(d, getGKey).join(appendNode, updateNode)
+      temp.data(d, (d) => d.gKey).join(appendNode, updateNode)
     }
     const getSize = (text: string): { width: number, height: number } => {
       if (!asstSvg.value) { throw new Error('asstSvg undefined') }
