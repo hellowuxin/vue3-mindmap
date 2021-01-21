@@ -16,6 +16,7 @@
       :download-btn="checkboxList['download-btn'].value"
       :drag="checkboxList['drag'].value"
       :edit="checkboxList['edit'].value"
+      :add-node-btn="checkboxList['add-node-btn'].value"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -46,11 +47,11 @@ export default defineComponent({
       'fit-btn': { value: true },
       'undo-btn': { value: false, disabled: true },
       'download-btn': { value: true },
+      'add-node-btn': { value: true },
       keyboard: { value: false, disabled: true },
       zoom: { value: true },
       drag: { value: true },
       edit: { value: true },
-      showNodeAdd: { value: false },
       contextMenu: { value: false },
       'sharp-corner': { value: false, disabled: true },
       vertical: { value: false, disabled: true }

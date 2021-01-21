@@ -12,5 +12,7 @@ declare const style: {
   readonly outline: string
   readonly download: string
   readonly 'add-btn': string
+  readonly content: string
+  readonly trigger: string
 }
 export = style

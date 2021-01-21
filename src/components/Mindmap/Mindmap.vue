@@ -55,10 +55,10 @@ export default defineComponent({
     fitBtn: Boolean,
     downloadBtn: Boolean,
     undoBtn: Boolean,
+    addNodeBtn: Boolean,
     edit: Boolean,
     drag: Boolean,
     keyboard: Boolean,
-    showNodeAdd: Boolean,
     contextMenu: Boolean,
     zoom: Boolean
   },
@@ -86,7 +86,7 @@ export default defineComponent({
     })
     let mmdata: ImData
     let editFlag = false
-    const textRectPadding = computed(() => props.yGap / 2 - 1)
+    const textRectPadding = computed(() => Math.min(props.yGap / 2 - 1, 10))
     const addBtnRect = { side: 12, padding: 2 }
     const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
 
@@ -143,6 +143,7 @@ export default defineComponent({
     const getGTransform = (d: Mdata) => { return `translate(${d.dx + d.px},${d.dy + d.py})` }
     const getColor = (d: Mdata) => { return d.color }
     const getPath = (d: Mdata) => {
+      const trp = Math.max(textRectPadding.value - 3, 0)
       let dpw = 0
       let dph = 0
       if (d.parent) {
@@ -156,7 +157,7 @@ export default defineComponent({
       const temp = props.branch / 2
       const source = [-d.dx + dpw - d.px, -d.dy + dph + temp - d.py] as [number, number]
       const target = [0, d.height + temp] as [number, number]
-      return `${link({ source, target })}L${d.width},${target[1]}`
+      return `${link({ source, target })}L${d.width + trp},${target[1]}`
     }
     const getTspanData = (d: Mdata): TspanData[] => {
       const multiline = getMultiline(d.name)
@@ -182,19 +183,15 @@ export default defineComponent({
     const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition) => {
       const temp1 = p.attr('stroke', getColor).attr('stroke-width', props.branch)
       const temp2 = tran ? temp1.transition(tran) : temp1
-      return temp2.attr('d', getPath)
+      temp2.attr('d', getPath)
     }
     const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
-      return tspan.attr('alignment-baseline', 'text-before-edge')
+      tspan.attr('alignment-baseline', 'text-before-edge')
         .text((d) => d.name || ' ')
         .attr('x', 0)
         .attr('dy', (d, i) => i ? d.height : 0)
     }
-    const attrRootTextRect = (rect: SelectionRect) => {
-      attrTextRect(rect, 10, 6)
-    }
     const attrTextRect = (rect: SelectionRect, padding = textRectPadding.value, radius = 4) => {
-      padding = Math.min(padding, 10)
       rect.attr('x', -padding)
         .attr('y', -padding)
         .attr('rx', radius)
@@ -202,62 +199,68 @@ export default defineComponent({
         .attr('width', (d) => d.width + padding * 2)
         .attr('height', (d) => d.height + padding * 2)
     }
-    const attrRootAddBtn = (g: SelectionG, side: number) => {
-      attrAddBtn(g, side, 10)
-    }
-    const attrAddBtn = (g: SelectionG, side: number, trp = textRectPadding.value, gap = 0) => {
-      trp = Math.min(trp, 10)
+    const attrAddBtn = (g: SelectionG, trp = textRectPadding.value, side = addBtnSide, gap = 8) => {
       g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp, side, gap))
     }
     const attrAddBtnRect = (rect: SelectionRect, side: number, padding: number) => {
       const radius = 4
-      rect.attr('x', -padding - side / 2)
-        .attr('y', -padding - side / 2)
-        .attr('rx', radius)
-        .attr('ry', radius)
-        .attr('width', side + padding * 2)
-        .attr('height', side + padding * 2)
+      const temp0 = -padding - side / 2
+      const temp1 = side + padding * 2
+      rect.attr('x', temp0).attr('y', temp0).attr('rx', radius).attr('ry', radius).attr('width', temp1).attr('height', temp1)
+    }
+    const attrTrigger = (rect: SelectionRect, padding = textRectPadding.value) => {
+      rect.attr('class', style.trigger)
+        .attr('x', -padding)
+        .attr('y', -padding)
+        .attr('width', (d) => d.width + padding * 2 + 8 + addBtnSide)
+        .attr('height', (d) => d.height + padding * 2)
     }
     // 绘制节点的方法
     const appendTspan = (enter: d3.Selection<d3.EnterElement, TspanData, SVGTextElement, Mdata>) => {
-      return attrTspan(enter.append('tspan'))
+      const tspan = enter.append('tspan')
+      attrTspan(tspan)
+      return tspan
     }
     const updateTspan = (update: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
-      return attrTspan(update)
+      attrTspan(update)
+      return update
     }
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
       const isRoot = !enter.data()[0]?.depth
       const enterG = enter.append('g')
       attrG(enterG)
-      if (props.drag || props.edit) {
-        enterG.on('mousedown', onSelect)
-        if (props.drag && !isRoot) { drag(enterG) }
-        if (props.edit) { enterG.on('click', onEdit) }
-      }
+      // 绘制线
       attrPath(enterG.append('path'))
+      // 节点容器
+      const gContent = enterG.append('g').attr('class', style.content)
+      const gTrigger = gContent.append('rect')
       // 绘制文本
-      const gText = enterG.append('g').attr('class', style.text)
+      const gText = gContent.append('g').attr('class', style.text)
       const gTextRect = gText.append('rect')
       const tspan = gText.append('text').selectAll('tspan').data(getTspanData).enter().append('tspan')
       attrTspan(tspan)
       // 绘制添加按钮
-      const gAddBtn = gText.append('g')
+      const gAddBtn = gContent.append('g')
       attrAddBtnRect(gAddBtn.append('rect'), addBtnRect.side, addBtnRect.padding)
       gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
 
       if (isRoot) {
-        attrRootTextRect(gTextRect)
-        attrRootAddBtn(gAddBtn, addBtnSide)
+        attrTrigger(gTrigger, 10)
+        attrTextRect(gTextRect, 10, 6)
+        attrAddBtn(gAddBtn, 10)
       } else {
+        attrTrigger(gTrigger)
         attrTextRect(gTextRect)
-        attrAddBtn(gAddBtn, addBtnSide)
+        attrAddBtn(gAddBtn)
       }
+
+      bindEvent(enterG, isRoot)
 
       enterG.each((d, i) => {
         if (!d.children) { return }
         draw(d.children, enterG.filter((a, b) => i === b))
       })
-      gText.raise()
+      gContent.raise()
       return enterG
     }
     const updateNode = (update: SelectionG) => {
@@ -273,11 +276,11 @@ export default defineComponent({
       const gAddBtn = gText.select<SVGGElement>(`g.${style['add-btn']}`)
 
       if (isRoot) {
-        attrRootTextRect(gText.select('rect'))
-        attrRootAddBtn(gAddBtn, addBtnSide)
+        attrTextRect(gText.select('rect'), 10, 6)
+        attrAddBtn(gAddBtn, 10)
       } else {
         attrTextRect(gText.select('rect'))
-        attrAddBtn(gAddBtn, addBtnSide)
+        attrAddBtn(gAddBtn)
       }
 
       update.each((d, i) => {
@@ -331,6 +334,16 @@ export default defineComponent({
     }
     const makeTransition = (dura: number, easingFn: (normalizedTime: number) => number) => {
       return d3.transition<Mdata>().duration(dura).ease(easingFn) as d3.Transition<any, Mdata, null, undefined>
+    }
+    const bindEvent = (g: SelectionG, isRoot: boolean) => {
+      if (props.drag || props.edit) {
+        g.on('mousedown', onSelect)
+        if (props.drag && !isRoot) { drag(g) }
+        if (props.edit) { g.on('click', onEdit) }
+      }
+      if (props.addNodeBtn) {
+        g.select<SVGGElement>(`:scope > g.${style.content}`).on('mouseenter', onMouseEnter).on('mouseleave', onMouseLeave)
+      }
     }
     // 监听事件
     function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {
@@ -427,6 +440,18 @@ export default defineComponent({
     const onSelect = (e: MouseEvent, d: Mdata) => {
       e.stopPropagation()
       selectGNode(d)
+    }
+    function onMouseEnter (this: SVGGElement) {
+      const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
+      if (temp) {
+        temp.style.opacity = '1'
+      }
+    }
+    function onMouseLeave (this: SVGGElement) {
+      const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
+      if (temp) {
+        temp.style.opacity = '0'
+      }
     }
     // 插件
     const switchZoom = (zoomable: boolean) => {

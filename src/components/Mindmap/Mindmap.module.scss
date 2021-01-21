@@ -38,7 +38,13 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     }
   }
 
+  .trigger {
+    fill: transparent;
+  }
+
   .add-btn {
+    opacity: 0;
+
     rect {
       stroke-width: 1;
       stroke: grey;
@@ -58,29 +64,29 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
   }
 
   // 关于selected
-  .selected > .text > rect {
+  .selected > .content > .text > rect {
     opacity: 1;
   }
 
-  .root.selected > .text > rect {
+  .root.selected > .content > .text > rect {
     stroke-width: 3;
     stroke: $seleColor;
   }
 
   // 关于edited
-  .edited > .text {
+  .edited > .content > .text {
     opacity: 0;
   }
 
   // outline
-  .outline > .text > rect {
+  .outline > .content > .text > rect {
     opacity: 1;
     fill: transparent;
     stroke-width: 3;
     stroke: $seleColor;
   }
 
-  .root > .text > rect {
+  .root > .content > .text > rect {
     opacity: 1;
     fill: white;
   }
