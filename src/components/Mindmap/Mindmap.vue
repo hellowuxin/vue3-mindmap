@@ -86,7 +86,9 @@ export default defineComponent({
     })
     let mmdata: ImData
     let editFlag = false
-    const textRectPadding = computed(() => Math.min(props.yGap / 2 - 1, 10))
+    const rootTextRectRadius = 6
+    const rootTextRectPadding = 10
+    const textRectPadding = computed(() => Math.min(props.yGap / 2 - 1, rootTextRectPadding))
     const addBtnRect = { side: 12, padding: 2 }
     const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
 
@@ -170,9 +172,10 @@ export default defineComponent({
       if (multiline[multiline.length - 1] === '') { multiline.pop() }
       return multiline
     }
-    const getAddBtnTransform = (d: Mdata, trp: number, side: number, gap: number) => {
+    const getAddBtnTransform = (d: Mdata, trp: number) => {
+      const gap = 8
       const y = d.depth === 0 ? d.height / 2 : d.height + props.branch / 2
-      return `translate(${d.width + trp + side / 2 + gap},${y})`
+      return `translate(${d.width + trp + addBtnSide / 2 + gap},${y})`
     }
     // 每个图形的绘制方法
     const attrG = (g: SelectionG, tran?: Transition) => {
@@ -192,17 +195,15 @@ export default defineComponent({
         .attr('dy', (d, i) => i ? d.height : 0)
     }
     const attrTextRect = (rect: SelectionRect, padding = textRectPadding.value, radius = 4) => {
-      rect.attr('x', -padding)
-        .attr('y', -padding)
-        .attr('rx', radius)
-        .attr('ry', radius)
-        .attr('width', (d) => d.width + padding * 2)
-        .attr('height', (d) => d.height + padding * 2)
+      rect.attr('x', -padding).attr('y', -padding).attr('rx', radius).attr('ry', radius)
+        .attr('width', (d) => d.width + padding * 2).attr('height', (d) => d.height + padding * 2)
     }
-    const attrAddBtn = (g: SelectionG, trp = textRectPadding.value, side = addBtnSide, gap = 8) => {
-      g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp, side, gap))
+    const attrAddBtn = (g: SelectionG, trp = textRectPadding.value) => {
+      g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp))
     }
-    const attrAddBtnRect = (rect: SelectionRect, side: number, padding: number) => {
+    const attrAddBtnRect = (rect: SelectionRect) => {
+      const side = addBtnRect.side
+      const padding = addBtnRect.padding
       const radius = 4
       const temp0 = -padding - side / 2
       const temp1 = side + padding * 2
@@ -241,13 +242,13 @@ export default defineComponent({
       attrTspan(tspan)
       // 绘制添加按钮
       const gAddBtn = gContent.append('g')
-      attrAddBtnRect(gAddBtn.append('rect'), addBtnRect.side, addBtnRect.padding)
+      attrAddBtnRect(gAddBtn.append('rect'))
       gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
 
       if (isRoot) {
-        attrTrigger(gTrigger, 10)
-        attrTextRect(gTextRect, 10, 6)
-        attrAddBtn(gAddBtn, 10)
+        attrTrigger(gTrigger, rootTextRectPadding)
+        attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
+        attrAddBtn(gAddBtn, rootTextRectPadding)
       } else {
         attrTrigger(gTrigger)
         attrTextRect(gTextRect)
@@ -265,21 +266,25 @@ export default defineComponent({
     }
     const updateNode = (update: SelectionG) => {
       const isRoot = !update.data()[0]?.depth
-      const gClass = getGClass(update.data()[0] || {}).join('.')
       const tran = makeTransition(500, d3.easePolyOut)
       attrG(update, tran)
-      attrPath(update.selectAll<SVGPathElement, Mdata>(`g.${gClass} > path`), tran)
-      const gText = update.select<SVGGElement>(`g.${gClass} > g.${style.text}`)
+      attrPath(update.select<SVGPathElement>(':scope > path'), tran)
+      const gContent = update.select<SVGGElement>(`:scope > g.${style.content}`)
+      const gTrigger = gContent.select<SVGRectElement>(':scope > rect')
+      const gText = gContent.select<SVGGElement>(`g.${style.text}`)
+      const gTextRect = gText.select<SVGRectElement>('rect')
       gText.select<SVGTextElement>('text').selectAll<SVGTSpanElement, TspanData>('tspan')
         .data(getTspanData)
         .join(appendTspan, updateTspan, exit => exit.remove())
-      const gAddBtn = gText.select<SVGGElement>(`g.${style['add-btn']}`)
+      const gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)
 
       if (isRoot) {
-        attrTextRect(gText.select('rect'), 10, 6)
-        attrAddBtn(gAddBtn, 10)
+        attrTrigger(gTrigger, rootTextRectPadding)
+        attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
+        attrAddBtn(gAddBtn, rootTextRectPadding)
       } else {
-        attrTextRect(gText.select('rect'))
+        attrTrigger(gTrigger)
+        attrTextRect(gTextRect)
         attrAddBtn(gAddBtn)
       }
 
@@ -287,7 +292,7 @@ export default defineComponent({
         if (!d.children) { return }
         draw(d.children, update.filter((a, b) => i === b))
       })
-      gText.raise()
+      gContent.raise()
       return update
     }
     // 其他
