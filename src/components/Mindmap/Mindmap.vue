@@ -86,6 +86,7 @@ export default defineComponent({
     })
     let mmdata: ImData
     let editFlag = false
+    let showAddNodeBtn = true
     const rootTextRectRadius = 6
     const rootTextRectPadding = 10
     const textRectPadding = computed(() => Math.min(props.yGap / 2 - 1, rootTextRectPadding))
@@ -121,7 +122,7 @@ export default defineComponent({
       switchZoom(props.zoom)
     })
     // watch
-    watch(() => props.branch, () => draw())
+    watch(() => [props.branch, props.addNodeBtn], () => draw())
     watch(() => [props.xGap, props.yGap], (val) => {
       mmdata.setBoundingBox(val[0], val[1])
       draw()
@@ -234,18 +235,21 @@ export default defineComponent({
       const tspan = gText.append('text').selectAll('tspan').data(getTspanData).enter().append('tspan')
       attrTspan(tspan)
       // 绘制添加按钮
-      const gAddBtn = gContent.append('g')
-      attrAddBtnRect(gAddBtn.append('rect'))
-      gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
+      let gAddBtn
+      if (props.addNodeBtn) {
+        gAddBtn = gContent.append('g')
+        attrAddBtnRect(gAddBtn.append('rect'))
+        gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
+      }
 
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
         attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
-        attrAddBtn(gAddBtn, rootTextRectPadding)
+        if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding) }
       } else {
         attrTrigger(gTrigger)
         attrTextRect(gTextRect)
-        attrAddBtn(gAddBtn)
+        if (gAddBtn) { attrAddBtn(gAddBtn) }
       }
 
       bindEvent(enterG, isRoot)
@@ -269,7 +273,16 @@ export default defineComponent({
       gText.select<SVGTextElement>('text').selectAll<SVGTSpanElement, TspanData>('tspan')
         .data(getTspanData)
         .join(appendTspan, updateTspan, exit => exit.remove())
-      const gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)
+      let gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)
+      if (props.addNodeBtn) {
+        if (!gAddBtn.node()) {
+          gAddBtn = gContent.append('g')
+          attrAddBtnRect(gAddBtn.append('rect'))
+          gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
+        }
+      } else {
+        gAddBtn.remove()
+      }
 
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
@@ -349,6 +362,7 @@ export default defineComponent({
       g.value.attr('transform', e.transform.toString())
     }
     function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+      showAddNodeBtn = false
       if (!g.value) { return }
       moveNode(this, d, [e.x - d.x, e.y - d.y])
       // 鼠标相对gEle左上角的位置
@@ -373,6 +387,7 @@ export default defineComponent({
       n?.classList.add(style.outline)
     }
     function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
+      showAddNodeBtn = true
       // 判断是否找到了新的父节点
       const np = document.getElementsByClassName(style.outline)[0]
       if (np) {
@@ -440,9 +455,11 @@ export default defineComponent({
       selectGNode(d)
     }
     function onMouseEnter (this: SVGGElement) {
-      const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
-      if (temp) {
-        temp.style.opacity = '1'
+      if (showAddNodeBtn) {
+        const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
+        if (temp) {
+          temp.style.opacity = '1'
+        }
       }
     }
     function onMouseLeave (this: SVGGElement) {
