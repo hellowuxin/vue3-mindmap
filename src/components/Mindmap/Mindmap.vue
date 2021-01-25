@@ -74,7 +74,7 @@ export default defineComponent({
     const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
     const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
     const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent([0.1, 8])
-    const drag = d3.drag<SVGGElement, Mdata>().on('drag', onDragMove).on('end', onDragEnd)
+    const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
     const observer = new ResizeObserver((arr) => {
       if (!foreign.value) { return }
       const temp = arr[0]
@@ -86,7 +86,7 @@ export default defineComponent({
     })
     let mmdata: ImData
     let editFlag = false
-    let showAddNodeBtn = true
+    const showAddNodeBtn = ref(true)
     const rootTextRectRadius = 6
     const rootTextRectPadding = 10
     const textRectPadding = computed(() => Math.min(props.yGap / 2 - 1, rootTextRectPadding))
@@ -133,6 +133,9 @@ export default defineComponent({
       switchEdit(val[1])
     })
     watch(() => props.zoom, (val) => switchZoom(val))
+    watch(showAddNodeBtn, (val) => {
+      g.value?.selectAll(`g.${style['add-btn']}`).style('display', val ? '' : 'none')
+    })
     // 每个属性的计算方法
     const getGClass = (d?: Mdata) => {
       const arr = ['node']
@@ -211,6 +214,16 @@ export default defineComponent({
         .attr('height', (d) => d.height + padding * 2)
     }
     // 绘制节点的方法
+    const appendAddBtn = (g: SelectionG) => {
+      const gAddBtn = g.append('g')
+      gAddBtn.on('click', (e: MouseEvent, d: Mdata) => {
+        // e.stopPropagation()
+        console.log(d)
+      })
+      attrAddBtnRect(gAddBtn.append('rect'))
+      gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
+      return gAddBtn
+    }
     const appendTspan = (enter: d3.Selection<d3.EnterElement, TspanData, SVGTextElement, Mdata>) => {
       const tspan = enter.append('tspan')
       attrTspan(tspan)
@@ -236,11 +249,7 @@ export default defineComponent({
       attrTspan(tspan)
       // 绘制添加按钮
       let gAddBtn
-      if (props.addNodeBtn) {
-        gAddBtn = gContent.append('g')
-        attrAddBtnRect(gAddBtn.append('rect'))
-        gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
-      }
+      if (props.addNodeBtn) { gAddBtn = appendAddBtn(gContent) }
 
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
@@ -275,11 +284,7 @@ export default defineComponent({
         .join(appendTspan, updateTspan, exit => exit.remove())
       let gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)
       if (props.addNodeBtn) {
-        if (!gAddBtn.node()) {
-          gAddBtn = gContent.append('g')
-          attrAddBtnRect(gAddBtn.append('rect'))
-          gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
-        }
+        if (!gAddBtn.node()) { gAddBtn = appendAddBtn(gContent) }
       } else {
         gAddBtn.remove()
       }
@@ -348,23 +353,34 @@ export default defineComponent({
     }
     const bindEvent = (g: SelectionG, isRoot: boolean) => {
       if (props.drag || props.edit) {
-        g.on('mousedown', onSelect)
-        if (props.drag && !isRoot) { drag(g) }
-        if (props.edit) { g.on('click', onEdit) }
+        const gText = g.select<SVGGElement>(`:scope > g.${style.content} > g.${style.text}`)
+        gText.on('mousedown', onSelect)
+        if (props.drag && !isRoot) { drag(gText) }
+        if (props.edit) { gText.on('click', onEdit) }
       }
       if (props.addNodeBtn) {
         g.select<SVGGElement>(`:scope > g.${style.content}`).on('mouseenter', onMouseEnter).on('mouseleave', onMouseLeave)
       }
+    }
+    /**
+     * @param this gText
+     */
+    function getDragContainer (this: SVGGElement) {
+      return this.parentNode?.parentNode?.parentNode as SVGGElement
     }
     // 监听事件
     function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {
       if (!g.value) { return }
       g.value.attr('transform', e.transform.toString())
     }
+    /**
+     * @param this gText
+     */
     function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      showAddNodeBtn = false
+      const gNode = this.parentNode?.parentNode as SVGGElement
+      showAddNodeBtn.value = false
       if (!g.value) { return }
-      moveNode(this, d, [e.x - d.x, e.y - d.y])
+      moveNode(gNode, d, [e.x - d.x, e.y - d.y])
       // 鼠标相对gEle左上角的位置
       const mousePos = d3.pointer(e, gEle.value)
       mousePos[1] += mmdata.data.y
@@ -386,8 +402,12 @@ export default defineComponent({
       old.forEach((o) => { if (o !== n) { o.classList.remove(style.outline) } })
       n?.classList.add(style.outline)
     }
+    /**
+     * @param this gText
+     */
     function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-      showAddNodeBtn = true
+      const gNode = this.parentNode?.parentNode as SVGGElement
+      showAddNodeBtn.value = true
       // 判断是否找到了新的父节点
       const np = document.getElementsByClassName(style.outline)[0]
       if (np) {
@@ -403,7 +423,7 @@ export default defineComponent({
         return
       }
       // 判断是否需要调换节点顺序
-      const p = this.parentNode as SVGGElement
+      const p = gNode.parentNode as SVGGElement
       let downD = d
       let upD = d
       const brothers = d3.select<SVGGElement, Mdata>(p).selectAll<SVGGElement, Mdata>(`g.${getGClass(d).join('.')}`).filter((a) => a !== d)
@@ -423,11 +443,15 @@ export default defineComponent({
         return
       }
       // 复原
-      moveNode(this, d, [0, 0], 500)
+      moveNode(gNode, d, [0, 0], 500)
     }
+    /**
+     * @param this gText
+     */
     function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata) {
+      const gNode = this.parentNode?.parentNode as SVGGElement
       if (editFlag && foreign.value && foreignDivEle.value) {
-        this.classList.add(style.edited)
+        gNode.classList.add(style.edited)
         editFlag = false
         foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
           .attr('data-id', d.id).attr('data-name', d.name).style('display', '')
@@ -454,19 +478,19 @@ export default defineComponent({
       e.stopPropagation()
       selectGNode(d)
     }
+    /**
+     * @param this gContent
+     */
     function onMouseEnter (this: SVGGElement) {
-      if (showAddNodeBtn) {
-        const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
-        if (temp) {
-          temp.style.opacity = '1'
-        }
-      }
+      const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
+      if (temp) { temp.style.opacity = '1' }
     }
+    /**
+     * @param this gContent
+     */
     function onMouseLeave (this: SVGGElement) {
       const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
-      if (temp) {
-        temp.style.opacity = '0'
-      }
+      if (temp) { temp.style.opacity = '0' }
     }
     // 插件
     const switchZoom = (zoomable: boolean) => {
@@ -480,29 +504,29 @@ export default defineComponent({
     }
     const switchEdit = (editable: boolean) => {
       if (!foreignDivEle.value || !g.value) { return }
-      const gNode = g.value.selectAll<SVGGElement, Mdata>('g.node')
+      const gText = g.value.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
       if (editable) {
-        gNode.on('click', onEdit)
+        gText.on('click', onEdit)
       } else {
-        gNode.on('click', null)
+        gText.on('click', null)
       }
     }
     const switchDrag = (draggable: boolean) => {
       if (!g.value) { return }
-      const temp = g.value.selectAll<SVGGElement, Mdata>(`g.node:not(.${style.root})`)
+      const gText = g.value.selectAll<SVGGElement, Mdata>(`g.node:not(.${style.root}) > g > g.${style.text}`)
       if (draggable) {
-        drag(temp)
+        drag(gText)
       } else {
-        temp.on('.drag', null)
+        gText.on('.drag', null)
       }
     }
     const switchSelect = (selectable: boolean) => {
       if (!g.value) { return }
-      const temp = g.value.selectAll<SVGGElement, Mdata>('g.node')
+      const gText = g.value.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
       if (selectable) {
-        temp.on('mousedown', onSelect)
+        gText.on('mousedown', onSelect)
       } else {
-        temp.on('mousedown', null)
+        gText.on('mousedown', null)
       }
     }
     // 一次操作
