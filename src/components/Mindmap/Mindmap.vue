@@ -216,10 +216,7 @@ export default defineComponent({
     // 绘制节点的方法
     const appendAddBtn = (g: SelectionG) => {
       const gAddBtn = g.append('g')
-      gAddBtn.on('click', (e: MouseEvent, d: Mdata) => {
-        // e.stopPropagation()
-        console.log(d)
-      })
+      gAddBtn.on('click', onClickAddBtn)
       attrAddBtnRect(gAddBtn.append('rect'))
       gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
       return gAddBtn
@@ -492,6 +489,7 @@ export default defineComponent({
       const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
       if (temp) { temp.style.opacity = '0' }
     }
+    const onClickAddBtn = (e: MouseEvent, d: Mdata) => { add(d.id, '') }
     // 插件
     const switchZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
@@ -540,6 +538,10 @@ export default defineComponent({
     }
     const move = (id: string, referenceId: string, after = 0) => {
       mmdata.move(id, referenceId, after)
+      draw()
+    }
+    const add = (id: string, name: string) => {
+      mmdata.add(id, name)
       draw()
     }
     // 辅助按钮的点击事件

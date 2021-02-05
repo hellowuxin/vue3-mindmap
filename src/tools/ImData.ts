@@ -139,9 +139,7 @@ class ImData {
 
   setBoundingBox (xGap: number, yGap: number): void {
     this.layout = getLayout(xGap, yGap)
-    traverse(this.data, [swapWidthAndHeight])
-    this.layout.layout(this.data)
-    traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta])
+    this.renew()
   }
 
   find (id: string): IsMdata { // 根据id找到数据
@@ -167,9 +165,7 @@ class ImData {
         const size = this.getSize(d.name)
         d.width = size.width
         d.height = size.height
-        traverse(this.data, [swapWidthAndHeight])
-        this.layout.layout(this.data)
-        traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta])
+        this.renew()
       }
       return d
     } else {
@@ -224,6 +220,46 @@ class ImData {
       }
     }
     return null
+  }
+
+  add (id: string, name: string): IsMdata {
+    const p = this.find(id)
+    if (p) {
+      if (!p.children) { p.children = [] }
+      if (!p.rawData.children) { p.rawData.children = [] }
+      const size = this.getSize(name)
+      const rawData = { name }
+      const color = p.color ? p.color : colorScale(`${colorNumber += 1}`)
+      const d = {
+        id: `${p.id}-${p.children.length}`,
+        name,
+        rawData,
+        parent: p,
+        left: p.left,
+        color,
+        gKey: gKey += 1,
+        width: size.width,
+        height: size.height,
+        depth: p.depth + 1,
+        x: 0,
+        y: 0,
+        dx: 0,
+        dy: 0,
+        px: 0,
+        py: 0
+      }
+      p.children.push(d)
+      p.rawData.children.push(rawData)
+      this.renew()
+      return d
+    }
+    return null
+  }
+
+  renew (): void {
+    traverse(this.data, [swapWidthAndHeight])
+    this.layout.layout(this.data)
+    traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta])
   }
 }
 
