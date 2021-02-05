@@ -29,6 +29,7 @@ type TspanData = { name: string, height: number }
 type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
 type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>
 type Transition = d3.Transition<d3.BaseType, Mdata, SVGGElement, unknown>
+type TwoNumber = [number, number]
 
 export default defineComponent({
   name: 'Mindmap',
@@ -50,6 +51,9 @@ export default defineComponent({
     branch: {
       type: Number,
       default: 4
+    },
+    scaleExtent: {
+      default: (): TwoNumber => [0.1, 8]
     },
     centerBtn: Boolean,
     fitBtn: Boolean,
@@ -73,7 +77,7 @@ export default defineComponent({
     const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
     const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
     const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
-    const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent([0.1, 8])
+    const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(props.scaleExtent)
     const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
     const observer = new ResizeObserver((arr) => {
       if (!foreign.value) { return }
@@ -159,8 +163,8 @@ export default defineComponent({
         }
       }
       const temp = props.branch / 2
-      const source = [-d.dx + dpw - d.px, -d.dy + dph + temp - d.py] as [number, number]
-      const target = [0, d.height + temp] as [number, number]
+      const source: TwoNumber = [-d.dx + dpw - d.px, -d.dy + dph + temp - d.py]
+      const target: TwoNumber = [0, d.height + temp]
       const trp = Math.max(textRectPadding.value - 3, 0)
       return `${link({ source, target })}L${d.width + trp},${target[1]}`
     }
@@ -338,7 +342,7 @@ export default defineComponent({
         throw new Error(`g[data-id='${getDataId(d)}'] is null`)
       }
     }
-    const moveNode = (node: SVGGElement, d: Mdata, p: [number, number], dura = 0) => {
+    const moveNode = (node: SVGGElement, d: Mdata, p: TwoNumber, dura = 0) => {
       const tran = makeTransition(dura, d3.easePolyOut)
       d.px = p[0]
       d.py = p[1]
