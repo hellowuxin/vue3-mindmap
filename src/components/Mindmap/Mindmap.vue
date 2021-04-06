@@ -493,7 +493,14 @@ export default defineComponent({
       const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
       if (temp) { temp.style.opacity = '0' }
     }
-    const onClickAddBtn = (e: MouseEvent, d: Mdata) => { add(d.id, '') }
+    const onClickAddBtn = (e: MouseEvent, d: Mdata) => {
+      const child = add(d.id, '')
+      if (!g.value || !child) { return }
+      const gText = g.value.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(child)}'] g.${style.text}`)
+      gText.dispatch('mousedown') // Uncaught TypeError: Cannot read property 'document' of undefined
+      gText.dispatch('mousedown')
+      gText.dispatch('click')
+    }
     // 插件
     const switchZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
@@ -545,8 +552,9 @@ export default defineComponent({
       draw()
     }
     const add = (id: string, name: string) => {
-      mmdata.add(id, name)
+      const d = mmdata.add(id, name)
       draw()
+      return d
     }
     // 辅助按钮的点击事件
     const centerView = () => {

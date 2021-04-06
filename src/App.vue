@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import learn from '../public/learn.json'
+import learn from './learn.json'
 import { defineComponent, reactive } from 'vue'
 import Mindmap from './components/Mindmap'
 type checkbox = { [key: string]: { value: boolean, disabled?: boolean } }

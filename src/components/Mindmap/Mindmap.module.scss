@@ -142,11 +142,11 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     width: 24px;
     height: 24px;
 
-    &.gps { background-image: url(~@/../public/icons/24px/crosshairs-gps.png) }
-    &.fit { background-image: url(~@/../public/icons/24px/fit-to-page-outline.png) }
-    &.download { background-image: url(~@/../public/icons/24px/download.png) }
-    &.undo { background-image: url(~@/../public/icons/24px/undo.png) }
-    &.redo { background-image: url(~@/../public/icons/24px/redo.png) }
-    &.close { background-image: url(~@/../public/icons/24px/close.png) }
+    &.gps { background-image: url(/icons/24px/crosshairs-gps.png) }
+    &.fit { background-image: url(/icons/24px/fit-to-page-outline.png) }
+    &.download { background-image: url(/icons/24px/download.png) }
+    &.undo { background-image: url(/icons/24px/undo.png) }
+    &.redo { background-image: url(/icons/24px/redo.png) }
+    &.close { background-image: url(/icons/24px/close.png) }
   }
 }
