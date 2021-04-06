@@ -20,16 +20,12 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
-import { Data, Mdata } from '@/interface'
+import { Data, Mdata, TspanData, Transition, SelectionG, TwoNumber, SelectionRect } from '@/interface'
 import style from './Mindmap.module.scss'
 import { d3, ImData, getAddPath, getMultiline } from '@/tools'
 import html2canvas from 'html2canvas'
-
-type TspanData = { name: string, height: number }
-type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
-type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>
-type Transition = d3.Transition<d3.BaseType, Mdata, SVGGElement, unknown>
-type TwoNumber = [number, number]
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan } from './attribute'
+import { link, rootTextRectRadius, rootTextRectPadding, addBtnRect, addBtnSide } from './variable'
 
 export default defineComponent({
   name: 'Mindmap',
@@ -76,10 +72,9 @@ export default defineComponent({
     const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
     const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
     const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
-    const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
     const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(props.scaleExtent)
     const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
-    const observer = new ResizeObserver((arr) => {
+    const observer = new ResizeObserver((arr: any) => {
       if (!foreign.value) { return }
       const temp = arr[0]
       const target = temp.target
@@ -91,11 +86,7 @@ export default defineComponent({
     let mmdata: ImData
     let editFlag = false
     const showAddNodeBtn = ref(true)
-    const rootTextRectRadius = 6
-    const rootTextRectPadding = 10
     const textRectPadding = computed(() => Math.min(props.yGap / 2 - 1, rootTextRectPadding))
-    const addBtnRect = { side: 12, padding: 2 }
-    const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
@@ -141,16 +132,6 @@ export default defineComponent({
       g.value?.selectAll(`g.${style['add-btn']}`).style('display', val ? '' : 'none')
     })
     // 每个属性的计算方法
-    const getGClass = (d?: Mdata) => {
-      const arr = ['node']
-      if (d) {
-        arr.push(`depth-${d.depth}`)
-        if (d.depth === 0) { arr.push(style.root) }
-      }
-      return arr
-    }
-    const getGTransform = (d: Mdata) => { return `translate(${d.dx + d.px},${d.dy + d.py})` }
-    const getDataId = (d: Mdata): string => { return d.id }
     const getPath = (d: Mdata) => {
       let dpw = 0
       let dph = 0
@@ -168,32 +149,16 @@ export default defineComponent({
       const trp = Math.max(textRectPadding.value - 3, 0)
       return `${link({ source, target })}L${d.width + trp},${target[1]}`
     }
-    const getTspanData = (d: Mdata): TspanData[] => {
-      const multiline = getMultiline(d.name)
-      const height = d.height / multiline.length
-      return multiline.map((name) => ({ name, height }))
-    }
     const getAddBtnTransform = (d: Mdata, trp: number) => {
       const gap = 8
       const y = d.depth === 0 ? d.height / 2 : d.height + props.branch / 2
       return `translate(${d.width + trp + addBtnSide / 2 + gap},${y})`
     }
     // 每个图形的绘制方法
-    const attrG = (g: SelectionG, tran?: Transition) => {
-      const temp1 = g.attr('class', (d) => getGClass(d).join(' ')).attr('data-id', getDataId)
-      const temp2 = tran ? temp1.transition(tran) : temp1
-      temp2.attr('transform', getGTransform)
-    }
     const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition) => {
       const temp1 = p.attr('stroke', (d) => d.color).attr('stroke-width', props.branch)
       const temp2 = tran ? temp1.transition(tran) : temp1
       temp2.attr('d', getPath)
-    }
-    const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
-      tspan.attr('alignment-baseline', 'text-before-edge')
-        .text((d) => d.name || ' ')
-        .attr('x', 0)
-        .attr('dy', (d, i) => i ? d.height : 0)
     }
     const attrTextRect = (rect: SelectionRect, padding = textRectPadding.value, radius = 4) => {
       rect.attr('x', -padding).attr('y', -padding).attr('rx', radius).attr('ry', radius)
@@ -497,9 +462,12 @@ export default defineComponent({
       const child = add(d.id, '')
       if (!g.value || !child) { return }
       const gText = g.value.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(child)}'] g.${style.text}`)
-      gText.dispatch('mousedown') // Uncaught TypeError: Cannot read property 'document' of undefined
-      gText.dispatch('mousedown')
-      gText.dispatch('click')
+      const node = gText.node()
+
+      if (node) {
+        editFlag = true
+        onEdit.call(node, e, child)
+      }
     }
     // 插件
     const switchZoom = (zoomable: boolean) => {

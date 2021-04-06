@@ -1,3 +1,5 @@
+import { d3 } from "./tools";
+
 export interface Data {
   name: string
   children?: Array<Data>
@@ -24,3 +26,14 @@ export interface Mdata {
   px: number
   py: number
 }
+
+export interface TspanData {
+  name: string,
+  height: number
+}
+
+export type Transition = d3.Transition<d3.BaseType, Mdata, SVGGElement, unknown>
+export type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
+export type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>
+export type TwoNumber = [number, number]
+
