@@ -15,4 +15,4 @@ declare const style: {
   readonly content: string
   readonly trigger: string
 }
-export = style
+export default style

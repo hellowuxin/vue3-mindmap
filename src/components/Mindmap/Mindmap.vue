@@ -23,7 +23,7 @@ import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 
 import { Data, Mdata, TspanData, Transition, SelectionG, TwoNumber, SelectionRect } from './interface'
 import style from './Mindmap.module.scss'
 import { d3, ImData, getAddPath, getMultiline, convertToImg } from '@/components/Mindmap/tools'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect, getAddBtnTransform, getPath } from './attribute'
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect, getAddBtnTransform, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
 import { rootTextRectRadius, rootTextRectPadding, addBtnRect, addBtnSide } from './variable'
 import { appendTspan, updateTspan } from './draw'
 
@@ -131,26 +131,6 @@ export default defineComponent({
     watch(showAddNodeBtn, (val) => {
       g.value?.selectAll(`g.${style['add-btn']}`).style('display', val ? '' : 'none')
     })
-    // 每个图形的绘制方法
-    const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition) => {
-      const temp1 = p.attr('stroke', (d) => d.color).attr('stroke-width', props.branch)
-      const temp2 = tran ? temp1.transition(tran) : temp1
-      temp2.attr('d', (d) => getPath(d, props.branch, textRectPadding.value))
-    }
-    const attrTextRect = (rect: SelectionRect, padding = textRectPadding.value, radius = 4) => {
-      rect.attr('x', -padding).attr('y', -padding).attr('rx', radius).attr('ry', radius)
-        .attr('width', (d) => d.width + padding * 2).attr('height', (d) => d.height + padding * 2)
-    }
-    const attrAddBtn = (g: SelectionG, trp = textRectPadding.value) => {
-      g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp, props.branch))
-    }
-    const attrTrigger = (rect: SelectionRect, padding = textRectPadding.value) => {
-      rect.attr('class', style.trigger)
-        .attr('x', -padding)
-        .attr('y', -padding)
-        .attr('width', (d) => d.width + padding * 2 + 8 + addBtnSide)
-        .attr('height', (d) => d.height + padding * 2)
-    }
     // 绘制节点的方法
     const appendAddBtn = (g: SelectionG) => {
       const gAddBtn = g.append('g')
@@ -164,7 +144,7 @@ export default defineComponent({
       const enterG = enter.append('g')
       attrG(enterG)
       // 绘制线
-      attrPath(enterG.append('path'))
+      attrPath(enterG.append('path'), props.branch, textRectPadding.value)
       // 节点容器
       const gContent = enterG.append('g').attr('class', style.content)
       const gTrigger = gContent.append('rect')
@@ -180,11 +160,11 @@ export default defineComponent({
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
         attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
-        if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding) }
+        if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding, props.branch) }
       } else {
-        attrTrigger(gTrigger)
-        attrTextRect(gTextRect)
-        if (gAddBtn) { attrAddBtn(gAddBtn) }
+        attrTrigger(gTrigger, textRectPadding.value)
+        attrTextRect(gTextRect, textRectPadding.value)
+        if (gAddBtn) { attrAddBtn(gAddBtn, textRectPadding.value, props.branch) }
       }
 
       bindEvent(enterG, isRoot)
@@ -200,7 +180,7 @@ export default defineComponent({
       const isRoot = !update.data()[0]?.depth
       const tran = makeTransition(500, d3.easePolyOut)
       attrG(update, tran)
-      attrPath(update.select<SVGPathElement>(':scope > path'), tran)
+      attrPath(update.select<SVGPathElement>(':scope > path'), props.branch, textRectPadding.value, tran)
       const gContent = update.select<SVGGElement>(`:scope > g.${style.content}`)
       const gTrigger = gContent.select<SVGRectElement>(':scope > rect')
       const gText = gContent.select<SVGGElement>(`g.${style.text}`)
@@ -218,11 +198,11 @@ export default defineComponent({
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
         attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
-        attrAddBtn(gAddBtn, rootTextRectPadding)
+        attrAddBtn(gAddBtn, rootTextRectPadding, props.branch)
       } else {
-        attrTrigger(gTrigger)
-        attrTextRect(gTextRect)
-        attrAddBtn(gAddBtn)
+        attrTrigger(gTrigger, textRectPadding.value)
+        attrTextRect(gTextRect, textRectPadding.value)
+        attrAddBtn(gAddBtn, textRectPadding.value, props.branch)
       }
 
       update.each((d, i) => {
