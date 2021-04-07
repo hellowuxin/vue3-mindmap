@@ -22,10 +22,9 @@
 import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata, TspanData, Transition, SelectionG, TwoNumber, SelectionRect } from './interface'
 import style from './Mindmap.module.scss'
-import { d3, ImData, getAddPath, getMultiline } from '@/components/Mindmap/tools'
-import html2canvas from 'html2canvas'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect } from './attribute'
-import { link, rootTextRectRadius, rootTextRectPadding, addBtnRect, addBtnSide } from './variable'
+import { d3, ImData, getAddPath, getMultiline, convertToImg } from '@/components/Mindmap/tools'
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect, getAddBtnTransform, getPath } from './attribute'
+import { rootTextRectRadius, rootTextRectPadding, addBtnRect, addBtnSide } from './variable'
 import { appendTspan, updateTspan } from './draw'
 
 export default defineComponent({
@@ -132,41 +131,18 @@ export default defineComponent({
     watch(showAddNodeBtn, (val) => {
       g.value?.selectAll(`g.${style['add-btn']}`).style('display', val ? '' : 'none')
     })
-    // 每个属性的计算方法
-    const getPath = (d: Mdata) => {
-      let dpw = 0
-      let dph = 0
-      if (d.parent) {
-        dpw = d.parent.width
-        dph = d.parent.height
-        if (d.parent.depth === 0) {
-          dpw /= 2
-          dph /= 2
-        }
-      }
-      const temp = props.branch / 2
-      const source: TwoNumber = [-d.dx + dpw - d.px, -d.dy + dph + temp - d.py]
-      const target: TwoNumber = [0, d.height + temp]
-      const trp = Math.max(textRectPadding.value - 3, 0)
-      return `${link({ source, target })}L${d.width + trp},${target[1]}`
-    }
-    const getAddBtnTransform = (d: Mdata, trp: number) => {
-      const gap = 8
-      const y = d.depth === 0 ? d.height / 2 : d.height + props.branch / 2
-      return `translate(${d.width + trp + addBtnSide / 2 + gap},${y})`
-    }
     // 每个图形的绘制方法
     const attrPath = (p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition) => {
       const temp1 = p.attr('stroke', (d) => d.color).attr('stroke-width', props.branch)
       const temp2 = tran ? temp1.transition(tran) : temp1
-      temp2.attr('d', getPath)
+      temp2.attr('d', (d) => getPath(d, props.branch, textRectPadding.value))
     }
     const attrTextRect = (rect: SelectionRect, padding = textRectPadding.value, radius = 4) => {
       rect.attr('x', -padding).attr('y', -padding).attr('rx', radius).attr('ry', radius)
         .attr('width', (d) => d.width + padding * 2).attr('height', (d) => d.height + padding * 2)
     }
     const attrAddBtn = (g: SelectionG, trp = textRectPadding.value) => {
-      g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp))
+      g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp, props.branch))
     }
     const attrTrigger = (rect: SelectionRect, padding = textRectPadding.value) => {
       rect.attr('class', style.trigger)
@@ -296,7 +272,7 @@ export default defineComponent({
       d.px = p[0]
       d.py = p[1]
       d3.select<SVGGElement, Mdata>(node).transition(tran).attr('transform', getGTransform)
-      d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`).transition(tran).attr('d', getPath)
+      d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`).transition(tran).attr('d', (d) => getPath(d, props.branch, textRectPadding.value))
     }
     const makeTransition = (dura: number, easingFn: (normalizedTime: number) => number) => {
       return d3.transition<Mdata>().duration(dura).ease(easingFn) as d3.Transition<any, Mdata, null, undefined>
@@ -532,15 +508,7 @@ export default defineComponent({
     const download = () => {
       const svgdiv = document.querySelector<HTMLDivElement>(`div.${style.svg}`)
       if (svgdiv) {
-        html2canvas(svgdiv).then((canvas) => {
-          const dataUrl = canvas.toDataURL()
-          const window = open()
-          if (window) {
-            window.document.write(`<img src='${dataUrl}'>`)
-            window.document.title = mmdata.data.name
-            window.document.close()
-          }
-        })
+        convertToImg(svgdiv, mmdata.data.name)
       }
     }
 

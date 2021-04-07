@@ -124,7 +124,7 @@ const getLayout = (xGap: number, yGap: number) => {
   return new Layout(bb)
 }
 
-class ImData {
+export class ImData {
   data: Mdata
   private getSize: GetSize
   private layout: Layout
