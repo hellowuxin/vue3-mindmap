@@ -1,4 +1,4 @@
-import { d3 } from "@/tools";
+import { d3 } from "@/components/Mindmap/tools";
 
 export const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
 export const rootTextRectRadius = 6

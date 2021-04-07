@@ -1,5 +1,5 @@
-import { Mdata, TspanData } from "@/interface"
-import { getMultiline } from "@/tools"
+import { Mdata, TspanData } from "@/components/Mindmap/interface"
+import { getMultiline } from "@/components/Mindmap/tools"
 import style from '../Mindmap.module.scss'
 
 export const getGClass = (d?: Mdata): string[] => {

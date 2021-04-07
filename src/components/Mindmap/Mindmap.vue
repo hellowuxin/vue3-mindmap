@@ -20,12 +20,13 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
-import { Data, Mdata, TspanData, Transition, SelectionG, TwoNumber, SelectionRect } from '@/interface'
+import { Data, Mdata, TspanData, Transition, SelectionG, TwoNumber, SelectionRect } from './interface'
 import style from './Mindmap.module.scss'
-import { d3, ImData, getAddPath, getMultiline } from '@/tools'
+import { d3, ImData, getAddPath, getMultiline } from '@/components/Mindmap/tools'
 import html2canvas from 'html2canvas'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan } from './attribute'
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect } from './attribute'
 import { link, rootTextRectRadius, rootTextRectPadding, addBtnRect, addBtnSide } from './variable'
+import { appendTspan, updateTspan } from './draw'
 
 export default defineComponent({
   name: 'Mindmap',
@@ -167,14 +168,6 @@ export default defineComponent({
     const attrAddBtn = (g: SelectionG, trp = textRectPadding.value) => {
       g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp))
     }
-    const attrAddBtnRect = (rect: SelectionRect) => {
-      const side = addBtnRect.side
-      const padding = addBtnRect.padding
-      const radius = 4
-      const temp0 = -padding - side / 2
-      const temp1 = side + padding * 2
-      rect.attr('x', temp0).attr('y', temp0).attr('rx', radius).attr('ry', radius).attr('width', temp1).attr('height', temp1)
-    }
     const attrTrigger = (rect: SelectionRect, padding = textRectPadding.value) => {
       rect.attr('class', style.trigger)
         .attr('x', -padding)
@@ -189,15 +182,6 @@ export default defineComponent({
       attrAddBtnRect(gAddBtn.append('rect'))
       gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
       return gAddBtn
-    }
-    const appendTspan = (enter: d3.Selection<d3.EnterElement, TspanData, SVGTextElement, Mdata>) => {
-      const tspan = enter.append('tspan')
-      attrTspan(tspan)
-      return tspan
-    }
-    const updateTspan = (update: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>) => {
-      attrTspan(update)
-      return update
     }
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
       const isRoot = !enter.data()[0]?.depth
