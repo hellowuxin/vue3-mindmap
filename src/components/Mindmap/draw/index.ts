@@ -1,5 +1,5 @@
 import { TspanData, Mdata } from "@/components/Mindmap/interface"
-import { d3 } from "@/components/Mindmap/tools"
+import * as d3 from '../d3'
 import { attrTspan } from "../attribute"
 
 export const appendTspan = (

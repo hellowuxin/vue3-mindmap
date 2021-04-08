@@ -20,13 +20,17 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
-import { Data, Mdata, TspanData, Transition, SelectionG, TwoNumber, SelectionRect } from './interface'
-import style from './Mindmap.module.scss'
-import { d3, ImData, getAddPath, getMultiline, convertToImg } from '@/components/Mindmap/tools'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect, getAddBtnTransform, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
-import { rootTextRectRadius, rootTextRectPadding, addBtnRect, addBtnSide } from './variable'
+import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
+import style from './css/Mindmap.module.scss'
+import * as d3 from './d3'
+import { ImData } from './data'
+import { getAddPath, getMultiline, convertToImg, makeTransition, getDragContainer } from './tool'
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
+import { rootTextRectRadius, rootTextRectPadding, addBtnRect } from './variable'
 import { appendTspan, updateTspan } from './draw'
+import mitt from './mitt'
 
+export const Emitter = mitt()
 export default defineComponent({
   name: 'Mindmap',
   props: {
@@ -252,10 +256,9 @@ export default defineComponent({
       d.px = p[0]
       d.py = p[1]
       d3.select<SVGGElement, Mdata>(node).transition(tran).attr('transform', getGTransform)
-      d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`).transition(tran).attr('d', (d) => getPath(d, props.branch, textRectPadding.value))
-    }
-    const makeTransition = (dura: number, easingFn: (normalizedTime: number) => number) => {
-      return d3.transition<Mdata>().duration(dura).ease(easingFn) as d3.Transition<any, Mdata, null, undefined>
+      d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`)
+        .transition(tran)
+        .attr('d', (d) => getPath(d, props.branch, textRectPadding.value))
     }
     const bindEvent = (g: SelectionG, isRoot: boolean) => {
       if (props.drag || props.edit) {
@@ -267,12 +270,6 @@ export default defineComponent({
       if (props.addNodeBtn) {
         g.select<SVGGElement>(`:scope > g.${style.content}`).on('mouseenter', onMouseEnter).on('mouseleave', onMouseLeave)
       }
-    }
-    /**
-     * @param this gText
-     */
-    function getDragContainer (this: SVGGElement) {
-      return this.parentNode?.parentNode?.parentNode as SVGGElement
     }
     // 监听事件
     function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {

@@ -1,4 +1,4 @@
-import { d3 } from "./tools";
+import * as d3 from './d3'
 
 export interface Data {
   name: string

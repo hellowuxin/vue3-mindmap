@@ -1,6 +1,6 @@
 import { Mdata, TspanData, TwoNumber } from "@/components/Mindmap/interface"
-import { getMultiline } from "@/components/Mindmap/tools"
-import style from '../Mindmap.module.scss'
+import { getMultiline } from "../tool"
+import style from '../css/Mindmap.module.scss'
 import { addBtnSide, link } from "../variable"
 
 export const getGClass = (d?: Mdata): string[] => {

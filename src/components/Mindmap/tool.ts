@@ -1,4 +1,6 @@
 import html2canvas from "html2canvas"
+import * as d3 from './d3'
+import { Mdata } from "./interface"
 
 /**
  * 使页面重排
@@ -43,4 +45,15 @@ export const convertToImg = (svgdiv: HTMLDivElement, name: string): void => {
   })
 }
 
+export const makeTransition = (
+  dura: number, easingFn: (normalizedTime: number) => number
+): d3.Transition<any, Mdata, null, undefined> => {
+  return d3.transition<Mdata>().duration(dura).ease(easingFn) as d3.Transition<any, Mdata, null, undefined>
+}
 
+/**
+ * @param this gText
+ */
+export function getDragContainer (this: SVGGElement): SVGGElement {
+  return this.parentNode?.parentNode?.parentNode as SVGGElement
+}

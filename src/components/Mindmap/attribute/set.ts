@@ -1,8 +1,8 @@
 import { Mdata, SelectionG, SelectionRect, Transition, TspanData } from "../interface"
-import { d3 } from "@/components/Mindmap/tools"
+import * as d3 from '../d3'
 import { addBtnRect, addBtnSide } from "../variable"
 import { getAddBtnTransform, getDataId, getGClass, getGTransform, getPath } from "./get"
-import style from '../Mindmap.module.scss'
+import style from '../css/Mindmap.module.scss'
 
 export const attrG = (g: SelectionG, tran?: Transition): void => {
   const temp1 = g.attr('class', (d) => getGClass(d).join(' ')).attr('data-id', getDataId)
