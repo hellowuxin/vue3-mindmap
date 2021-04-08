@@ -42,3 +42,5 @@ export default function mitt (): Emitter {
     }
   }
 }
+
+export const Emitter = mitt()

@@ -1,6 +1,6 @@
 import { Mdata, SelectionG, SelectionRect, Transition, TspanData } from "../interface"
 import * as d3 from '../d3'
-import { addBtnRect, addBtnSide } from "../variable"
+import { addBtnRect, addBtnSide, branch } from "../variable"
 import { getAddBtnTransform, getDataId, getGClass, getGTransform, getPath } from "./get"
 import style from '../css/Mindmap.module.scss'
 
@@ -31,8 +31,8 @@ export const attrTextRect = (rect: SelectionRect, padding: number, radius = 4): 
     .attr('width', (d) => d.width + padding * 2).attr('height', (d) => d.height + padding * 2)
 }
 
-export const attrAddBtn = (g: SelectionG, trp: number, branch: number): void => {
-  g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp, branch))
+export const attrAddBtn = (g: SelectionG, trp: number): void => {
+  g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp))
 }
 
 export const attrTrigger = (rect: SelectionRect, padding: number): void => {
@@ -45,11 +45,9 @@ export const attrTrigger = (rect: SelectionRect, padding: number): void => {
 
 export const attrPath = (
   p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>,
-  branch: number,
-  textRectPadding: number,
   tran?: Transition
 ): void => {
   const temp1 = p.attr('stroke', (d) => d.color).attr('stroke-width', branch)
   const temp2 = tran ? temp1.transition(tran) : temp1
-  temp2.attr('d', (d) => getPath(d, branch, textRectPadding))
+  temp2.attr('d', (d) => getPath(d))
 }

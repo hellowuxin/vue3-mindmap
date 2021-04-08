@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts">
+import { Emitter } from './mitt'
 import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
@@ -26,11 +27,9 @@ import * as d3 from './d3'
 import { ImData } from './data'
 import { getAddPath, getMultiline, convertToImg, makeTransition, getDragContainer } from './tool'
 import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
-import { rootTextRectRadius, rootTextRectPadding, addBtnRect } from './variable'
+import { rootTextRectRadius, rootTextRectPadding, addBtnRect, textRectPadding } from './variable'
 import { appendTspan, updateTspan } from './draw'
-import mitt from './mitt'
 
-export const Emitter = mitt()
 export default defineComponent({
   name: 'Mindmap',
   props: {
@@ -90,7 +89,6 @@ export default defineComponent({
     let mmdata: ImData
     let editFlag = false
     const showAddNodeBtn = ref(true)
-    const textRectPadding = computed(() => Math.min(props.yGap / 2 - 1, rootTextRectPadding))
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
@@ -120,6 +118,9 @@ export default defineComponent({
       })
       switchZoom(props.zoom)
     })
+    //
+    watch(() => props.branch, (value) => Emitter.emit('branch', value))
+    watch(() => props.yGap, (value) => Emitter.emit('y-gap', value))
     // watch
     watch(() => [props.branch, props.addNodeBtn], () => draw())
     watch(() => [props.xGap, props.yGap], (val) => {
@@ -148,7 +149,7 @@ export default defineComponent({
       const enterG = enter.append('g')
       attrG(enterG)
       // 绘制线
-      attrPath(enterG.append('path'), props.branch, textRectPadding.value)
+      attrPath(enterG.append('path'))
       // 节点容器
       const gContent = enterG.append('g').attr('class', style.content)
       const gTrigger = gContent.append('rect')
@@ -164,11 +165,11 @@ export default defineComponent({
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
         attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
-        if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding, props.branch) }
+        if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding) }
       } else {
-        attrTrigger(gTrigger, textRectPadding.value)
-        attrTextRect(gTextRect, textRectPadding.value)
-        if (gAddBtn) { attrAddBtn(gAddBtn, textRectPadding.value, props.branch) }
+        attrTrigger(gTrigger, textRectPadding)
+        attrTextRect(gTextRect, textRectPadding)
+        if (gAddBtn) { attrAddBtn(gAddBtn, textRectPadding) }
       }
 
       bindEvent(enterG, isRoot)
@@ -184,7 +185,7 @@ export default defineComponent({
       const isRoot = !update.data()[0]?.depth
       const tran = makeTransition(500, d3.easePolyOut)
       attrG(update, tran)
-      attrPath(update.select<SVGPathElement>(':scope > path'), props.branch, textRectPadding.value, tran)
+      attrPath(update.select<SVGPathElement>(':scope > path'), tran)
       const gContent = update.select<SVGGElement>(`:scope > g.${style.content}`)
       const gTrigger = gContent.select<SVGRectElement>(':scope > rect')
       const gText = gContent.select<SVGGElement>(`g.${style.text}`)
@@ -202,11 +203,11 @@ export default defineComponent({
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
         attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
-        attrAddBtn(gAddBtn, rootTextRectPadding, props.branch)
+        attrAddBtn(gAddBtn, rootTextRectPadding)
       } else {
-        attrTrigger(gTrigger, textRectPadding.value)
-        attrTextRect(gTextRect, textRectPadding.value)
-        attrAddBtn(gAddBtn, textRectPadding.value, props.branch)
+        attrTrigger(gTrigger, textRectPadding)
+        attrTextRect(gTextRect, textRectPadding)
+        attrAddBtn(gAddBtn, textRectPadding)
       }
 
       update.each((d, i) => {
@@ -258,7 +259,7 @@ export default defineComponent({
       d3.select<SVGGElement, Mdata>(node).transition(tran).attr('transform', getGTransform)
       d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`)
         .transition(tran)
-        .attr('d', (d) => getPath(d, props.branch, textRectPadding.value))
+        .attr('d', (d) => getPath(d))
     }
     const bindEvent = (g: SelectionG, isRoot: boolean) => {
       if (props.drag || props.edit) {
@@ -291,10 +292,10 @@ export default defineComponent({
       const temp = g.value.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
         if (other !== d && other !== d.parent && !other.id.startsWith(d.id)) {
           const rect = {
-            x0: other.x - textRectPadding.value,
-            x1: other.x + other.width + textRectPadding.value,
-            y0: other.y - textRectPadding.value,
-            y1: other.y + other.height + textRectPadding.value
+            x0: other.x - textRectPadding,
+            x1: other.x + other.width + textRectPadding,
+            y0: other.y - textRectPadding,
+            y1: other.y + other.height + textRectPadding
           }
           return mousePos[0] > rect.x0 && mousePos[1] > rect.y0 && mousePos[0] < rect.x1 && mousePos[1] < rect.y1
         }
