@@ -7,6 +7,11 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
   svg text {
     white-space: pre;
   }
+
+  #svg-wrapper {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .svg {

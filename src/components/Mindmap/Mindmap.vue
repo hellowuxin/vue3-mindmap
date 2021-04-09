@@ -1,6 +1,6 @@
 <template>
   <div :class="style['container']">
-    <div :class="style['svg']">
+    <div :id="style['svg-wrapper']">
       <svg :class="style['svg']" ref="svgEle">
         <g ref="gEle">
           <foreignObject ref="foreignEle" style="display: none">
@@ -20,15 +20,16 @@
 
 <script lang="ts">
 import { Emitter } from './mitt'
-import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
+import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
-import { getAddPath, getMultiline, convertToImg, makeTransition, getDragContainer } from './tool'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, attrAddBtnRect, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
-import { rootTextRectRadius, rootTextRectPadding, addBtnRect, textRectPadding } from './variable'
-import { appendTspan, updateTspan } from './draw'
+import { getMultiline, convertToImg, makeTransition, getDragContainer } from './tool'
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
+import { rootTextRectRadius, rootTextRectPadding, textRectPadding } from './variable'
+import { appendAddBtn, appendTspan, updateTspan } from './draw'
+import { onMouseEnter, onMouseLeave } from './Listener'
 
 export default defineComponent({
   name: 'Mindmap',
@@ -136,14 +137,12 @@ export default defineComponent({
     watch(showAddNodeBtn, (val) => {
       g.value?.selectAll(`g.${style['add-btn']}`).style('display', val ? '' : 'none')
     })
-    // 绘制节点的方法
-    const appendAddBtn = (g: SelectionG) => {
-      const gAddBtn = g.append('g')
+    const appendAndBindAddBtn = (g: SelectionG) => {
+      const gAddBtn = appendAddBtn(g)
       gAddBtn.on('click', onClickAddBtn)
-      attrAddBtnRect(gAddBtn.append('rect'))
-      gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
       return gAddBtn
     }
+    // 绘制节点的方法
     const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
       const isRoot = !enter.data()[0]?.depth
       const enterG = enter.append('g')
@@ -160,7 +159,7 @@ export default defineComponent({
       attrTspan(tspan)
       // 绘制添加按钮
       let gAddBtn
-      if (props.addNodeBtn) { gAddBtn = appendAddBtn(gContent) }
+      if (props.addNodeBtn) { gAddBtn = appendAndBindAddBtn(gContent) }
 
       if (isRoot) {
         attrTrigger(gTrigger, rootTextRectPadding)
@@ -195,7 +194,7 @@ export default defineComponent({
         .join(appendTspan, updateTspan, exit => exit.remove())
       let gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)
       if (props.addNodeBtn) {
-        if (!gAddBtn.node()) { gAddBtn = appendAddBtn(gContent) }
+        if (!gAddBtn.node()) { gAddBtn = appendAndBindAddBtn(gContent) }
       } else {
         gAddBtn.remove()
       }
@@ -269,7 +268,9 @@ export default defineComponent({
         if (props.edit) { gText.on('click', onEdit) }
       }
       if (props.addNodeBtn) {
-        g.select<SVGGElement>(`:scope > g.${style.content}`).on('mouseenter', onMouseEnter).on('mouseleave', onMouseLeave)
+        g.select<SVGGElement>(`:scope > g.${style.content}`)
+          .on('mouseenter', onMouseEnter)
+          .on('mouseleave', onMouseLeave)
       }
     }
     // 监听事件
@@ -382,20 +383,6 @@ export default defineComponent({
       e.stopPropagation()
       selectGNode(d)
     }
-    /**
-     * @param this gContent
-     */
-    function onMouseEnter (this: SVGGElement) {
-      const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
-      if (temp) { temp.style.opacity = '1' }
-    }
-    /**
-     * @param this gContent
-     */
-    function onMouseLeave (this: SVGGElement) {
-      const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
-      if (temp) { temp.style.opacity = '0' }
-    }
     const onClickAddBtn = (e: MouseEvent, d: Mdata) => {
       const child = add(d.id, '')
       if (!g.value || !child) { return }
@@ -484,10 +471,8 @@ export default defineComponent({
       zoom.transform(svg.value, center)
     }
     const download = () => {
-      const svgdiv = document.querySelector<HTMLDivElement>(`div.${style.svg}`)
-      if (svgdiv) {
-        convertToImg(svgdiv, mmdata.data.name)
-      }
+      const svgdiv = document.getElementById(style['svg-wrapper']) as HTMLDivElement
+      convertToImg(svgdiv, mmdata.data.name)
     }
 
     return {
