@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [vue()],
   build: {
     lib: {
-      entry: path.resolve(__dirname, './src/components/Mindmap/Mindmap.vue'),
+      entry: path.resolve(__dirname, './src/components/Mindmap'),
       name: 'mindmap'
     },
     rollupOptions: {
