@@ -1,9 +1,15 @@
-# vue3-mindmap（开发中）
+# vue3-mindmap（开发中）![npm](https://img.shields.io/npm/v/vue3-mindmap)
 
-> 相比[mindmap](https://github.com/hellowuxin/mindmap)更新了技术栈：Vue3、d3v6  
+> 相比[mindmap](https://github.com/hellowuxin/mindmap)更新了技术栈：Vue3、d3v6、Vite  
 > 目前打算对项目进行重构，解决一些老旧问题（图片生成、加载慢...）
 
 在线演示：<https://hellowuxin.github.io/vue3-mindmap/>
+
+## 安装
+
+```sh
+npm install vue3-mindmap
+```
 
 ## PROPS
 
@@ -21,3 +27,44 @@
 | add-node-btn | Boolean          | false      | 是否显示添加节点按钮     |
 | download-btn | Boolean          | false      | 是否显示下载按钮        |
 | scale-extent | [Number, Number] | [0.1, 0.8] | 设置缩放范围           |
+
+```html
+<template>
+  <mindmap v-model="data"></mindmap>
+</template>
+
+<script>
+import mindmap from 'vue3-mindmap'
+import 'vue3-mindmap/dist/style.css'
+
+export default {
+  components: { mindmap },
+  data: () => ({
+    data: [{
+      "name":"如何学习D3",
+      "children": [
+        {
+          "name":"预备知识",
+          "children": [
+            { "name":"HTML & CSS" },
+            { "name":"JavaScript" },
+            ...
+          ]
+        },
+        {
+          "name":"安装",
+          "_children": [
+            { "name": "折叠节点" }
+          ]
+        },
+        {
+          "name":"进阶",
+          "left": true
+        },
+        ...
+      ]
+    }]
+  })
+}
+</script>
+```

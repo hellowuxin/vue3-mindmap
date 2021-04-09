@@ -1,6 +1,7 @@
 {
   "name": "vue3-mindmap",
   "description": "Mindmap Vue3 Component",
+  "author": "伍鑫",
   "files": [
     "dist"
   ],
@@ -51,5 +52,18 @@
     "sass": "^1.32.8",
     "typescript": "~4.2.3",
     "vite": "^2.1.5"
+  },
+  "bugs": {
+    "url": "https://github.com/hellowuxin/vue3-mindmap/issues"
+  },
+  "homepage": "https://github.com/hellowuxin/vue3-mindmap#readme",
+  "keywords": [
+    "mindmap",
+    "vue",
+    "d3"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hellowuxin/vue3-mindmap.git"
   }
 }
