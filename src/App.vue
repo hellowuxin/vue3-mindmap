@@ -20,8 +20,8 @@
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
-        <input type="checkbox" :name="key" v-model="item.value" :disabled="item.disabled">
-        <label :for="key">{{ key }}</label>
+        <input type="checkbox" :name="key.toString()" v-model="item.value" :disabled="item.disabled">
+        <label :for="key.toString()">{{ key }}</label>
       </div>
       <div v-for="(item, key) in rangeList" :key="key">
         <input type="range" :name="key" v-model.number="item.value" :min="item.min" :max="item.max">

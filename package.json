@@ -1,7 +1,18 @@
 {
   "name": "vue3-mindmap",
+  "description": "Mindmap Vue3 Component",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/vue3-mindmap.umd.js",
+  "module": "./dist/vue3-mindmap.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue3-mindmap.es.js",
+      "require": "./dist/vue3-mindmap.umd.js"
+    }
+  },
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
