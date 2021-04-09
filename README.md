@@ -28,6 +28,8 @@ npm install vue3-mindmap
 | download-btn | Boolean          | false      | 是否显示下载按钮        |
 | scale-extent | [Number, Number] | [0.1, 0.8] | 设置缩放范围           |
 
+## 样例
+
 ```html
 <template>
   <mindmap v-model="data"></mindmap>
