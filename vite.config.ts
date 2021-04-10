@@ -9,5 +9,6 @@ export default defineConfig({
       { find: '@', replacement: path.resolve(__dirname, './src') }
     ]
   },
-  plugins: [vue()]
+  plugins: [vue()],
+  base: '/vue3-mindmap/'
 })
