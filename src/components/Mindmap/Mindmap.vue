@@ -64,7 +64,8 @@ export default defineComponent({
     drag: Boolean,
     keyboard: Boolean,
     contextMenu: Boolean,
-    zoom: Boolean
+    zoom: Boolean,
+    sharpCorner: Boolean,
   },
   setup (props) {
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
@@ -121,6 +122,10 @@ export default defineComponent({
     })
     //
     watch(() => props.branch, (value) => Emitter.emit('branch', value))
+    watch(() => props.sharpCorner, (val) => {
+      Emitter.emit('sharp-corner', val)
+      draw()
+    })
     // watch
     watch(() => [props.branch, props.addNodeBtn], () => draw())
     watch(() => [props.xGap, props.yGap], (val) => {

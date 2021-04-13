@@ -17,6 +17,7 @@
       :drag="checkboxList['drag'].value"
       :edit="checkboxList['edit'].value"
       :add-node-btn="checkboxList['add-node-btn'].value"
+      :sharp-corner="checkboxList['sharp-corner'].value"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -53,7 +54,7 @@ export default defineComponent({
       drag: { value: true },
       edit: { value: true },
       contextMenu: { value: false },
-      'sharp-corner': { value: false, disabled: true },
+      'sharp-corner': { value: false },
       vertical: { value: false, disabled: true }
     })
     const rangeList = reactive({

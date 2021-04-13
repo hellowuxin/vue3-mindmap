@@ -1,7 +1,7 @@
 import { Mdata, TspanData, TwoNumber } from "@/components/Mindmap/interface"
 import { getMultiline } from "../tool"
 import style from '../css/Mindmap.module.scss'
-import { addBtnSide, link, branch, textRectPadding } from "../variable"
+import { addBtnSide, link, branch, textRectPadding, sharpCorner } from "../variable"
 
 export const getGClass = (d?: Mdata): string[] => {
   const arr = ['node']
@@ -21,18 +21,20 @@ export const getTspanData = (d: Mdata): TspanData[] => {
 export const getPath = (d: Mdata): string => {
   let dpw = 0
   let dph = 0
+  const trp = Math.max(textRectPadding - 3, 0) // -3为了不超过选中框
+  const targetOffset = branch / 2
+  let sourceOffset = targetOffset
   if (d.parent) {
     dpw = d.parent.width
     dph = d.parent.height
     if (d.parent.depth === 0) {
-      dpw /= 2
+      if (!sharpCorner) { dpw /= 2 }
       dph /= 2
+      sourceOffset = 0
     }
   }
-  const temp = branch / 2
-  const source: TwoNumber = [-d.dx + dpw - d.px, -d.dy + dph + temp - d.py]
-  const target: TwoNumber = [0, d.height + temp]
-  const trp = Math.max(textRectPadding - 3, 0) // -3为了不超过选中框
+  const source: TwoNumber = [-d.dx + dpw - d.px, -d.dy + dph + sourceOffset - d.py]
+  const target: TwoNumber = [0, d.height + targetOffset]
   return `${link({ source, target })}L${d.width + trp},${target[1]}`
 }
 export const getAddBtnTransform = (d: Mdata, trp: number): string => {
