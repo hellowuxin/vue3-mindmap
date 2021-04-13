@@ -1,4 +1,5 @@
 import * as d3 from './d3'
+import { TwoNumber } from './interface'
 import { Emitter } from './mitt'
 
 export const link = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
@@ -11,9 +12,11 @@ export let yGap = 18
 export let textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
 
 Emitter.on('branch', (value) => branch = value)
-Emitter.on('y-gap', (value) => {
-  yGap = value
+Emitter.on('gap', (value: TwoNumber) => {
+  const xGap = value[0]
+  yGap = value[1]
   textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
+  textRectPadding = Math.min(xGap / 2 - 1, textRectPadding)
 })
 
 

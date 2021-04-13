@@ -25,7 +25,7 @@
       </div>
       <div v-for="(item, key) in rangeList" :key="key">
         <input type="range" :name="key" v-model.number="item.value" :min="item.min" :max="item.max">
-        <label :for="key">{{ key }}</label>
+        <label :for="key">{{ key }}（{{ item.value }}）</label>
       </div>
     </div>
   </div>

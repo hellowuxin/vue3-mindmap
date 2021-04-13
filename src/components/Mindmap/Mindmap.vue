@@ -121,10 +121,10 @@ export default defineComponent({
     })
     //
     watch(() => props.branch, (value) => Emitter.emit('branch', value))
-    watch(() => props.yGap, (value) => Emitter.emit('y-gap', value))
     // watch
     watch(() => [props.branch, props.addNodeBtn], () => draw())
     watch(() => [props.xGap, props.yGap], (val) => {
+      Emitter.emit('gap', val)
       mmdata.setBoundingBox(val[0], val[1])
       draw()
     })

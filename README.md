@@ -70,3 +70,7 @@ export default {
 }
 </script>
 ```
+
+## 注意
+
+- 当xGap小于一定数值，父节点的trigger由于添加按钮的存在可能遮挡住子节点的trigger，无法响应子节点的点击
