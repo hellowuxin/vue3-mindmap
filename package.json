@@ -2,6 +2,7 @@
   "name": "vue3-mindmap",
   "description": "Mindmap Vue3 Component",
   "author": "伍鑫",
+  "license": "MIT",
   "files": [
     "dist"
   ],
