@@ -27,6 +27,7 @@ npm install vue3-mindmap
 | add-node-btn | Boolean          | false      | 是否显示添加节点按钮     |
 | download-btn | Boolean          | false      | 是否显示下载按钮        |
 | scale-extent | [Number, Number] | [0.1, 0.8] | 设置缩放范围           |
+| sharp-corner | Boolean          | false      | 设置分支为圆角或直角     |
 
 ## 样例
 
@@ -74,3 +75,7 @@ export default {
 ## 注意
 
 - 当xGap小于一定数值，父节点的trigger由于添加按钮的存在可能遮挡住子节点的trigger，无法响应子节点的点击
+
+## 难解决
+
+- 直角和圆角分支的顺滑转换、直角分支radius
