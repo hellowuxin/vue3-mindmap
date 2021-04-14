@@ -10,5 +10,8 @@ export default defineConfig({
     ]
   },
   plugins: [vue()],
-  base: '/vue3-mindmap/'
+  base: '/vue3-mindmap/',
+  build: {
+    outDir: 'docs'
+  }
 })

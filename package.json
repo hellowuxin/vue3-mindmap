@@ -20,8 +20,7 @@
     "dev": "vite",
     "build": "vite build",
     "lib": "vite build --config vite-lib.config.ts && tsc ./dist/*.js --declaration --allowJs --emitDeclarationOnly -t es2020",
-    "serve": "vite preview",
-    "deploy": "node gh-pages-deploy.js"
+    "serve": "vite preview"
   },
   "dependencies": {
     "d3-drag": "^2.0.0",
