@@ -1,6 +1,6 @@
 <template>
   <div :class="style['container']">
-    <div :id="style['svg-wrapper']">
+    <div :id="style['svg-wrapper']" ref="wrapperEle">
       <svg :class="style['svg']" ref="svgEle">
         <g ref="gEle">
           <foreignObject ref="foreignEle" style="display: none">
@@ -15,6 +15,11 @@
       <button v-if="fitBtn" @click="fitView()"><i :class="style['fit']"></i></button>
       <button v-if="downloadBtn" @click="download()"><i :class="style['download']"></i></button>
     </div>
+    <div :id="style['menu']">
+      <ul>
+        <li v-for="item in contextmenuItems" :key="item.name">{{ item.title }}</li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -27,7 +32,7 @@ import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer } from './tool'
 import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
-import { rootTextRectRadius, rootTextRectPadding, textRectPadding } from './variable'
+import { rootTextRectRadius, rootTextRectPadding, textRectPadding, contextmenuItems } from './variable'
 import { appendAddBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 
@@ -63,11 +68,12 @@ export default defineComponent({
     edit: Boolean,
     drag: Boolean,
     keyboard: Boolean,
-    contextMenu: Boolean,
+    contextmenu: Boolean,
     zoom: Boolean,
     sharpCorner: Boolean,
   },
   setup (props) {
+    const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
     const gEle: Ref<SVGGElement | undefined> = ref()
     const asstSvgEle: Ref<SVGSVGElement | undefined> = ref()
@@ -119,6 +125,7 @@ export default defineComponent({
         oldSele?.classList.remove(style.selected)
       })
       switchZoom(props.zoom)
+      switchContextmenu(props.contextmenu)
     })
     //
     watch(() => props.branch, (value) => Emitter.emit('branch', value))
@@ -142,6 +149,8 @@ export default defineComponent({
     watch(showAddNodeBtn, (val) => {
       g.value?.selectAll(`g.${style['add-btn']}`).style('display', val ? '' : 'none')
     })
+    watch(() => props.contextmenu, (val) => switchContextmenu(val))
+    //
     const appendAndBindAddBtn = (g: SelectionG) => {
       const gAddBtn = appendAddBtn(g)
       gAddBtn.on('click', onClickAddBtn)
@@ -399,6 +408,10 @@ export default defineComponent({
         onEdit.call(node, e, child)
       }
     }
+    const onContextmenu = (e: MouseEvent) => {
+      e.preventDefault()
+      console.log(e)
+    }
     // 插件
     const switchZoom = (zoomable: boolean) => {
       if (!svg.value) { return }
@@ -434,6 +447,14 @@ export default defineComponent({
         gText.on('mousedown', onSelect)
       } else {
         gText.on('mousedown', null)
+      }
+    }
+    const switchContextmenu = (val: boolean) => {
+      if (!wrapperEle.value) { return }
+      if (val) {
+        wrapperEle.value.addEventListener('contextmenu', onContextmenu)
+      } else {
+        wrapperEle.value.removeEventListener('contextmenu', onContextmenu)
       }
     }
     // 一次操作
@@ -481,6 +502,7 @@ export default defineComponent({
     }
 
     return {
+      wrapperEle,
       svgEle,
       gEle,
       style,
@@ -489,7 +511,8 @@ export default defineComponent({
       foreignDivEle,
       centerView,
       fitView,
-      download
+      download,
+      contextmenuItems,
     }
   }
 })

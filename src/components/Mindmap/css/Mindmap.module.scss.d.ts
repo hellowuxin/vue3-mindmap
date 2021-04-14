@@ -15,5 +15,6 @@ declare const style: {
   readonly 'add-btn': string
   readonly content: string
   readonly trigger: string
+  readonly menu: string
 }
 export default style

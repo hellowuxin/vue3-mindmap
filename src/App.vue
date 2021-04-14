@@ -18,6 +18,7 @@
       :edit="checkboxList['edit'].value"
       :add-node-btn="checkboxList['add-node-btn'].value"
       :sharp-corner="checkboxList['sharp-corner'].value"
+      :contextmenu="checkboxList['contextmenu'].value"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -53,7 +54,7 @@ export default defineComponent({
       zoom: { value: true },
       drag: { value: true },
       edit: { value: true },
-      contextMenu: { value: false },
+      contextmenu: { value: true },
       'sharp-corner': { value: false },
       vertical: { value: false, disabled: true }
     })
