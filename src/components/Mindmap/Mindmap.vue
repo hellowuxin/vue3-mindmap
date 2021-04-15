@@ -18,6 +18,7 @@
     <contextmenu
       :position="contextmenuPos"
       :items="contextmenuItems"
+      @click-item="onClickMenu"
     ></contextmenu>
   </div>
 </template>
@@ -426,7 +427,11 @@ export default defineComponent({
       if (gNode) { selectGNode(gNode) }
       contextmenuItems.value = gNode ? nodeMenu : viewMenu
       // this.clearSelection()
-      // setTimeout(() => { this.$refs.menu.focus() }, 300)
+    }
+    const onClickMenu = (name: string) => {
+      if (name === 'zoomfit') {
+        fitView()
+      }
     }
     // 插件
     const switchZoom = (zoomable: boolean) => {
@@ -529,7 +534,8 @@ export default defineComponent({
       fitView,
       download,
       contextmenuItems,
-      contextmenuPos
+      contextmenuPos,
+      onClickMenu
     }
   }
 })

@@ -1,11 +1,16 @@
 <template>
-  <div :class="style['container']" v-show="show" @mousedown="onMousedown">
+  <div :class="style['container']" v-show="show">
+    <div @mousedown="close"></div>
     <div
       :id="style['menu']"
       :style="{ top: position.top+'px', left: position.left+'px' }"
     >
       <ul>
-        <li v-for="item in items" :key="item.name">{{ item.title }}</li>
+        <li
+          v-for="item in items"
+          :key="item.name"
+          @click="onClick(item.name)"
+        >{{ item.title }}</li>
       </ul>
     </div>
   </div>
@@ -29,16 +34,22 @@ export default defineComponent({
     },
     items: Array as PropType<Item[]>
   },
-  setup () {
+  emits: ['click-item'],
+  setup (props, context) {
     const show = ref(false)
     const style = useCssModule()
     Emitter.on('showContextmenu', (val) => show.value = val)
-    const onMousedown = (e: MouseEvent) => show.value = false
+    const close = () => show.value = false
+    const onClick = (name: string) => {
+      close()
+      context.emit('click-item', name)
+    }
 
     return {
       style,
       show,
-      onMousedown
+      close,
+      onClick
     }
   }
 })
@@ -51,6 +62,11 @@ export default defineComponent({
     top: 0;
     right: 0;
     bottom: 0;
+
+    > div:first-child {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   #menu {
