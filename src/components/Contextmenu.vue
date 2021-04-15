@@ -5,10 +5,13 @@
       :id="style['menu']"
       :style="{ top: position.top+'px', left: position.left+'px' }"
     >
-      <ul>
+      <ul 
+        v-for="(group, index) in groups"
+        :key="index"
+      >
         <li
           :class="item.disabled ? style['disabled'] : ''"
-          v-for="item in items"
+          v-for="item in group"
           :key="item.name"
           @click="onClick(item.name)"
         >{{ item.title }}</li>
@@ -33,7 +36,7 @@ export default defineComponent({
     position: {
       default: { top: 0, left: 0 }
     },
-    items: Array as PropType<Item[]>
+    groups: Array as PropType<Item[][]>
   },
   emits: ['click-item'],
   setup (props, context) {
@@ -80,41 +83,49 @@ export default defineComponent({
     font-weight: bold;
     font-size: small;
     white-space: nowrap;
+  }
 
-    ul {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
+  #menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-radius: inherit;
+
+    &:not(:last-child)::after {
+      display: block;
+      content: '';
+      background-color: #CBCBCB;
+      height: 1px;
+      margin: 4px 10px;
+    }
+
+    li {
+      position: relative;
+      padding: 2px 10px;
+      cursor: pointer;
       border-radius: inherit;
 
-      li {
-        position: relative;
-        padding: 2px 10px;
-        cursor: pointer;
+      &::before {
         border-radius: inherit;
+        background-color: black;
+        bottom: 0;
+        content: "";
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+      }
 
-        &::before {
-          border-radius: inherit;
-          background-color: black;
-          bottom: 0;
-          content: "";
-          left: 0;
-          opacity: 0;
-          pointer-events: none;
-          position: absolute;
-          right: 0;
-          top: 0;
-          transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-        }
+      &:not(.disabled):hover::before {
+        opacity: 0.09;
+      }
 
-        &:not(.disabled):hover::before {
-          opacity: 0.09;
-        }
-
-        &.disabled {
-          color: #AEB2B5;
-          pointer-events: none;
-        }
+      &.disabled {
+        color: #AEB2B5;
+        pointer-events: none;
       }
     }
   }

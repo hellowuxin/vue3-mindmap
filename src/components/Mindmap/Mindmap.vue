@@ -17,7 +17,7 @@
     </div>
     <contextmenu
       :position="contextmenuPos"
-      :items="showViewMenu ? viewMenu : nodeMenu"
+      :groups="showViewMenu ? viewMenu : nodeMenu"
       @click-item="onClickMenu"
     ></contextmenu>
   </div>
@@ -104,22 +104,37 @@ export default defineComponent({
     let editFlag = false
     const showAddNodeBtn = ref(true)
     const viewMenu = computed(() => [
-      {
-        title: '放大',
-        name: 'zoomin',
-        disabled: zoomTransform.value.k >= props.scaleExtent[1] 
-      },
-      {
-        title: '缩小',
-        name: 'zoomout',
-        disabled: zoomTransform.value.k <= props.scaleExtent[0]
-      },
-      { title: '缩放至合适大小', name: 'zoomfit', disabled: false },
+      [
+        {
+          title: '放大',
+          name: 'zoomin',
+          disabled: zoomTransform.value.k >= props.scaleExtent[1] 
+        },
+        {
+          title: '缩小',
+          name: 'zoomout',
+          disabled: zoomTransform.value.k <= props.scaleExtent[0]
+        },
+        { title: '缩放至合适大小', name: 'zoomfit', disabled: false }
+      ],
+      [
+        { title: '全选', name: 'selectall', disabled: true }
+      ]
     ])
     const nodeMenu = [
-      { title: '删除节点', name: 'delete', disabled: false },
-      { title: '折叠节点', name: 'collapse', disabled: false },
-      { title: '展开节点', name: 'expand', disabled: false },
+      [
+        { title: '新建子节点', name: 'add', disabled: false }
+      ],
+      [
+        { title: '删除节点', name: 'delete', disabled: false }
+      ],
+      [
+        { title: '全选', name: 'selectall', disabled: true }
+      ],
+      [
+        { title: '折叠节点', name: 'collapse', disabled: true },
+        { title: '展开节点', name: 'expand', disabled: true }
+      ]
     ]
     const showViewMenu = ref(true)
 
@@ -178,7 +193,7 @@ export default defineComponent({
     //
     const appendAndBindAddBtn = (g: SelectionG) => {
       const gAddBtn = appendAddBtn(g)
-      gAddBtn.on('click', onClickAddBtn)
+      gAddBtn.on('click', addAndEdit)
       return gAddBtn
     }
     // 绘制节点的方法
@@ -425,7 +440,10 @@ export default defineComponent({
       e.stopPropagation()
       selectGNode(d)
     }
-    const onClickAddBtn = (e: MouseEvent, d: Mdata) => {
+    /**
+     * 添加子节点并进入编辑模式
+     */
+    const addAndEdit = (e: MouseEvent, d: Mdata) => {
       const child = add(d.id, '')
       if (!g.value || !child) { return }
       const gText = g.value.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(child)}'] g.${style.text}`)
@@ -455,6 +473,10 @@ export default defineComponent({
         scaleView(true)
       } else if (name === 'zoomout') {
         scaleView(false)
+      } else if (name === 'add') {
+        const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
+        const seleData = sele.data()[0]
+        addAndEdit(new MouseEvent('click'), seleData)
       }
     }
     // 插件
