@@ -17,7 +17,7 @@
     </div>
     <contextmenu
       :position="contextmenuPos"
-      :items="contextmenuItems"
+      :items="showViewMenu ? viewMenu : nodeMenu"
       @click-item="onClickMenu"
     ></contextmenu>
   </div>
@@ -25,14 +25,14 @@
 
 <script lang="ts">
 import emitter from '@/mitt'
-import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
 import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
-import { rootTextRectRadius, rootTextRectPadding, textRectPadding, nodeMenu, viewMenu } from './variable'
+import { rootTextRectRadius, rootTextRectPadding, textRectPadding } from './variable'
 import { appendAddBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -77,8 +77,8 @@ export default defineComponent({
     sharpCorner: Boolean,
   },
   setup (props) {
+    let zoomTransform: Ref<d3.ZoomTransform> = ref(d3.zoomIdentity)
     const contextmenuPos = ref({ left: 0, top: 0 })
-    const contextmenuItems = ref(viewMenu)
     const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
     const gEle: Ref<SVGGElement | undefined> = ref()
@@ -103,6 +103,25 @@ export default defineComponent({
     let mmdata: ImData
     let editFlag = false
     const showAddNodeBtn = ref(true)
+    const viewMenu = computed(() => [
+      {
+        title: '放大',
+        name: 'zoomin',
+        disabled: zoomTransform.value.k >= props.scaleExtent[1] 
+      },
+      {
+        title: '缩小',
+        name: 'zoomout',
+        disabled: zoomTransform.value.k <= props.scaleExtent[0]
+      },
+      { title: '缩放至合适大小', name: 'zoomfit', disabled: false },
+    ])
+    const nodeMenu = [
+      { title: '删除节点', name: 'delete', disabled: false },
+      { title: '折叠节点', name: 'collapse', disabled: false },
+      { title: '展开节点', name: 'expand', disabled: false },
+    ]
+    const showViewMenu = ref(true)
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
@@ -298,6 +317,7 @@ export default defineComponent({
     // 监听事件
     function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {
       if (!g.value) { return }
+      zoomTransform.value = e.transform
       g.value.attr('transform', e.transform.toString())
     }
     /**
@@ -425,12 +445,16 @@ export default defineComponent({
       const eventTargets = e.composedPath() as SVGElement[]
       const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
       if (gNode) { selectGNode(gNode) }
-      contextmenuItems.value = gNode ? nodeMenu : viewMenu
+      showViewMenu.value = gNode ? false : true
       // this.clearSelection()
     }
     const onClickMenu = (name: string) => {
       if (name === 'zoomfit') {
         fitView()
+      } else if (name === 'zoomin') {
+        scaleView(true)
+      } else if (name === 'zoomout') {
+        scaleView(false)
       }
     }
     // 插件
@@ -497,30 +521,40 @@ export default defineComponent({
       return d
     }
     // 辅助按钮的点击事件
-    const centerView = () => {
-      if (!svg.value) { return }
-      const data = mmdata.data
-      zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
-    }
-    const fitView = () => { // 缩放至合适大小并移动至全部可见
-      // bug: 缩放后的大小与容器不一致
-      if (!svg.value || !gEle.value || !svgEle.value) { return }
-      const gBB = gEle.value.getBBox()
-      const svgBCR = svgEle.value.getBoundingClientRect()
-      const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
-      const svgCenter = { x: svgBCR.width / 2, y: svgBCR.height / 2 }
-      // after scale
-      const gCenter = { x: gBB.width * multiple / 2, y: gBB.height * multiple / 2 }
-      const center = d3.zoomIdentity.translate(
-        -gBB.x * multiple + svgCenter.x - gCenter.x,
-        -gBB.y * multiple + svgCenter.y - gCenter.y
-      ).scale(multiple)
-      zoom.transform(svg.value, center)
-    }
-    const download = () => {
-      const svgdiv = document.getElementById(style['svg-wrapper']) as HTMLDivElement
-      convertToImg(svgdiv, mmdata.data.name)
-    }
+      const centerView = () => {
+        if (!svg.value) { return }
+        const data = mmdata.data
+        zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
+      }
+      /**
+       * 缩放至合适大小并移动至全部可见
+       */
+      const fitView = () => {
+        if (!svg.value || !gEle.value || !svgEle.value) { return }
+        const gBB = gEle.value.getBBox()
+        const svgBCR = svgEle.value.getBoundingClientRect()
+        const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
+        const svgCenter = { x: svgBCR.width / 2, y: svgBCR.height / 2 }
+        // after scale
+        const gCenter = { x: gBB.width * multiple / 2, y: gBB.height * multiple / 2 }
+        const center = d3.zoomIdentity.translate(
+          -gBB.x * multiple + svgCenter.x - gCenter.x,
+          -gBB.y * multiple + svgCenter.y - gCenter.y
+        ).scale(multiple)
+        zoom.transform(svg.value, center)
+      }
+      /**
+       * 按一定程度缩放
+       * @param flag - 为true时放大，false缩小
+       */
+      const scaleView = (flag: boolean) => {
+        if (!svg.value) { return }
+        zoom.scaleBy(svg.value, flag ? 1.1 : 0.9)
+      }
+      const download = () => {
+        if (!wrapperEle.value) { return }
+        convertToImg(wrapperEle.value, mmdata.data.name)
+      }
 
     return {
       wrapperEle,
@@ -533,7 +567,9 @@ export default defineComponent({
       centerView,
       fitView,
       download,
-      contextmenuItems,
+      showViewMenu,
+      viewMenu,
+      nodeMenu,
       contextmenuPos,
       onClickMenu
     }

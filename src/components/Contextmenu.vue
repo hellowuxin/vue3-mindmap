@@ -7,6 +7,7 @@
     >
       <ul>
         <li
+          :class="item.disabled ? style['disabled'] : ''"
           v-for="item in items"
           :key="item.name"
           @click="onClick(item.name)"
@@ -112,7 +113,7 @@ export default defineComponent({
 
         &.disabled {
           color: #AEB2B5;
-          cursor: not-allowed;
+          pointer-events: none;
         }
       }
     }

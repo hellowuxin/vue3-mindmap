@@ -8,16 +8,6 @@ type Link = d3.Link<unknown, d3.DefaultLinkObject, [number, number]> | CurveStep
 const linkHorizontal = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
 const curveStepLine = d3.line().curve(d3.curveStep)
 
-export const nodeMenu = [
-  { title: '删除节点', name: 'delete', disabled: false },
-  { title: '折叠节点', name: 'collapse', disabled: false },
-  { title: '展开节点', name: 'expand', disabled: false },
-]
-export const viewMenu = [
-  { title: '放大', name: 'zoomin', disabled: false },
-  { title: '缩小', name: 'zoomout', disabled: false },
-  { title: '缩放至合适大小', name: 'zoomfit', disabled: false },
-]
 export let link: Link = linkHorizontal
 export const curveStepLink: CurveStepLink = ({ source, target }) => curveStepLine([source, target])
 export const rootTextRectRadius = 6
