@@ -252,7 +252,9 @@ export default defineComponent({
         height: Math.max(tBox.height, 22) * multiline.length
       }
     }
-    const selectGNode = (d: Mdata | SVGGElement) => {
+    function selectGNode (d: SVGGElement): void
+    function selectGNode (d: Mdata): void
+    function selectGNode (d: SVGGElement | Mdata) {
       const ele = d instanceof SVGGElement ? d : document.querySelector<SVGGElement>(`g[data-id='${getDataId(d)}']`)
       const oldSele = document.getElementsByClassName(style.selected)[0]
       if (ele) {
@@ -414,7 +416,6 @@ export default defineComponent({
       }
     }
     const onContextmenu = (e: MouseEvent) => {
-      console.log(e)
       e.preventDefault()
       if (!wrapperEle.value) { return }
       Emitter.emit('showContextmenu', true)
