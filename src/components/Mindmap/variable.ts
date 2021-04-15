@@ -1,6 +1,6 @@
 import * as d3 from './d3'
 import { TwoNumber } from './interface'
-import { Emitter } from './mitt'
+import { Emitter } from '@/mitt'
 
 type CurveStepLink = ({ source, target }: { source: TwoNumber, target: TwoNumber }) => string | null
 type Link = d3.Link<any, d3.DefaultLinkObject, [number, number]> | CurveStepLink

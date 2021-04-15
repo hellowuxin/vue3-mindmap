@@ -15,20 +15,15 @@
       <button v-if="fitBtn" @click="fitView()"><i :class="style['fit']"></i></button>
       <button v-if="downloadBtn" @click="download()"><i :class="style['download']"></i></button>
     </div>
-    <div
-      v-show="showContextMenu"
-      :id="style['menu']"
-      :style="{ top: contextmenuPos.top+'px', left: contextmenuPos.left+'px' }"
-    >
-      <ul>
-        <li v-for="item in contextmenuItems" :key="item.name">{{ item.title }}</li>
-      </ul>
-    </div>
+    <contextmenu
+      :position="contextmenuPos"
+      :items="contextmenuItems"
+    ></contextmenu>
   </div>
 </template>
 
 <script lang="ts">
-import { Emitter } from './mitt'
+import { Emitter } from '@/mitt'
 import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
@@ -39,9 +34,13 @@ import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, ge
 import { rootTextRectRadius, rootTextRectPadding, textRectPadding, nodeMenu, viewMenu } from './variable'
 import { appendAddBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
+import Contextmenu from '../Contextmenu.vue'
 
 export default defineComponent({
   name: 'Mindmap',
+  components: {
+    Contextmenu
+  },
   props: {
     modelValue: {
       type: Array as PropType<Data[]>,
@@ -79,7 +78,6 @@ export default defineComponent({
   setup (props) {
     const contextmenuPos = ref({ left: 0, top: 0 })
     const contextmenuItems = ref(viewMenu)
-    const showContextMenu = ref(false)
     const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
     const gEle: Ref<SVGGElement | undefined> = ref()
@@ -416,15 +414,15 @@ export default defineComponent({
       }
     }
     const onContextmenu = (e: MouseEvent) => {
+      console.log(e)
       e.preventDefault()
       if (!wrapperEle.value) { return }
-      showContextMenu.value = true
+      Emitter.emit('showContextmenu', true)
       const relativePos = getRelativePos(wrapperEle.value, e)
       contextmenuPos.value = relativePos
       const eventTargets = e.composedPath() as HTMLElement[]
       const gNode = eventTargets.find((et) => et.classList?.contains(style.selected))
       contextmenuItems.value = gNode ? nodeMenu : viewMenu
-      // this.showContextMenu = true
       // this.clearSelection()
       // setTimeout(() => { this.$refs.menu.focus() }, 300)
     }
@@ -529,8 +527,7 @@ export default defineComponent({
       fitView,
       download,
       contextmenuItems,
-      contextmenuPos,
-      showContextMenu
+      contextmenuPos
     }
   }
 })
