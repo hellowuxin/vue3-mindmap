@@ -15,7 +15,11 @@
       <button v-if="fitBtn" @click="fitView()"><i :class="style['fit']"></i></button>
       <button v-if="downloadBtn" @click="download()"><i :class="style['download']"></i></button>
     </div>
-    <div :id="style['menu']">
+    <div
+      v-show="showContextMenu"
+      :id="style['menu']"
+      :style="{ top: contextmenuPos.top+'px', left: contextmenuPos.left+'px' }"
+    >
       <ul>
         <li v-for="item in contextmenuItems" :key="item.name">{{ item.title }}</li>
       </ul>
@@ -30,9 +34,9 @@ import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
-import { getMultiline, convertToImg, makeTransition, getDragContainer } from './tool'
+import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
 import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
-import { rootTextRectRadius, rootTextRectPadding, textRectPadding, contextmenuItems } from './variable'
+import { rootTextRectRadius, rootTextRectPadding, textRectPadding, nodeMenu, viewMenu } from './variable'
 import { appendAddBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 
@@ -73,6 +77,9 @@ export default defineComponent({
     sharpCorner: Boolean,
   },
   setup (props) {
+    const contextmenuPos = ref({ left: 0, top: 0 })
+    const contextmenuItems = ref(viewMenu)
+    const showContextMenu = ref(false)
     const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
     const svgEle: Ref<SVGSVGElement | undefined> = ref()
     const gEle: Ref<SVGGElement | undefined> = ref()
@@ -410,7 +417,16 @@ export default defineComponent({
     }
     const onContextmenu = (e: MouseEvent) => {
       e.preventDefault()
-      console.log(e)
+      if (!wrapperEle.value) { return }
+      showContextMenu.value = true
+      const relativePos = getRelativePos(wrapperEle.value, e)
+      contextmenuPos.value = relativePos
+      const eventTargets = e.composedPath() as HTMLElement[]
+      const gNode = eventTargets.find((et) => et.classList?.contains(style.selected))
+      contextmenuItems.value = gNode ? nodeMenu : viewMenu
+      // this.showContextMenu = true
+      // this.clearSelection()
+      // setTimeout(() => { this.$refs.menu.focus() }, 300)
     }
     // 插件
     const switchZoom = (zoomable: boolean) => {
@@ -513,6 +529,8 @@ export default defineComponent({
       fitView,
       download,
       contextmenuItems,
+      contextmenuPos,
+      showContextMenu
     }
   }
 })

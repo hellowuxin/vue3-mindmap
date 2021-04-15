@@ -160,8 +160,47 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
   position: absolute;
   border-radius: 4px;
   box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);
-  padding: 4px 0;
+  padding: 4px 4px;
   background-color: #eae9ed;
   color: #3a353d;
-  font-weight: 500;
+  font-weight: bold;
+  font-size: small;
+  white-space: nowrap;
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-radius: inherit;
+
+    li {
+      position: relative;
+      padding: 2px 10px;
+      cursor: pointer;
+      border-radius: inherit;
+
+      &::before {
+        border-radius: inherit;
+        background-color: black;
+        bottom: 0;
+        content: "";
+        left: 0;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+      }
+
+      &:not(.disabled):hover::before {
+        opacity: 0.09;
+      }
+
+      &.disabled {
+        color: #AEB2B5;
+        cursor: not-allowed;
+      }
+    }
+  }
 }

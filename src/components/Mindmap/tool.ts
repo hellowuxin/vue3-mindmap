@@ -51,6 +51,18 @@ export const makeTransition = (
   return d3.transition<Mdata>().duration(dura).ease(easingFn) as d3.Transition<any, Mdata, null, undefined>
 }
 
+export const getRelativePos = (wrapper: HTMLElement, e: MouseEvent): { left: number, top: number } => {
+  const { pageX, pageY } = e
+  const wrapperPos = wrapper.getBoundingClientRect()
+  const wrapperLeft = wrapperPos.left + window.pageXOffset
+  const wrapperTop = wrapperPos.top + window.pageYOffset
+
+  return {
+    left: pageX - wrapperLeft,
+    top: pageY - wrapperTop
+  }
+}
+
 /**
  * @param this gText
  */
