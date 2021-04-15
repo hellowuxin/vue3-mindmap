@@ -1,7 +1,7 @@
 import style from './css/Mindmap.module.scss'
 
 /**
- * @param this gContent
+ * @param this - gContent
  */
 export function onMouseEnter (this: SVGGElement): void {
   const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
@@ -9,7 +9,7 @@ export function onMouseEnter (this: SVGGElement): void {
 }
 
 /**
- * @param this gContent
+ * @param this - gContent
  */
 export function onMouseLeave (this: SVGGElement): void {
   const temp = this.querySelector<HTMLElement>(`g.${style['add-btn']}`)
