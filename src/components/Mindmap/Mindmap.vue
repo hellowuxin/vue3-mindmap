@@ -252,8 +252,8 @@ export default defineComponent({
         height: Math.max(tBox.height, 22) * multiline.length
       }
     }
-    const selectGNode = (d: Mdata) => {
-      const ele = document.querySelector(`g[data-id='${getDataId(d)}']`)
+    const selectGNode = (d: Mdata | SVGGElement) => {
+      const ele = d instanceof SVGGElement ? d : document.querySelector<SVGGElement>(`g[data-id='${getDataId(d)}']`)
       const oldSele = document.getElementsByClassName(style.selected)[0]
       if (ele) {
         if (oldSele) {
@@ -267,7 +267,7 @@ export default defineComponent({
           ele.classList.add(style.selected)
         }
       } else {
-        throw new Error(`g[data-id='${getDataId(d)}'] is null`)
+        throw new Error(`g[data-id='${getDataId(d as Mdata)}'] is null`)
       }
     }
     const moveNode = (node: SVGGElement, d: Mdata, p: TwoNumber, dura = 0) => {
@@ -420,8 +420,9 @@ export default defineComponent({
       Emitter.emit('showContextmenu', true)
       const relativePos = getRelativePos(wrapperEle.value, e)
       contextmenuPos.value = relativePos
-      const eventTargets = e.composedPath() as HTMLElement[]
-      const gNode = eventTargets.find((et) => et.classList?.contains(style.selected))
+      const eventTargets = e.composedPath() as SVGElement[]
+      const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
+      if (gNode) { selectGNode(gNode) }
       contextmenuItems.value = gNode ? nodeMenu : viewMenu
       // this.clearSelection()
       // setTimeout(() => { this.$refs.menu.focus() }, 300)
