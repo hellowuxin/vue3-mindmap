@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, useCssModule, PropType, ref } from 'vue'
-import { Emitter } from '@/mitt'
+import emitter from '@/mitt'
 
 interface Item {
   title: string
@@ -38,7 +38,7 @@ export default defineComponent({
   setup (props, context) {
     const show = ref(false)
     const style = useCssModule()
-    Emitter.on('showContextmenu', (val) => show.value = val)
+    emitter.on('showContextmenu', (val) => show.value = val)
     const close = () => show.value = false
     const onClick = (name: string) => {
       close()

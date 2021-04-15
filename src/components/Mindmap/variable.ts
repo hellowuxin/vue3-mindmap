@@ -1,9 +1,9 @@
 import * as d3 from './d3'
 import { TwoNumber } from './interface'
-import { Emitter } from '@/mitt'
+import emitter from '@/mitt'
 
 type CurveStepLink = ({ source, target }: { source: TwoNumber, target: TwoNumber }) => string | null
-type Link = d3.Link<any, d3.DefaultLinkObject, [number, number]> | CurveStepLink
+type Link = d3.Link<unknown, d3.DefaultLinkObject, [number, number]> | CurveStepLink
 
 const linkHorizontal = d3.linkHorizontal().source((d) => d.source).target((d) => d.target)
 const curveStepLine = d3.line().curve(d3.curveStep)
@@ -29,12 +29,13 @@ export let yGap = 18
 export let textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
 export let sharpCorner = false
 
-Emitter.on('branch', (value) => branch = value)
-Emitter.on('sharp-corner', (value) => {
-  sharpCorner = value
+emitter.on<number>('branch', (value) => branch = value ? value : branch)
+emitter.on<boolean>('sharp-corner', (value) => {
+  sharpCorner = value ? value : false
   link = value ? curveStepLink : linkHorizontal
 })
-Emitter.on('gap', (value: TwoNumber) => {
+emitter.on<TwoNumber>('gap', (value) => {
+  if (!value) { return }
   const xGap = value[0]
   yGap = value[1]
   textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)

@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { Emitter } from '@/mitt'
+import emitter from '@/mitt'
 import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
@@ -134,15 +134,15 @@ export default defineComponent({
       switchContextmenu(props.contextmenu)
     })
     //
-    watch(() => props.branch, (value) => Emitter.emit('branch', value))
+    watch(() => props.branch, (value) => emitter.emit('branch', value))
     watch(() => props.sharpCorner, (val) => {
-      Emitter.emit('sharp-corner', val)
+      emitter.emit('sharp-corner', val)
       draw()
     })
     // watch
     watch(() => [props.branch, props.addNodeBtn], () => draw())
     watch(() => [props.xGap, props.yGap], (val) => {
-      Emitter.emit('gap', val)
+      emitter.emit('gap', val)
       mmdata.setBoundingBox(val[0], val[1])
       draw()
     })
@@ -419,7 +419,7 @@ export default defineComponent({
     const onContextmenu = (e: MouseEvent) => {
       e.preventDefault()
       if (!wrapperEle.value) { return }
-      Emitter.emit('showContextmenu', true)
+      emitter.emit('showContextmenu', true)
       const relativePos = getRelativePos(wrapperEle.value, e)
       contextmenuPos.value = relativePos
       const eventTargets = e.composedPath() as SVGElement[]
