@@ -464,7 +464,7 @@ export default defineComponent({
         contextmenuPos.value = relativePos
         const eventTargets = e.composedPath() as SVGElement[]
         const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
-        if (gNode) { selectGNode(gNode) }
+        if (gNode && !gNode.classList.contains(style.selected)) { selectGNode(gNode) }
         showViewMenu.value = gNode ? false : true
         // this.clearSelection()
       }
@@ -480,7 +480,9 @@ export default defineComponent({
           const seleData = sele.data()[0]
           addAndEdit(new MouseEvent('click'), seleData)
         } else if (name === 'delete') {
-
+          const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
+          const seleData = sele.data()[0]
+          del(seleData.id)
         }
       }
     // 功能开关
@@ -545,6 +547,10 @@ export default defineComponent({
         const d = mmdata.add(id, name)
         draw()
         return d
+      }
+      const del = (id: string) => {
+        mmdata.delete(id)
+        draw()
       }
     // 辅助按钮的点击事件
       const centerView = () => {

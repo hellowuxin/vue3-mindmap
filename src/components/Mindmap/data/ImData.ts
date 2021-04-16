@@ -82,7 +82,7 @@ const init = (d: TreeData, id = '0', p: IsMdata = null, c?: string) => {
   return data
 }
 
-function swapWidthAndHeight<T extends { width: number, height: number }> (d: T) {
+const swapWidthAndHeight = <T extends { width: number, height: number }> (d: T) => {
   [d.width, d.height] = [d.height, d.width]
 }
 
@@ -114,9 +114,26 @@ const renewColor = <T extends { color: string, parent: T | null }>(d: T) => {
   }
 }
 
-const traverse = (d: Mdata, process: Processer[], id = '0') => {
-  process.forEach((p) => { p(d, id) })
-  d.children?.forEach((child, index) => { traverse(child, process, `${id}-${index}`) })
+/**
+ * 遍历数据d，在此过程中会对每个数据调用指定函数，同时删除id为del的数据
+ * @param d - 数据
+ * @param processers - 函数
+ * @param id - 新id
+ */
+const traverse = (d: Mdata, processers: Processer[], id = '0') => {
+  processers.forEach((p) => { p(d, id) })
+  const { children } = d
+  if (children) {
+    for (let index = 0; index < children.length; ) {
+      const child = children[index]
+      if (child.id === 'del') {
+        children.splice(index, 1)
+      } else {
+        traverse(child, processers, `${id}-${index}`) 
+        index += 1
+      }
+    }
+  }
 }
 
 const getLayout = (xGap: number, yGap: number) => {
@@ -188,9 +205,7 @@ export class ImData {
       if (del.depth === 1) { del.color = colorScale(`${colorNumber += 1}`) }
       np.children ? np.children.push(del) : np.children = [del]
       np.rawData.children ? np.rawData.children.push(del.rawData) : np.rawData.children = [del.rawData]
-      traverse(this.data, [swapWidthAndHeight])
-      this.layout.layout(this.data)
-      traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta, renewId, renewColor])
+      this.renew(renewId, renewColor)
     }
     return del
   }
@@ -213,9 +228,7 @@ export class ImData {
         children.splice(refIndex + after, 0, d)
         rawChildren.splice(index, 1)
         rawChildren.splice(refIndex + after, 0, d.rawData)
-        traverse(this.data, [swapWidthAndHeight])
-        this.layout.layout(this.data)
-        traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta, renewId])
+        this.renew(renewId)
         return d
       }
     }
@@ -255,11 +268,31 @@ export class ImData {
     }
     return null
   }
-
-  renew (): void {
+  /**
+   * 默认更新dx、dy、width、height、x、y
+   * @param plugins - 需要更新其他属性时的函数
+   */
+  renew (...plugins: Processer[]): void {
     traverse(this.data, [swapWidthAndHeight])
     this.layout.layout(this.data)
-    traverse(this.data, [swapWidthAndHeight, swapXAndY, renewDelta])
+    const temp: Processer[] = [swapWidthAndHeight, swapXAndY, renewDelta]
+    traverse(this.data, temp.concat(plugins))
+  }
+
+  delete (id: string): void {
+    const idArr = id.split('-')
+    if (idArr.length >= 2) { // 有parent
+      const delIndex = idArr.pop()
+      const parent = this.find(idArr.join('-'))
+      if (delIndex && parent) {
+        if (parent.children) {
+          parent.children[~~delIndex].id = 'del' // 更新id时删除
+        }
+      }
+      this.renew(renewId)
+    } else {
+      throw new Error('暂不支持删除根节点')
+    }
   }
 }
 
