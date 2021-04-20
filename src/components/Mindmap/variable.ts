@@ -16,6 +16,7 @@ export const addBtnRect = { side: 12, padding: 2 }
 export const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
 export let branch = 4
 export let yGap = 18
+export const xGap = 50
 export let textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
 export let sharpCorner = false
 
