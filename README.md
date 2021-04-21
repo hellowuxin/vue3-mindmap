@@ -1,4 +1,8 @@
-# vue3-mindmap（开发中）![npm](https://img.shields.io/npm/v/vue3-mindmap) ![build](https://img.shields.io/github/workflow/status/hellowuxin/vue3-mindmap/CI) ![coveralls](https://img.shields.io/coveralls/github/hellowuxin/vue3-mindmap)
+# vue3-mindmap（开发中）
+
+[![npm](https://img.shields.io/npm/v/vue3-mindmap)](https://www.npmjs.com/package/vue3-mindmap)
+[![build](https://github.com/hellowuxin/vue3-mindmap/actions/workflows/blank.yml/badge.svg)](https://github.com/hellowuxin/vue3-mindmap/actions)
+[![coveralls](https://img.shields.io/coveralls/github/hellowuxin/vue3-mindmap)](https://coveralls.io/github/hellowuxin/vue3-mindmap)
 
 > 相比[mindmap](https://github.com/hellowuxin/mindmap)更新了技术栈：Vue3、d3v6、Vite  
 > 目前打算对项目进行重构，解决一些老旧问题（图片生成、加载慢...）
