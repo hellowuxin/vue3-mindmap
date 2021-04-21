@@ -16,30 +16,17 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  ci:
+  build:
     runs-on: ubuntu-latest
     steps:
      - uses: actions/checkout@v2
-     - name: ci
-       run: npm ci
-       
-  test:
-    needs: ci
-    runs-on: ubuntu-latest
-    steps:
-     - uses: actions/checkout@v2
-     - name: test
-       run: npm test
-       
-  coverage:
-    needs: ci
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: code coverage
-        run: npm run test:coverage
-          
-      - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@master
-        with:
+     - name: build
+       run: |
+        npm ci
+        npm test
+        npm run test:coverage
+        
+     - name: Coveralls GitHub Action
+       uses: coverallsapp/github-action@master
+       with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
