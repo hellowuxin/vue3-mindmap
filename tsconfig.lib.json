@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "es2020",
+    "declaration": true,
+    "allowJs": true,
+    "emitDeclarationOnly": true
+  },
+  "include": [
+    "./dist/*.js"
+  ]
+}
