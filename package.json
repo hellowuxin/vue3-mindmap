@@ -21,9 +21,8 @@
     "build": "vite build",
     "lib": "vite build --config vite-lib.config.ts && tsc ./dist/*.js --declaration --allowJs --emitDeclarationOnly -t es2020",
     "serve": "vite preview",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:u": "jest --updateSnapshot"
+    "test": "jest --watch",
+    "coverage": "jest --coverage"
   },
   "dependencies": {
     "d3-drag": "^2.0.0",

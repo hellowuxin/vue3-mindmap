@@ -16,10 +16,6 @@ interface TreeData {
   children?: TreeData[]
 }
 
-const colorScale = d3Scale.scaleOrdinal(d3ScaleChromatic.schemePaired) // 颜色列表
-let colorNumber = 0
-let gKey = 0
-
 // rawData width height x y children
 function initTreeData (d: Data, getSize: GetSize) {
   const size = getSize(d.name)
@@ -39,46 +35,6 @@ function initTreeData (d: Data, getSize: GetSize) {
     })
   }
 
-  return data
-}
-// id gKey depth dx dy name left color px py
-const init = (d: TreeData, id = '0', p: IsMdata = null, c?: string) => {
-  const x = d.y
-  const y = d.x
-  let color = ''
-  let left = false
-  let px = x
-  let py = y
-  if (p) {
-    left = p.left
-    px = p.x
-    py = p.y
-    color = c || colorScale(`${colorNumber += 1}`)
-  }
-  const data: Mdata = {
-    x,
-    y,
-    width: d.height,
-    height: d.width,
-    id,
-    gKey: (gKey += 1),
-    depth: Math.floor(id.length / 2),
-    name: d.rawData.name,
-    px: 0,
-    py: 0,
-    rawData: d.rawData,
-    parent: p,
-    color,
-    left,
-    dx: x - px,
-    dy: y - py
-  }
-  if (d.children) {
-    data.children = []
-    d.children.forEach((c, j) => {
-      data.children?.push(init(c, `${id}-${j}`, data, color))
-    })
-  }
   return data
 }
 
@@ -102,16 +58,6 @@ const renewDelta = <T extends { x: number, y: number, parent: T | null, dx: numb
 
 const renewId = <T extends { id: string }>(d: T, id: string) => {
   d.id = id
-}
-
-const renewColor = <T extends { color: string, parent: T | null }>(d: T) => {
-  if (d.parent) {
-    if (d.parent.color) {
-      d.color = d.parent.color
-    } else if (!d.color) {
-      d.color = colorScale(`${colorNumber += 1}`)
-    }
-  }
 }
 
 /**
@@ -145,13 +91,74 @@ export class ImData {
   data: Mdata
   private getSize: GetSize
   private layout: Layout
+  private colorScale: d3Scale.ScaleOrdinal<string, string, never>
+  private colorNumber = 0
+  private gKey = 0
 
-  constructor (d: Data, xGap: number, yGap: number, getSize: GetSize) {
+  constructor (
+    d: Data,
+    xGap: number,
+    yGap: number,
+    getSize: GetSize,
+    colorScale = d3Scale.scaleOrdinal(d3ScaleChromatic.schemePaired)
+  ) {
+    this.colorScale = colorScale
     const data = initTreeData(d, getSize)
     this.layout = getLayout(xGap, yGap)
     this.layout.layout(data)
-    this.data = init(data)
+    this.data = this.init(data)
     this.getSize = getSize
+  }
+
+  // id gKey depth dx dy name left color px py
+  init (d: TreeData, id = '0', p: IsMdata = null, c?: string): Mdata {
+    const x = d.y
+    const y = d.x
+    let color = ''
+    let left = false
+    let px = x
+    let py = y
+    if (p) {
+      left = p.left
+      px = p.x
+      py = p.y
+      color = c || this.colorScale(`${this.colorNumber += 1}`)
+    }
+    const data: Mdata = {
+      x,
+      y,
+      width: d.height,
+      height: d.width,
+      id,
+      gKey: (this.gKey += 1),
+      depth: Math.floor(id.length / 2),
+      name: d.rawData.name,
+      px: 0,
+      py: 0,
+      rawData: d.rawData,
+      parent: p,
+      color,
+      left,
+      dx: x - px,
+      dy: y - py
+    }
+    if (d.children) {
+      data.children = []
+      d.children.forEach((c, j) => {
+        data.children?.push(this.init(c, `${id}-${j}`, data, color))
+      })
+    }
+    return data
+  }
+
+  renewColor <T extends { color: string, parent: T | null }>(d: T): void {
+    if (d.parent) {
+      if (d.parent.color) {
+        d.color = d.parent.color
+      } else if (!d.color) {
+        d.color = this.colorScale(`${this.colorNumber += 1}`)
+      }
+    }
   }
 
   setBoundingBox (xGap: number, yGap: number): void {
@@ -164,7 +171,7 @@ export class ImData {
     let data = this.data
     for (let i = 1; i < array.length; i++) {
       if (data && data.children) {
-        data = data.children[array[i]]
+        data = data.children[array[i]] || null
       } else { // No data matching id
         return null
       }
@@ -190,7 +197,7 @@ export class ImData {
     }
   }
 
-  reparent (parentId: string, delId: string): IsMdata { // 节点移动到其他层
+  moveChild (parentId: string, delId: string): IsMdata { // 节点移动到其他层
     if (parentId === delId) { return null }
     const np = this.find(parentId)
     const del = this.find(delId)
@@ -200,17 +207,17 @@ export class ImData {
       delParent?.children?.splice(~~delIndex, 1)
       delParent?.rawData.children?.splice(~~delIndex, 1)
       del.parent = np
-      del.gKey = gKey += 1
+      del.gKey = this.gKey += 1
       del.depth = del.parent.depth + 1
-      if (del.depth === 1) { del.color = colorScale(`${colorNumber += 1}`) }
+      if (del.depth === 1) { del.color = this.colorScale(`${this.colorNumber += 1}`) }
       np.children ? np.children.push(del) : np.children = [del]
       np.rawData.children ? np.rawData.children.push(del.rawData) : np.rawData.children = [del.rawData]
-      this.renew(renewId, renewColor)
+      this.renew(renewId, this.renewColor)
     }
     return del
   }
 
-  move (id: string, referenceId: string, after = 0): IsMdata { // 同层调换顺序
+  moveSibling (id: string, referenceId: string, after = 0): IsMdata { // 同层调换顺序
     const idArr = id.split('-')
     const refArr = referenceId.split('-')
     let index: number | string | undefined = idArr.pop()
@@ -242,7 +249,7 @@ export class ImData {
       if (!p.rawData.children) { p.rawData.children = [] }
       const size = this.getSize(name)
       const rawData = { name }
-      const color = p.color ? p.color : colorScale(`${colorNumber += 1}`)
+      const color = p.color ? p.color : this.colorScale(`${this.colorNumber += 1}`)
       const d = {
         id: `${p.id}-${p.children.length}`,
         name,
@@ -250,7 +257,7 @@ export class ImData {
         parent: p,
         left: p.left,
         color,
-        gKey: gKey += 1,
+        gKey: this.gKey += 1,
         width: size.width,
         height: size.height,
         depth: p.depth + 1,

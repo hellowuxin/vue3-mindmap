@@ -380,7 +380,7 @@ export default defineComponent({
           if (pid) {
             d.px = 0
             d.py = 0
-            reparent(pid, d.id)
+            moveChild(pid, d.id)
           } else {
             throw new Error('outline data-id null')
           }
@@ -398,12 +398,12 @@ export default defineComponent({
         if (downD !== d) {
           d.px = 0
           d.py = 0
-          move(d.id, downD.id)
+          moveSibling(d.id, downD.id)
           return
         } else if (upD !== d) {
           d.px = 0
           d.py = 0
-          move(d.id, upD.id, 1)
+          moveSibling(d.id, upD.id, 1)
           return
         }
         // 复原
@@ -535,12 +535,12 @@ export default defineComponent({
         mmdata.rename(id, name)
         draw()
       }
-      const reparent = (pid: string, id: string) => {
-        mmdata.reparent(pid, id)
+      const moveChild = (pid: string, id: string) => {
+        mmdata.moveChild(pid, id)
         draw()
       }
-      const move = (id: string, referenceId: string, after = 0) => {
-        mmdata.move(id, referenceId, after)
+      const moveSibling = (id: string, referenceId: string, after = 0) => {
+        mmdata.moveSibling(id, referenceId, after)
         draw()
       }
       const add = (id: string, name: string) => {
