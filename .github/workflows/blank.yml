@@ -23,7 +23,7 @@ jobs:
      - name: build
        run: |
         npm ci
-        npm run test
+        npx jest
         npm run coverage
         
      - name: Coveralls GitHub Action
