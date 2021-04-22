@@ -459,13 +459,16 @@ export default defineComponent({
       const onContextmenu = (e: MouseEvent) => {
         e.preventDefault()
         if (!wrapperEle.value) { return }
-        emitter.emit('showContextmenu', true)
         const relativePos = getRelativePos(wrapperEle.value, e)
         contextmenuPos.value = relativePos
         const eventTargets = e.composedPath() as SVGElement[]
         const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
-        if (gNode && !gNode.classList.contains(style.selected)) { selectGNode(gNode) }
+        if (gNode) {
+          if (!gNode.classList.contains(style.selected)) { selectGNode(gNode) }
+          nodeMenu[1][0].disabled = gNode.classList.contains(style.root) ? true : false
+        }
         showViewMenu.value = gNode ? false : true
+        emitter.emit('showContextmenu', true)
         // this.clearSelection()
       }
       const onClickMenu = (name: MenuEvent) => {
