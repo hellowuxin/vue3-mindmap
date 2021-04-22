@@ -23,8 +23,8 @@ jobs:
      - name: build
        run: |
         npm ci
-        npm test
-        npm run test:coverage
+        npm run test
+        npm run coverage
         
      - name: Coveralls GitHub Action
        uses: coverallsapp/github-action@master
