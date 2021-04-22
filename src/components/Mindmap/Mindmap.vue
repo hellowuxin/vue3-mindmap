@@ -16,6 +16,7 @@
       <button v-if="downloadBtn" @click="download()"><i :class="style['download']"></i></button>
     </div>
     <contextmenu
+      v-if="contextmenu"
       :position="contextmenuPos"
       :groups="showViewMenu ? viewMenu : nodeMenu"
       @click-item="onClickMenu"

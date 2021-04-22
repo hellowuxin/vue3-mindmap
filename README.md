@@ -32,6 +32,7 @@ npm install vue3-mindmap
 | download-btn | Boolean          | false      | 是否显示下载按钮        |
 | scale-extent | [Number, Number] | [0.1, 0.8] | 设置缩放范围           |
 | sharp-corner | Boolean          | false      | 设置分支为圆角或直角     |
+| contextmenu  | Boolean          | false      | 是否响应右键菜单        |
 
 ## 样例
 
