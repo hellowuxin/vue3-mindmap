@@ -32,9 +32,9 @@ import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath } from './attribute'
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath, getExpandBtnTransform, attrExpandBtn } from './attribute'
 import { rootTextRectRadius, rootTextRectPadding, textRectPadding } from './variable'
-import { appendAddBtn, appendTspan, updateTspan } from './draw'
+import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
 
@@ -62,7 +62,8 @@ export default defineComponent({
     },
     branch: {
       type: Number,
-      default: 4
+      default: 4,
+      validator: (val: number) => val >= 1 && val <= 6 
     },
     scaleExtent: {
       default: (): TwoNumber => [0.1, 8]
@@ -172,7 +173,7 @@ export default defineComponent({
       switchContextmenu(props.contextmenu)
     })
     // watch
-      watch(() => props.branch, (value) => emitter.emit('branch', value))
+      watch(() => props.branch, (value) => emitter.emit('branch', value), { immediate: true })
       watch(() => props.sharpCorner, (val) => {
         emitter.emit('sharp-corner', val)
         draw()
@@ -217,14 +218,18 @@ export default defineComponent({
         // 绘制添加按钮
         let gAddBtn
         if (props.addNodeBtn) { gAddBtn = appendAndBindAddBtn(gContent) }
+        // 绘制折叠按钮
+        const gExpand = appendExpandBtn(gContent)
 
         if (isRoot) {
           attrTrigger(gTrigger, rootTextRectPadding)
           attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
+          attrExpandBtn(gExpand, rootTextRectPadding)
           if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding) }
         } else {
           attrTrigger(gTrigger, textRectPadding)
           attrTextRect(gTextRect, textRectPadding)
+          attrExpandBtn(gExpand, textRectPadding)
           if (gAddBtn) { attrAddBtn(gAddBtn, textRectPadding) }
         }
 

@@ -61,6 +61,20 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     }
   }
 
+  .expand-btn {
+    visibility: hidden;
+
+    &:hover {
+      rect {
+        fill: white
+      }
+
+      circle {
+        fill: currentColor;
+      }
+    }
+  }
+
   .text > rect {
     opacity: 0;
     fill: $seleColor;

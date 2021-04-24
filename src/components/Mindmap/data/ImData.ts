@@ -27,8 +27,8 @@ function initTreeData (d: Data, getSize: GetSize) {
     y: 0
   }
 
-  const { children } = d
-  if (children) {
+  const { children, collapse } = d
+  if (!collapse && children) {
     const dataChildren: TreeData[] = data.children = []
     children.forEach((child) => {
       dataChildren.push(initTreeData(child, getSize))
@@ -139,6 +139,7 @@ export class ImData {
       parent: p,
       color,
       left,
+      collapse: !!d.rawData.collapse,
       dx: x - px,
       dy: y - py
     }
@@ -256,6 +257,7 @@ export class ImData {
         rawData,
         parent: p,
         left: p.left,
+        collapse: false,
         color,
         gKey: this.gKey += 1,
         width: size.width,

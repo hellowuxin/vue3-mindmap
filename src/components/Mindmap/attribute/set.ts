@@ -1,7 +1,7 @@
-import { Mdata, SelectionG, SelectionRect, Transition, TspanData } from "../interface"
+import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from "../interface"
 import * as d3 from '../d3'
-import { addBtnRect, addBtnSide, branch } from "../variable"
-import { getAddBtnTransform, getDataId, getGClass, getGTransform, getPath } from "./get"
+import { addBtnRect, addBtnSide, branch, expandBtnRect } from "../variable"
+import { getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from "./get"
 import style from '../css/Mindmap.module.scss'
 
 export const attrG = (g: SelectionG, tran?: Transition): void => {
@@ -18,21 +18,41 @@ export const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTex
 }
 
 export const attrAddBtnRect = (rect: SelectionRect): void => {
-  const side = addBtnRect.side
-  const padding = addBtnRect.padding
+  const { side, padding } = addBtnRect
   const radius = 4
   const temp0 = -padding - side / 2
   const temp1 = side + padding * 2
   rect.attr('x', temp0).attr('y', temp0).attr('rx', radius).attr('ry', radius).attr('width', temp1).attr('height', temp1)
 }
 
-export const attrTextRect = (rect: SelectionRect, padding: number, radius = 4): void => {
-  rect.attr('x', -padding).attr('y', -padding).attr('rx', radius).attr('ry', radius)
-    .attr('width', (d) => d.width + padding * 2).attr('height', (d) => d.height + padding * 2)
+export const attrExpandBtnRect = (rect: SelectionRect): void => {
+  rect.attr('x', -expandBtnRect.width/2).attr('y', -expandBtnRect.height/2)
+    .attr('width', expandBtnRect.width).attr('height', expandBtnRect.height)
+    .attr('rx', expandBtnRect.radius).attr('ry', expandBtnRect.radius)
+    .attr('stroke', (d) => d.color || 'white')
+    .attr('fill', (d) => d.color || 'white')
 }
 
+export const attrExpandBtnCircle = (circle: SelectionCircle, cx: number): void => {
+  circle.attr('cx', cx).attr('cy', 0).attr('r', 1)
+}
+
+export const attrTextRect = (rect: SelectionRect, padding: number, radius = 4): void => {
+  rect.attr('x', -padding).attr('y', -padding)
+    .attr('rx', radius).attr('ry', radius)
+    .attr('width', (d) => d.width + padding * 2)
+    .attr('height', (d) => d.height + padding * 2)
+}
+
+export const attrExpandBtn = (g: SelectionG, trp: number): void => {
+  g.attr('class', style['expand-btn']).attr('transform', (d) => getExpandBtnTransform(d, trp))
+    .style('visibility', (d) => d.collapse ? 'visible' : 'hidden')
+    .style('color', d => d.color)
+}
+ 
 export const attrAddBtn = (g: SelectionG, trp: number): void => {
   g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp))
+    .style('visibility', (d) => d.collapse ? 'hidden' : 'visible')
 }
 
 export const attrTrigger = (rect: SelectionRect, padding: number): void => {

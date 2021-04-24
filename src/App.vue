@@ -59,7 +59,7 @@ export default defineComponent({
       vertical: { value: false, disabled: true }
     })
     const rangeList = reactive({
-      branch: { value: 4, min: 0, max: 10 },
+      branch: { value: 4, min: 1, max: 6 },
       'x-gap': { value: 50, min: 0, max: 100 },
       'y-gap': { value: 18, min: 0, max: 100 }
     })

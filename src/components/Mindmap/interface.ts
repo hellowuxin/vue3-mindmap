@@ -13,6 +13,7 @@ export interface Mdata {
   parent: Mdata | null
   children?: Array<Mdata>
   left: boolean
+  collapse: boolean
   id: string
   color: string
   gKey: number
@@ -35,5 +36,6 @@ export interface TspanData {
 export type Transition = d3.Transition<d3.BaseType, Mdata, SVGGElement, unknown>
 export type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
 export type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>
+export type SelectionCircle = d3.Selection<SVGCircleElement, Mdata, SVGGElement, Mdata | null>
 export type TwoNumber = [number, number]
 

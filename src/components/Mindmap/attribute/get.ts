@@ -1,7 +1,8 @@
 import { Mdata, TspanData, TwoNumber } from "@/components/Mindmap/interface"
 import { getMultiline } from "../tool"
 import style from '../css/Mindmap.module.scss'
-import { addBtnSide, link, branch, textRectPadding, sharpCorner } from "../variable"
+import { addBtnSide, link, textRectPadding, sharpCorner, expandBtnRect } from "../variable"
+const getYOffset = () => 3 // max-branch / 2
 
 export const getGClass = (d?: Mdata): string[] => {
   const arr = ['node']
@@ -22,7 +23,7 @@ export const getPath = (d: Mdata): string => {
   let dpw = 0
   let dph = 0
   const trp = Math.max(textRectPadding - 3, 0) // -3为了不超过选中框
-  const targetOffset = branch / 2
+  const targetOffset = getYOffset()
   let sourceOffset = targetOffset
   if (d.parent) {
     dpw = d.parent.width
@@ -39,6 +40,11 @@ export const getPath = (d: Mdata): string => {
 }
 export const getAddBtnTransform = (d: Mdata, trp: number): string => {
   const gap = 8
-  const y = d.depth === 0 ? d.height / 2 : d.height + branch / 2
+  const y = d.depth === 0 ? d.height / 2 : d.height + getYOffset()
   return `translate(${d.width + trp + addBtnSide / 2 + gap},${y})`
+}
+export const getExpandBtnTransform = (d: Mdata, trp: number): string => {
+  const gap = 4
+  const y = d.depth === 0 ? d.height / 2 : d.height + getYOffset()
+  return `translate(${d.width + trp + expandBtnRect.width / 2 + gap},${y})`
 }

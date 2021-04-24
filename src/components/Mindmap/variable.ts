@@ -14,6 +14,7 @@ export const rootTextRectRadius = 6
 export const rootTextRectPadding = 10
 export const addBtnRect = { side: 12, padding: 2 }
 export const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
+export const expandBtnRect = { width: 16, height: 4, radius: 2 }
 export let branch = 4
 export let yGap = 18
 export const xGap = 50

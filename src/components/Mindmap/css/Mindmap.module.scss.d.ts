@@ -13,6 +13,7 @@ declare const style: {
   readonly outline: string
   readonly download: string
   readonly 'add-btn': string
+  readonly 'expand-btn': string
   readonly content: string
   readonly trigger: string
   readonly menu: string

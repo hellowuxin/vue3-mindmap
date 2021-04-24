@@ -6,6 +6,7 @@ Object {
     Object {
       "children": Array [
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -26,6 +27,7 @@ Object {
           "y": 9,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -46,6 +48,7 @@ Object {
           "y": 37,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -66,6 +69,7 @@ Object {
           "y": 65,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -86,6 +90,7 @@ Object {
           "y": 93,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -108,6 +113,7 @@ test",
           "y": 121,
         },
       ],
+      "collapse": false,
       "color": "#a6cee3",
       "depth": 1,
       "dx": 60,
@@ -148,6 +154,7 @@ test",
     Object {
       "children": Array [
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -168,6 +175,7 @@ test",
           "y": 149,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -188,6 +196,7 @@ test",
           "y": 177,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -208,6 +217,7 @@ test",
           "y": 205,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -230,6 +240,7 @@ test",
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 3,
               "dx": 60,
@@ -250,6 +261,7 @@ test",
               "y": 233,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 3,
               "dx": 60,
@@ -270,6 +282,7 @@ test",
               "y": 261,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 3,
               "dx": 60,
@@ -290,6 +303,7 @@ test",
               "y": 289,
             },
           ],
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -321,6 +335,7 @@ test",
           "y": 261,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -341,6 +356,7 @@ test",
           "y": 289,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -361,6 +377,7 @@ test",
           "y": 317,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -381,6 +398,7 @@ test",
           "y": 345,
         },
       ],
+      "collapse": false,
       "color": "#b2df8a",
       "depth": 1,
       "dx": 60,
@@ -439,6 +457,7 @@ test",
       "y": 247,
     },
     Object {
+      "collapse": false,
       "color": "#33a02c",
       "depth": 1,
       "dx": 60,
@@ -462,6 +481,7 @@ test",
     Object {
       "children": Array [
         Object {
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 2,
           "dx": 60,
@@ -482,6 +502,7 @@ test",
           "y": 373,
         },
         Object {
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 2,
           "dx": 60,
@@ -502,6 +523,7 @@ test",
           "y": 401,
         },
         Object {
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 2,
           "dx": 60,
@@ -522,6 +544,7 @@ test",
           "y": 429,
         },
       ],
+      "collapse": false,
       "color": "#fb9a99",
       "depth": 1,
       "dx": 60,
@@ -553,6 +576,7 @@ test",
       "y": 401,
     },
   ],
+  "collapse": false,
   "color": "",
   "depth": 0,
   "dx": 0,
@@ -589,11 +613,12 @@ test",
         "name": "预备知识",
       },
       Object {
-        "_children": Array [
+        "children": Array [
           Object {
             "name": "折叠节点",
           },
         ],
+        "collapse": true,
         "name": "安装",
       },
       Object {
@@ -666,6 +691,7 @@ test",
 
 exports[`思维导图数据测试 找到指定id的节点 1`] = `
 Object {
+  "collapse": false,
   "color": "#b2df8a",
   "depth": 2,
   "dx": 60,
@@ -678,6 +704,7 @@ Object {
   "parent": Object {
     "children": Array [
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -698,6 +725,7 @@ Object {
         "y": 149,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -719,6 +747,7 @@ Object {
       },
       [Circular],
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -741,6 +770,7 @@ Object {
       Object {
         "children": Array [
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 3,
             "dx": 60,
@@ -761,6 +791,7 @@ Object {
             "y": 233,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 3,
             "dx": 60,
@@ -781,6 +812,7 @@ Object {
             "y": 261,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 3,
             "dx": 60,
@@ -801,6 +833,7 @@ Object {
             "y": 289,
           },
         ],
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -832,6 +865,7 @@ Object {
         "y": 261,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -852,6 +886,7 @@ Object {
         "y": 289,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -872,6 +907,7 @@ Object {
         "y": 317,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -892,6 +928,7 @@ Object {
         "y": 345,
       },
     ],
+    "collapse": false,
     "color": "#b2df8a",
     "depth": 1,
     "dx": 60,
@@ -906,6 +943,7 @@ Object {
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -926,6 +964,7 @@ Object {
               "y": 9,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -946,6 +985,7 @@ Object {
               "y": 37,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -966,6 +1006,7 @@ Object {
               "y": 65,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -986,6 +1027,7 @@ Object {
               "y": 93,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -1008,6 +1050,7 @@ test",
               "y": 121,
             },
           ],
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 1,
           "dx": 60,
@@ -1046,6 +1089,7 @@ test",
           "y": 65,
         },
         Object {
+          "collapse": true,
           "color": "#1f78b4",
           "depth": 1,
           "dx": 60,
@@ -1059,11 +1103,12 @@ test",
           "px": 0,
           "py": 0,
           "rawData": Object {
-            "_children": Array [
+            "children": Array [
               Object {
                 "name": "折叠节点",
               },
             ],
+            "collapse": true,
             "name": "安装",
           },
           "width": 10,
@@ -1072,6 +1117,7 @@ test",
         },
         [Circular],
         Object {
+          "collapse": false,
           "color": "#33a02c",
           "depth": 1,
           "dx": 60,
@@ -1095,6 +1141,7 @@ test",
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -1115,6 +1162,7 @@ test",
               "y": 373,
             },
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -1135,6 +1183,7 @@ test",
               "y": 401,
             },
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -1155,6 +1204,7 @@ test",
               "y": 429,
             },
           ],
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 1,
           "dx": 60,
@@ -1186,6 +1236,7 @@ test",
           "y": 401,
         },
       ],
+      "collapse": false,
       "color": "",
       "depth": 0,
       "dx": 0,
@@ -1222,11 +1273,12 @@ test",
             "name": "预备知识",
           },
           Object {
-            "_children": Array [
+            "children": Array [
               Object {
                 "name": "折叠节点",
               },
             ],
+            "collapse": true,
             "name": "安装",
           },
           Object {
@@ -1359,6 +1411,7 @@ Object {
     Object {
       "children": Array [
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -1379,6 +1432,7 @@ Object {
           "y": 9,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -1399,6 +1453,7 @@ Object {
           "y": 37,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -1419,6 +1474,7 @@ Object {
           "y": 65,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -1439,6 +1495,7 @@ Object {
           "y": 93,
         },
         Object {
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 2,
           "dx": 60,
@@ -1461,6 +1518,7 @@ test",
           "y": 121,
         },
       ],
+      "collapse": false,
       "color": "#a6cee3",
       "depth": 1,
       "dx": 60,
@@ -1499,6 +1557,7 @@ test",
       "y": 65,
     },
     Object {
+      "collapse": true,
       "color": "#1f78b4",
       "depth": 1,
       "dx": 60,
@@ -1512,11 +1571,12 @@ test",
       "px": 0,
       "py": 0,
       "rawData": Object {
-        "_children": Array [
+        "children": Array [
           Object {
             "name": "折叠节点",
           },
         ],
+        "collapse": true,
         "name": "安装",
       },
       "width": 10,
@@ -1526,6 +1586,7 @@ test",
     Object {
       "children": Array [
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1546,6 +1607,7 @@ test",
           "y": 149,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1566,6 +1628,7 @@ test",
           "y": 177,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1586,6 +1649,7 @@ test",
           "y": 205,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1608,6 +1672,7 @@ test",
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 3,
               "dx": 60,
@@ -1628,6 +1693,7 @@ test",
               "y": 233,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 3,
               "dx": 60,
@@ -1648,6 +1714,7 @@ test",
               "y": 261,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 3,
               "dx": 60,
@@ -1668,6 +1735,7 @@ test",
               "y": 289,
             },
           ],
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1699,6 +1767,7 @@ test",
           "y": 261,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1719,6 +1788,7 @@ test",
           "y": 289,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1739,6 +1809,7 @@ test",
           "y": 317,
         },
         Object {
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 2,
           "dx": 60,
@@ -1759,6 +1830,7 @@ test",
           "y": 345,
         },
       ],
+      "collapse": false,
       "color": "#b2df8a",
       "depth": 1,
       "dx": 60,
@@ -1817,6 +1889,7 @@ test",
       "y": 247,
     },
     Object {
+      "collapse": false,
       "color": "#33a02c",
       "depth": 1,
       "dx": 60,
@@ -1840,6 +1913,7 @@ test",
     Object {
       "children": Array [
         Object {
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 2,
           "dx": 60,
@@ -1860,6 +1934,7 @@ test",
           "y": 373,
         },
         Object {
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 2,
           "dx": 60,
@@ -1880,6 +1955,7 @@ test",
           "y": 401,
         },
         Object {
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 2,
           "dx": 60,
@@ -1900,6 +1976,7 @@ test",
           "y": 429,
         },
       ],
+      "collapse": false,
       "color": "#fb9a99",
       "depth": 1,
       "dx": 60,
@@ -1931,6 +2008,7 @@ test",
       "y": 401,
     },
   ],
+  "collapse": false,
   "color": "",
   "depth": 0,
   "dx": 0,
@@ -1967,11 +2045,12 @@ test",
         "name": "预备知识",
       },
       Object {
-        "_children": Array [
+        "children": Array [
           Object {
             "name": "折叠节点",
           },
         ],
+        "collapse": true,
         "name": "安装",
       },
       Object {
@@ -2044,6 +2123,7 @@ test",
 
 exports[`思维导图数据测试 移动指定id的节点到指定的兄弟节点之前 1`] = `
 Object {
+  "collapse": false,
   "color": "#b2df8a",
   "depth": 2,
   "dx": 60,
@@ -2056,6 +2136,7 @@ Object {
   "parent": Object {
     "children": Array [
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -2076,6 +2157,7 @@ Object {
         "y": 149,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -2097,6 +2179,7 @@ Object {
       },
       [Circular],
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -2119,6 +2202,7 @@ Object {
       Object {
         "children": Array [
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 3,
             "dx": 60,
@@ -2139,6 +2223,7 @@ Object {
             "y": 233,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 3,
             "dx": 60,
@@ -2159,6 +2244,7 @@ Object {
             "y": 261,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 3,
             "dx": 60,
@@ -2179,6 +2265,7 @@ Object {
             "y": 289,
           },
         ],
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -2210,6 +2297,7 @@ Object {
         "y": 261,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -2230,6 +2318,7 @@ Object {
         "y": 289,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -2250,6 +2339,7 @@ Object {
         "y": 317,
       },
       Object {
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 2,
         "dx": 60,
@@ -2270,6 +2360,7 @@ Object {
         "y": 345,
       },
     ],
+    "collapse": false,
     "color": "#b2df8a",
     "depth": 1,
     "dx": 60,
@@ -2284,6 +2375,7 @@ Object {
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -2304,6 +2396,7 @@ Object {
               "y": 9,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -2324,6 +2417,7 @@ Object {
               "y": 37,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -2344,6 +2438,7 @@ Object {
               "y": 65,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -2364,6 +2459,7 @@ Object {
               "y": 93,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -2386,6 +2482,7 @@ test",
               "y": 121,
             },
           ],
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 1,
           "dx": 60,
@@ -2424,6 +2521,7 @@ test",
           "y": 65,
         },
         Object {
+          "collapse": true,
           "color": "#1f78b4",
           "depth": 1,
           "dx": 60,
@@ -2437,11 +2535,12 @@ test",
           "px": 0,
           "py": 0,
           "rawData": Object {
-            "_children": Array [
+            "children": Array [
               Object {
                 "name": "折叠节点",
               },
             ],
+            "collapse": true,
             "name": "安装",
           },
           "width": 10,
@@ -2450,6 +2549,7 @@ test",
         },
         [Circular],
         Object {
+          "collapse": false,
           "color": "#33a02c",
           "depth": 1,
           "dx": 60,
@@ -2473,6 +2573,7 @@ test",
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -2493,6 +2594,7 @@ test",
               "y": 373,
             },
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -2513,6 +2615,7 @@ test",
               "y": 401,
             },
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -2533,6 +2636,7 @@ test",
               "y": 429,
             },
           ],
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 1,
           "dx": 60,
@@ -2564,6 +2668,7 @@ test",
           "y": 401,
         },
       ],
+      "collapse": false,
       "color": "",
       "depth": 0,
       "dx": 0,
@@ -2600,11 +2705,12 @@ test",
             "name": "预备知识",
           },
           Object {
-            "_children": Array [
+            "children": Array [
               Object {
                 "name": "折叠节点",
               },
             ],
+            "collapse": true,
             "name": "安装",
           },
           Object {
@@ -2733,6 +2839,7 @@ test",
 
 exports[`思维导图数据测试 移动指定id的节点的到指定的父亲节点下 1`] = `
 Object {
+  "collapse": false,
   "color": "#e31a1c",
   "depth": 1,
   "dx": 60,
@@ -2747,6 +2854,7 @@ Object {
       Object {
         "children": Array [
           Object {
+            "collapse": false,
             "color": "#a6cee3",
             "depth": 2,
             "dx": 60,
@@ -2767,6 +2875,7 @@ Object {
             "y": 9,
           },
           Object {
+            "collapse": false,
             "color": "#a6cee3",
             "depth": 2,
             "dx": 60,
@@ -2787,6 +2896,7 @@ Object {
             "y": 37,
           },
           Object {
+            "collapse": false,
             "color": "#a6cee3",
             "depth": 2,
             "dx": 60,
@@ -2807,6 +2917,7 @@ Object {
             "y": 65,
           },
           Object {
+            "collapse": false,
             "color": "#a6cee3",
             "depth": 2,
             "dx": 60,
@@ -2827,6 +2938,7 @@ Object {
             "y": 93,
           },
           Object {
+            "collapse": false,
             "color": "#a6cee3",
             "depth": 2,
             "dx": 60,
@@ -2849,6 +2961,7 @@ test",
             "y": 121,
           },
         ],
+        "collapse": false,
         "color": "#a6cee3",
         "depth": 1,
         "dx": 60,
@@ -2887,6 +3000,7 @@ test",
         "y": 65,
       },
       Object {
+        "collapse": true,
         "color": "#1f78b4",
         "depth": 1,
         "dx": 60,
@@ -2900,11 +3014,12 @@ test",
         "px": 0,
         "py": 0,
         "rawData": Object {
-          "_children": Array [
+          "children": Array [
             Object {
               "name": "折叠节点",
             },
           ],
+          "collapse": true,
           "name": "安装",
         },
         "width": 10,
@@ -2914,6 +3029,7 @@ test",
       Object {
         "children": Array [
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 2,
             "dx": 60,
@@ -2934,6 +3050,7 @@ test",
             "y": 149,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 2,
             "dx": 60,
@@ -2954,6 +3071,7 @@ test",
             "y": 177,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 2,
             "dx": 60,
@@ -2976,6 +3094,7 @@ test",
           Object {
             "children": Array [
               Object {
+                "collapse": false,
                 "color": "#b2df8a",
                 "depth": 3,
                 "dx": 60,
@@ -2996,6 +3115,7 @@ test",
                 "y": 205,
               },
               Object {
+                "collapse": false,
                 "color": "#b2df8a",
                 "depth": 3,
                 "dx": 60,
@@ -3016,6 +3136,7 @@ test",
                 "y": 233,
               },
               Object {
+                "collapse": false,
                 "color": "#b2df8a",
                 "depth": 3,
                 "dx": 60,
@@ -3036,6 +3157,7 @@ test",
                 "y": 261,
               },
             ],
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 2,
             "dx": 60,
@@ -3067,6 +3189,7 @@ test",
             "y": 233,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 2,
             "dx": 60,
@@ -3087,6 +3210,7 @@ test",
             "y": 261,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 2,
             "dx": 60,
@@ -3107,6 +3231,7 @@ test",
             "y": 289,
           },
           Object {
+            "collapse": false,
             "color": "#b2df8a",
             "depth": 2,
             "dx": 60,
@@ -3127,6 +3252,7 @@ test",
             "y": 317,
           },
         ],
+        "collapse": false,
         "color": "#b2df8a",
         "depth": 1,
         "dx": 60,
@@ -3182,6 +3308,7 @@ test",
         "y": 233,
       },
       Object {
+        "collapse": false,
         "color": "#33a02c",
         "depth": 1,
         "dx": 60,
@@ -3205,6 +3332,7 @@ test",
       Object {
         "children": Array [
           Object {
+            "collapse": false,
             "color": "#fb9a99",
             "depth": 2,
             "dx": 60,
@@ -3225,6 +3353,7 @@ test",
             "y": 345,
           },
           Object {
+            "collapse": false,
             "color": "#fb9a99",
             "depth": 2,
             "dx": 60,
@@ -3245,6 +3374,7 @@ test",
             "y": 373,
           },
           Object {
+            "collapse": false,
             "color": "#fb9a99",
             "depth": 2,
             "dx": 60,
@@ -3265,6 +3395,7 @@ test",
             "y": 401,
           },
         ],
+        "collapse": false,
         "color": "#fb9a99",
         "depth": 1,
         "dx": 60,
@@ -3297,6 +3428,7 @@ test",
       },
       [Circular],
     ],
+    "collapse": false,
     "color": "",
     "depth": 0,
     "dx": 0,
@@ -3333,11 +3465,12 @@ test",
           "name": "预备知识",
         },
         Object {
-          "_children": Array [
+          "children": Array [
             Object {
               "name": "折叠节点",
             },
           ],
+          "collapse": true,
           "name": "安装",
         },
         Object {
@@ -3419,6 +3552,7 @@ test",
 
 exports[`思维导图数据测试 给指定id的节点添加新子节点 1`] = `
 Object {
+  "collapse": false,
   "color": "#1f78b4",
   "depth": 2,
   "dx": 60,
@@ -3432,6 +3566,7 @@ Object {
     "children": Array [
       [Circular],
     ],
+    "collapse": true,
     "color": "#1f78b4",
     "depth": 1,
     "dx": 60,
@@ -3446,6 +3581,7 @@ Object {
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -3466,6 +3602,7 @@ Object {
               "y": 9,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -3486,6 +3623,7 @@ Object {
               "y": 37,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -3506,6 +3644,7 @@ Object {
               "y": 65,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -3526,6 +3665,7 @@ Object {
               "y": 93,
             },
             Object {
+              "collapse": false,
               "color": "#a6cee3",
               "depth": 2,
               "dx": 60,
@@ -3548,6 +3688,7 @@ test",
               "y": 121,
             },
           ],
+          "collapse": false,
           "color": "#a6cee3",
           "depth": 1,
           "dx": 60,
@@ -3589,6 +3730,7 @@ test",
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3609,6 +3751,7 @@ test",
               "y": 177,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3629,6 +3772,7 @@ test",
               "y": 205,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3649,6 +3793,7 @@ test",
               "y": 233,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3671,6 +3816,7 @@ test",
             Object {
               "children": Array [
                 Object {
+                  "collapse": false,
                   "color": "#b2df8a",
                   "depth": 3,
                   "dx": 60,
@@ -3691,6 +3837,7 @@ test",
                   "y": 261,
                 },
                 Object {
+                  "collapse": false,
                   "color": "#b2df8a",
                   "depth": 3,
                   "dx": 60,
@@ -3711,6 +3858,7 @@ test",
                   "y": 289,
                 },
                 Object {
+                  "collapse": false,
                   "color": "#b2df8a",
                   "depth": 3,
                   "dx": 60,
@@ -3731,6 +3879,7 @@ test",
                   "y": 317,
                 },
               ],
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3762,6 +3911,7 @@ test",
               "y": 289,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3782,6 +3932,7 @@ test",
               "y": 317,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3802,6 +3953,7 @@ test",
               "y": 345,
             },
             Object {
+              "collapse": false,
               "color": "#b2df8a",
               "depth": 2,
               "dx": 60,
@@ -3822,6 +3974,7 @@ test",
               "y": 373,
             },
           ],
+          "collapse": false,
           "color": "#b2df8a",
           "depth": 1,
           "dx": 60,
@@ -3880,6 +4033,7 @@ test",
           "y": 275,
         },
         Object {
+          "collapse": false,
           "color": "#33a02c",
           "depth": 1,
           "dx": 60,
@@ -3903,6 +4057,7 @@ test",
         Object {
           "children": Array [
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -3923,6 +4078,7 @@ test",
               "y": 401,
             },
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -3943,6 +4099,7 @@ test",
               "y": 429,
             },
             Object {
+              "collapse": false,
               "color": "#fb9a99",
               "depth": 2,
               "dx": 60,
@@ -3963,6 +4120,7 @@ test",
               "y": 457,
             },
           ],
+          "collapse": false,
           "color": "#fb9a99",
           "depth": 1,
           "dx": 60,
@@ -3994,6 +4152,7 @@ test",
           "y": 429,
         },
       ],
+      "collapse": false,
       "color": "",
       "depth": 0,
       "dx": 0,
@@ -4030,16 +4189,15 @@ test",
             "name": "预备知识",
           },
           Object {
-            "_children": Array [
+            "children": Array [
               Object {
                 "name": "折叠节点",
               },
-            ],
-            "children": Array [
               Object {
                 "name": "子节点",
               },
             ],
+            "collapse": true,
             "name": "安装",
           },
           Object {
@@ -4111,16 +4269,15 @@ test",
     "px": 0,
     "py": 0,
     "rawData": Object {
-      "_children": Array [
+      "children": Array [
         Object {
           "name": "折叠节点",
         },
-      ],
-      "children": Array [
         Object {
           "name": "子节点",
         },
       ],
+      "collapse": true,
       "name": "安装",
     },
     "width": 10,
