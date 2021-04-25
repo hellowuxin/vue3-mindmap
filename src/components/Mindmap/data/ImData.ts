@@ -277,8 +277,29 @@ export class ImData {
     }
     return null
   }
+
+  expand (id: string): IsMdata {
+    let d = this.find(id)
+    const index = parseInt(id.split('-').pop() || '-1', 10)
+    if (d) {
+      d.collapse = false
+      d.rawData.collapse = false
+      const treeData = initTreeData(d.rawData, this.getSize)
+      if (d.parent && d.parent.children) {
+        const mdata = this.init(treeData, d.id, d.parent, d.color)
+        mdata.gKey = d.gKey
+        d.parent.children[index] = mdata
+        d = mdata
+      } else {
+        // 待处理
+      }
+      this.renew()
+    }
+    return d
+  }
+
   /**
-   * 默认更新dx、dy、width、height、x、y
+   * 默认更新x、y、dx、dy、width、height、x、y
    * @param plugins - 需要更新其他属性时的函数
    */
   renew (...plugins: Processer[]): void {

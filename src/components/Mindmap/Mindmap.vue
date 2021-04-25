@@ -32,8 +32,8 @@ import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrTextRect, attrAddBtn, attrTrigger, attrPath, getExpandBtnTransform, attrExpandBtn } from './attribute'
-import { rootTextRectRadius, rootTextRectPadding, textRectPadding } from './variable'
+import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA } from './attribute'
+import { textRectPadding } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -219,19 +219,9 @@ export default defineComponent({
         let gAddBtn
         if (props.addNodeBtn) { gAddBtn = appendAndBindAddBtn(gContent) }
         // 绘制折叠按钮
-        const gExpand = appendExpandBtn(gContent)
+        const gExpandBtn = appendExpandBtn(gContent)
 
-        if (isRoot) {
-          attrTrigger(gTrigger, rootTextRectPadding)
-          attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
-          attrExpandBtn(gExpand, rootTextRectPadding)
-          if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding) }
-        } else {
-          attrTrigger(gTrigger, textRectPadding)
-          attrTextRect(gTextRect, textRectPadding)
-          attrExpandBtn(gExpand, textRectPadding)
-          if (gAddBtn) { attrAddBtn(gAddBtn, textRectPadding) }
-        }
+        attrA(isRoot, gTrigger, gTextRect, gExpandBtn, gAddBtn)
 
         bindEvent(enterG, isRoot)
 
@@ -255,21 +245,14 @@ export default defineComponent({
           .data(getTspanData)
           .join(appendTspan, updateTspan, exit => exit.remove())
         let gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)
+        let gExpandBtn = gContent.select<SVGGElement>(`g.${style['expand-btn']}`)
         if (props.addNodeBtn) {
           if (!gAddBtn.node()) { gAddBtn = appendAndBindAddBtn(gContent) }
         } else {
           gAddBtn.remove()
         }
 
-        if (isRoot) {
-          attrTrigger(gTrigger, rootTextRectPadding)
-          attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
-          attrAddBtn(gAddBtn, rootTextRectPadding)
-        } else {
-          attrTrigger(gTrigger, textRectPadding)
-          attrTextRect(gTextRect, textRectPadding)
-          attrAddBtn(gAddBtn, textRectPadding)
-        }
+        attrA(isRoot, gTrigger, gTextRect, gExpandBtn, gAddBtn)
 
         update.each((d, i) => {
           if (!d.children) { return }
@@ -325,6 +308,8 @@ export default defineComponent({
           .attr('d', (d) => getPath(d))
       }
       const bindEvent = (g: SelectionG, isRoot: boolean) => {
+        const gExpandBtn = g.select(`:scope > g.${style.content} > g.${style['expand-btn']}`)
+        gExpandBtn.on('click', onClickExpandBtn)
         if (props.drag || props.edit) {
           const gText = g.select<SVGGElement>(`:scope > g.${style.content} > g.${style.text}`)
           gText.on('mousedown', onSelect)
@@ -494,6 +479,9 @@ export default defineComponent({
           del(seleData.id)
         }
       }
+      const onClickExpandBtn = (e: MouseEvent, d: Mdata) => {
+        expand(d.id)
+      }
     // 功能开关
       const switchZoom = (zoomable: boolean) => {
         if (!svg.value) { return }
@@ -559,6 +547,10 @@ export default defineComponent({
       }
       const del = (id: string) => {
         mmdata.delete(id)
+        draw()
+      }
+      const expand = (id: string) => {
+        mmdata.expand(id)
         draw()
       }
     // 辅助按钮的点击事件

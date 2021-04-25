@@ -1,8 +1,31 @@
 import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from "../interface"
 import * as d3 from '../d3'
-import { addBtnRect, addBtnSide, branch, expandBtnRect } from "../variable"
+import { addBtnRect, addBtnSide, branch, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from "../variable"
 import { getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from "./get"
 import style from '../css/Mindmap.module.scss'
+
+/**
+ * 根据该节点是否是根节点，绘制不同的效果
+ */
+export const attrA = (
+  isRoot: boolean, 
+  gTrigger: SelectionRect, 
+  gTextRect: SelectionRect, 
+  gExpandBtn: SelectionG, 
+  gAddBtn?: SelectionG
+): void => {
+  if (isRoot) {
+      attrTrigger(gTrigger, rootTextRectPadding)
+      attrTextRect(gTextRect, rootTextRectPadding, rootTextRectRadius)
+      attrExpandBtn(gExpandBtn, rootTextRectPadding)
+      if (gAddBtn) { attrAddBtn(gAddBtn, rootTextRectPadding) }
+    } else {
+      attrTrigger(gTrigger, textRectPadding)
+      attrTextRect(gTextRect, textRectPadding)
+      attrExpandBtn(gExpandBtn, textRectPadding)
+      if (gAddBtn) { attrAddBtn(gAddBtn, textRectPadding) }
+    }
+}
 
 export const attrG = (g: SelectionG, tran?: Transition): void => {
   const temp1 = g.attr('class', (d) => getGClass(d).join(' ')).attr('data-id', getDataId)
