@@ -13,7 +13,8 @@ interface TreeData {
   height: number
   x: number
   y: number
-  children?: TreeData[]
+  children: TreeData[]
+  _children: TreeData[]
 }
 
 /**
@@ -29,12 +30,19 @@ function initTreeData (d: Data, getSize: GetSize) {
     width: size.height,
     height: size.width,
     x: 0,
-    y: 0
+    y: 0,
+    children: [],
+    _children: []
   }
 
   const { children, collapse } = d
-  if (!collapse && children) {
-    const dataChildren: TreeData[] = data.children = []
+  if (children) {
+    const dataChildren: TreeData[] = []
+    if (collapse) {
+      data._children = dataChildren
+    } else {
+      data.children = dataChildren
+    }
     children.forEach((child) => {
       dataChildren.push(initTreeData(child, getSize))
     })
@@ -110,7 +118,7 @@ export class ImData {
     this.colorScale = colorScale
     const data = initTreeData(d, getSize)
     this.layout = getLayout(xGap, yGap)
-    this.layout.layout(data)
+    this.layout.layout(data) // 更新x、y
     this.data = this.init(data)
     this.getSize = getSize
   }
@@ -153,12 +161,18 @@ export class ImData {
       left,
       collapse: !!d.rawData.collapse,
       dx: x - px,
-      dy: y - py
+      dy: y - py,
+      children: [],
+      _children: []
     }
-    if (d.children) {
-      data.children = []
+    if (d.children && !data.collapse) {
       d.children.forEach((c, j) => {
-        data.children?.push(this.init(c, `${id}-${j}`, data, color))
+        data.children.push(this.init(c, `${id}-${j}`, data, color))
+      })
+    }
+    if (d._children && data.collapse) {
+      d._children.forEach((c, j) => {
+        data._children.push(this.init(c, `${id}-${j}`, data, color))
       })
     }
     return data
@@ -280,7 +294,9 @@ export class ImData {
         dx: 0,
         dy: 0,
         px: 0,
-        py: 0
+        py: 0,
+        children: [],
+        _children: []
       }
       p.children.push(d)
       p.rawData.children.push(rawData)
@@ -290,32 +306,21 @@ export class ImData {
     return null
   }
 
-  expand (id: string): IsMdata {
-    let d = this.find(id)
-    const index = parseInt(id.split('-').pop() || '-1', 10)
-    if (d) {
-      d.collapse = false
-      d.rawData.collapse = false
-      const treeData = initTreeData(d.rawData, this.getSize)
-      if (d.parent && d.parent.children) {
-        const mdata = this.init(treeData, d.id, d.parent, d.color)
-        mdata.gKey = d.gKey
-        d.parent.children[index] = mdata
-        d = mdata
-      } else {
-        // 待处理
-      }
-      this.renew()
-    }
-    return d
-  }
+  expand (id: string): IsMdata { return this.eoc(id, false) }
+  collapse (id: string): IsMdata { return this.eoc(id, true) }
 
-  collapse (id: string): IsMdata {
+  /**
+   * 展开或折叠（expand or collapse ）
+   * @param id -
+   * @param collapse -
+   * @returns 
+   */
+  eoc (id: string, collapse: boolean): IsMdata {
     const d = this.find(id)
     if (d) {
-      d.collapse = true
-      d.rawData.collapse = true
-      d.children = []
+      d.collapse = collapse
+      d.rawData.collapse = collapse
+      ;[d._children, d.children] = [d.children, d._children]
       this.renew()
     }
     return d

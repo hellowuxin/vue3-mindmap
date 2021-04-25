@@ -11,7 +11,8 @@ export interface Mdata {
   rawData: Data
   name: string
   parent: Mdata | null
-  children?: Array<Mdata>
+  children: Array<Mdata>
+  _children: Array<Mdata> // 当折叠时保存children数据
   left: boolean
   collapse: boolean
   id: string

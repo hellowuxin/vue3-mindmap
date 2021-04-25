@@ -52,8 +52,8 @@ export const attrExpandBtnRect = (rect: SelectionRect): void => {
   rect.attr('x', -expandBtnRect.width/2).attr('y', -expandBtnRect.height/2)
     .attr('width', expandBtnRect.width).attr('height', expandBtnRect.height)
     .attr('rx', expandBtnRect.radius).attr('ry', expandBtnRect.radius)
-    .attr('stroke', (d) => d.color || 'white')
-    .attr('fill', (d) => d.color || 'white')
+    .attr('stroke', (d) => d.color || 'grey')
+    .attr('fill', (d) => d.color || 'grey')
 }
 
 export const attrExpandBtnCircle = (circle: SelectionCircle, cx: number): void => {
