@@ -9,6 +9,7 @@ export const getGClass = (d?: Mdata): string[] => {
   if (d) {
     arr.push(`depth-${d.depth}`)
     if (d.depth === 0) { arr.push(style.root) }
+    if (d.collapse) { arr.push(style['collapse']) }
   }
   return arr
 }

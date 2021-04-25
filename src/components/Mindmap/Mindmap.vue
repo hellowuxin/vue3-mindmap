@@ -33,7 +33,7 @@ import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
 import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA } from './attribute'
-import { textRectPadding } from './variable'
+import { textRectPadding, nodeMenu } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -126,21 +126,6 @@ export default defineComponent({
           { title: '全选', name: 'selectall', disabled: true }
         ]
       ])
-      const nodeMenu = [
-        [
-          { title: '新建子节点', name: 'add', disabled: false }
-        ],
-        [
-          { title: '删除节点', name: 'delete', disabled: false }
-        ],
-        [
-          { title: '全选', name: 'selectall', disabled: true }
-        ],
-        [
-          { title: '折叠节点', name: 'collapse', disabled: true },
-          { title: '展开节点', name: 'expand', disabled: true }
-        ]
-      ]
       const showViewMenu = ref(true)
 
     onMounted(() => {
@@ -455,12 +440,13 @@ export default defineComponent({
         const eventTargets = e.composedPath() as SVGElement[]
         const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
         if (gNode) {
-          if (!gNode.classList.contains(style.selected)) { selectGNode(gNode) }
-          nodeMenu[1][0].disabled = gNode.classList.contains(style.root) ? true : false
+          const { classList } = gNode
+          if (!classList.contains(style.selected)) { selectGNode(gNode) }
+          emitter.emit('delete-item', classList.contains(style.root))
+          emitter.emit('expand-item', !classList.contains(style['collapse']))
         }
         showViewMenu.value = gNode ? false : true
         emitter.emit('showContextmenu', true)
-        // this.clearSelection()
       }
       const onClickMenu = (name: MenuEvent) => {
         if (name === 'zoomfit') {

@@ -14,6 +14,7 @@ declare const style: {
   readonly download: string
   readonly 'add-btn': string
   readonly 'expand-btn': string
+  readonly 'collapse': string
   readonly content: string
   readonly trigger: string
   readonly menu: string

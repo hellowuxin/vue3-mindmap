@@ -33,6 +33,12 @@ export interface TspanData {
   height: number
 }
 
+export interface MenuItem {
+  title: string
+  name: string
+  disabled: boolean
+}
+
 export type Transition = d3.Transition<d3.BaseType, Mdata, SVGGElement, unknown>
 export type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
 export type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>

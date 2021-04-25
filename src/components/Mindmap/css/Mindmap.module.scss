@@ -109,6 +109,10 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     opacity: 1;
     fill: white;
   }
+
+  .collapse > .content > .expand-btn {
+    visibility: visible;
+  }
 }
 
 .button-list {

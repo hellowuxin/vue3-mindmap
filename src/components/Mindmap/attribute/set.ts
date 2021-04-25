@@ -68,8 +68,8 @@ export const attrTextRect = (rect: SelectionRect, padding: number, radius = 4): 
 }
 
 export const attrExpandBtn = (g: SelectionG, trp: number): void => {
-  g.attr('class', style['expand-btn']).attr('transform', (d) => getExpandBtnTransform(d, trp))
-    .style('visibility', (d) => d.collapse ? 'visible' : 'hidden')
+  g.attr('class', style['expand-btn'])
+    .attr('transform', (d) => getExpandBtnTransform(d, trp))
     .style('color', d => d.color)
 }
  
