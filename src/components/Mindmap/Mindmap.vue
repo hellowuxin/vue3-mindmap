@@ -32,7 +32,7 @@ import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
-import { getGClass, getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA } from './attribute'
+import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
 import { textRectPadding, nodeMenu } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
@@ -246,11 +246,11 @@ export default defineComponent({
         gContent.raise()
         return update
       }
-    // 其他
       const draw = (d = [mmdata.data], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
-        const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getGClass(d[0]).join('.')}`)
+        const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d[0]).join('.')}`)
         temp.data(d, (d) => d.gKey).join(appendNode, updateNode)
       }
+    // 其他
       const getSize = (text: string): { width: number, height: number } => {
         if (!asstSvg.value) { throw new Error('asstSvg undefined') }
         const multiline = getMultiline(text)
@@ -366,7 +366,7 @@ export default defineComponent({
         const p = gNode.parentNode as SVGGElement
         let downD = d
         let upD = d
-        const brothers = d3.select<SVGGElement, Mdata>(p).selectAll<SVGGElement, Mdata>(`g.${getGClass(d).join('.')}`).filter((a) => a !== d)
+        const brothers = d3.select<SVGGElement, Mdata>(p).selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d).join('.')}`).filter((a) => a !== d)
         brothers.each((b) => {
           if (b.y > d.y && b.y < (d.y + d.py) && b.y > upD.y) { upD = b } // 找新哥哥节点
           if (b.y < d.y && b.y > (d.y + d.py) && b.y < downD.y) { downD = b } // 找新弟弟节点
@@ -441,9 +441,11 @@ export default defineComponent({
         const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
         if (gNode) {
           const { classList } = gNode
+          const collapseFlag = classList.contains(style['collapse'])
           if (!classList.contains(style.selected)) { selectGNode(gNode) }
           emitter.emit('delete-item', classList.contains(style.root))
-          emitter.emit('expand-item', !classList.contains(style['collapse']))
+          emitter.emit('expand-item', !collapseFlag)
+          emitter.emit('collapse-item', collapseFlag || classList.contains('leaf'))
         }
         showViewMenu.value = gNode ? false : true
         emitter.emit('showContextmenu', true)
@@ -463,6 +465,14 @@ export default defineComponent({
           const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
           const seleData = sele.data()[0]
           del(seleData.id)
+        } else if (name === 'collapse') {
+          const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
+          const seleData = sele.data()[0]
+          collapse(seleData.id)
+        } else if (name === 'expand') {
+          const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
+          const seleData = sele.data()[0]
+          expand(seleData.id)
         }
       }
       const onClickExpandBtn = (e: MouseEvent, d: Mdata) => {
@@ -537,6 +547,10 @@ export default defineComponent({
       }
       const expand = (id: string) => {
         mmdata.expand(id)
+        draw()
+      }
+      const collapse = (id: string) => {
+        mmdata.collapse(id)
         draw()
       }
     // 辅助按钮的点击事件

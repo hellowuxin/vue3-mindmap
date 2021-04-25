@@ -4,12 +4,20 @@ import style from '../css/Mindmap.module.scss'
 import { addBtnSide, link, textRectPadding, sharpCorner, expandBtnRect } from "../variable"
 const getYOffset = () => 3 // max-branch / 2
 
-export const getGClass = (d?: Mdata): string[] => {
+export const getSiblingGClass = (d?: Mdata): string[] => {
   const arr = ['node']
+  if (d) { arr.push(`depth-${d.depth}`) }
+  return arr
+}
+export const getGClass = (d?: Mdata): string[] => {
+  const arr = getSiblingGClass(d)
   if (d) {
-    arr.push(`depth-${d.depth}`)
     if (d.depth === 0) { arr.push(style.root) }
-    if (d.collapse) { arr.push(style['collapse']) }
+    if (d.collapse) {
+      arr.push(style['collapse'])
+    } else if (!d.children || d.children.length === 0) {
+      arr.push('leaf')
+    }
   }
   return arr
 }

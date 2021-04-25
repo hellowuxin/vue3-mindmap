@@ -16,7 +16,12 @@ interface TreeData {
   children?: TreeData[]
 }
 
-// rawData width height x y children
+/**
+ * 返回TreeData（rawData、width、height、x、y、children）
+ * @param d - Data
+ * @param getSize - 
+ * @returns 
+ */
 function initTreeData (d: Data, getSize: GetSize) {
   const size = getSize(d.name)
   const data: TreeData = {
@@ -110,7 +115,14 @@ export class ImData {
     this.getSize = getSize
   }
 
-  // id gKey depth dx dy name left color px py
+  /**
+   * 返回Mdata（id、gKey、depth、dx、dy、name、left、color、px、py、collapse）
+   * @param d -
+   * @param id -
+   * @param p -
+   * @param c -
+   * @returns 
+   */
   init (d: TreeData, id = '0', p: IsMdata = null, c?: string): Mdata {
     const x = d.y
     const y = d.x
@@ -293,6 +305,17 @@ export class ImData {
       } else {
         // 待处理
       }
+      this.renew()
+    }
+    return d
+  }
+
+  collapse (id: string): IsMdata {
+    const d = this.find(id)
+    if (d) {
+      d.collapse = true
+      d.rawData.collapse = true
+      d.children = []
       this.renew()
     }
     return d
