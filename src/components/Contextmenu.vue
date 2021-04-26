@@ -23,12 +23,7 @@
 <script lang="ts">
 import { defineComponent, useCssModule, PropType, ref } from 'vue'
 import emitter from '@/mitt'
-
-interface Item {
-  title: string
-  name: string
-  disabled: boolean
-}
+import { MenuItem } from './Mindmap/interface'
 
 export default defineComponent({
   name: 'contextmenu',
@@ -36,7 +31,7 @@ export default defineComponent({
     position: {
       default: { top: 0, left: 0 }
     },
-    groups: Array as PropType<Item[][]>
+    groups: Array as PropType<MenuItem[][]>
   },
   emits: ['click-item'],
   setup (props, context) {

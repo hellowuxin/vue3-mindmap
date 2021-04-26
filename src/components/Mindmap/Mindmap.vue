@@ -26,14 +26,14 @@
 
 <script lang="ts">
 import emitter from '@/mitt'
-import { computed, defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
+import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
-import { textRectPadding, nodeMenu, xGap, yGap, branch } from './variable'
+import { textRectPadding, nodeMenu, xGap, yGap, branch, zoomTransform, scaleExtent, viewMenu, addItem, collapseItem, deleteItem, expandItem } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -61,7 +61,7 @@ export default defineComponent({
     },
     scaleExtent: {
       type: Object as PropType<TwoNumber>,
-      default: (): TwoNumber => [0.1, 8]
+      default: scaleExtent
     },
     centerBtn: Boolean,
     fitBtn: Boolean,
@@ -78,8 +78,8 @@ export default defineComponent({
   setup (props) {
     // 立刻更新变量
       emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap })
+      emitter.emit('scale-extent', props.scaleExtent)
     // 变量
-      let zoomTransform: Ref<d3.ZoomTransform> = ref(d3.zoomIdentity)
       const contextmenuPos = ref({ left: 0, top: 0 })
       const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
       const svgEle: Ref<SVGSVGElement | undefined> = ref()
@@ -91,7 +91,7 @@ export default defineComponent({
       const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
       const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
       const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
-      const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(props.scaleExtent)
+      const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(scaleExtent)
       const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
       const observer = new ResizeObserver((arr: any) => {
         if (!foreign.value) { return }
@@ -105,24 +105,7 @@ export default defineComponent({
       let mmdata: ImData
       let editFlag = false
       const showAddNodeBtn = ref(true)
-      const viewMenu = computed(() => [
-        [
-          {
-            title: '放大',
-            name: 'zoomin',
-            disabled: zoomTransform.value.k >= props.scaleExtent[1] 
-          },
-          {
-            title: '缩小',
-            name: 'zoomout',
-            disabled: zoomTransform.value.k <= props.scaleExtent[0]
-          },
-          { title: '缩放至合适大小', name: 'zoomfit', disabled: false }
-        ],
-        [
-          { title: '全选', name: 'selectall', disabled: true }
-        ]
-      ])
+      
       const showViewMenu = ref(true)
 
     onMounted(() => {
@@ -440,9 +423,10 @@ export default defineComponent({
           const { classList } = gNode
           const collapseFlag = classList.contains(style['collapse'])
           if (!classList.contains(style.selected)) { selectGNode(gNode) }
-          emitter.emit('delete-item', classList.contains(style.root))
-          emitter.emit('expand-item', !collapseFlag)
-          emitter.emit('collapse-item', collapseFlag || classList.contains('leaf'))
+          addItem.value.disabled = collapseFlag
+          deleteItem.value.disabled = classList.contains(style.root)
+          expandItem.value.disabled = !collapseFlag
+          collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
         }
         showViewMenu.value = gNode ? false : true
         emitter.emit('showContextmenu', true)
