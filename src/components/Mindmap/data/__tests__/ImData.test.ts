@@ -46,5 +46,15 @@ describe('思维导图数据测试', () => {
     const d = mmdata.moveSibling('0-2-0', '0-2-3')
     expect(d).toMatchSnapshot()
   })
+
+  it('展开指定id的节点', () => {
+    const d = mmdata.expand('0-1')
+    expect(d).toMatchSnapshot()
+  })
+
+  it('折叠指定id的节点', () => {
+    const d = mmdata.collapse('0-2-4')
+    expect(d).toMatchSnapshot()
+  })
 })
 
