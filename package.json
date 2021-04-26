@@ -33,7 +33,7 @@
     "d3-transition": "^2.0.0",
     "d3-zoom": "^2.0.0",
     "html2canvas": "^1.0.0-rc.7",
-    "immer": "^9.0.1",
+    "lodash.clonedeep": "^4.5.0",
     "mitt": "^2.1.0",
     "vue": "^3.0.0"
   },
@@ -47,21 +47,23 @@
     "@types/d3-transition": "^2.0.0",
     "@types/d3-zoom": "^2.0.0",
     "@types/jest": "^26.0.22",
+    "@types/lodash.clonedeep": "^4.5.6",
     "@types/node": "^14.14.41",
     "@types/resize-observer-browser": "^0.1.5",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
-    "@vitejs/plugin-vue": "^1.2.1",
+    "@vitejs/plugin-vue": "^1.2.2",
     "@vue/compiler-sfc": "^3.0.11",
-    "eslint": "^7.24.0",
+    "eslint": "^7.25.0",
     "eslint-plugin-tsdoc": "^0.2.14",
     "jest": "^26.6.3",
     "sass": "^1.32.11",
     "string-hash": "^1.1.3",
     "ts-jest": "^26.5.5",
     "ts-node": "^9.1.1",
+    "tslib": "^2.2.0",
     "typescript": "~4.2.4",
-    "vite": "^2.2.1"
+    "vite": "^2.2.3"
   },
   "bugs": {
     "url": "https://github.com/hellowuxin/vue3-mindmap/issues"

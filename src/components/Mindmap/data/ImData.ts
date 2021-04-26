@@ -1,11 +1,10 @@
 import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as d3Scale from 'd3-scale'
-import { Data, Mdata } from '@/components/Mindmap/interface'
+import { Data, Mdata, IsMdata } from '@/components/Mindmap/interface'
 import { BoundingBox, Layout } from './flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
 type Processer = (d: Mdata, id: string) => void
-type IsMdata = Mdata | null
 
 interface TreeData {
   rawData: Data
@@ -116,11 +115,11 @@ export class ImData {
     colorScale = d3Scale.scaleOrdinal(d3ScaleChromatic.schemePaired)
   ) {
     this.colorScale = colorScale
+    this.getSize = getSize
     const data = initTreeData(d, getSize)
     this.layout = getLayout(xGap, yGap)
     this.layout.layout(data) // 更新x、y
     this.data = this.init(data)
-    this.getSize = getSize
   }
 
   /**

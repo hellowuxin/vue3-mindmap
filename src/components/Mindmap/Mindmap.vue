@@ -31,6 +31,7 @@ import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
+import snapshot from './state'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
 import { textRectPadding, xGap, yGap, branch, zoomTransform, scaleExtent, ctm } from './variable'
@@ -503,7 +504,14 @@ export default defineComponent({
         }
       }
     // 数据操作
+      const beforeOperation = () => {
+        snapshot.snap(mmdata.data)
+      }
+      const afterOperation = () => {
+        draw()
+      }
       const rename = (id: string, name: string) => {
+        beforeOperation()
         mmdata.rename(id, name)
         draw()
       }
