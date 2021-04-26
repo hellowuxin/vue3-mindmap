@@ -33,7 +33,7 @@ import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
-import { textRectPadding, nodeMenu, xGap, yGap, branch, zoomTransform, scaleExtent, viewMenu, addItem, collapseItem, deleteItem, expandItem } from './variable'
+import { textRectPadding, xGap, yGap, branch, zoomTransform, scaleExtent, ctm } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -80,7 +80,6 @@ export default defineComponent({
       emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap })
       emitter.emit('scale-extent', props.scaleExtent)
     // 变量
-      const contextmenuPos = ref({ left: 0, top: 0 })
       const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
       const svgEle: Ref<SVGSVGElement | undefined> = ref()
       const gEle: Ref<SVGGElement | undefined> = ref()
@@ -105,7 +104,6 @@ export default defineComponent({
       let mmdata: ImData
       let editFlag = false
       const showAddNodeBtn = ref(true)
-      
       const showViewMenu = ref(true)
 
     onMounted(() => {
@@ -416,17 +414,17 @@ export default defineComponent({
         e.preventDefault()
         if (!wrapperEle.value) { return }
         const relativePos = getRelativePos(wrapperEle.value, e)
-        contextmenuPos.value = relativePos
+        ctm.pos.value = relativePos
         const eventTargets = e.composedPath() as SVGElement[]
         const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
         if (gNode) {
           const { classList } = gNode
           const collapseFlag = classList.contains(style['collapse'])
           if (!classList.contains(style.selected)) { selectGNode(gNode) }
-          addItem.value.disabled = collapseFlag
-          deleteItem.value.disabled = classList.contains(style.root)
-          expandItem.value.disabled = !collapseFlag
-          collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
+          ctm.addItem.value.disabled = collapseFlag
+          ctm.deleteItem.value.disabled = classList.contains(style.root)
+          ctm.expandItem.value.disabled = !collapseFlag
+          ctm.collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
         }
         showViewMenu.value = gNode ? false : true
         emitter.emit('showContextmenu', true)
@@ -582,9 +580,9 @@ export default defineComponent({
       fitView,
       download,
       showViewMenu,
-      viewMenu,
-      nodeMenu,
-      contextmenuPos,
+      viewMenu: ctm.viewMenu,
+      nodeMenu: ctm.nodeMenu,
+      contextmenuPos: ctm.pos,
       onClickMenu
     }
   }

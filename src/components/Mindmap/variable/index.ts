@@ -2,7 +2,7 @@ import * as d3 from '../d3'
 import { TwoNumber } from '../interface'
 import emitter from '@/mitt'
 import { Ref, ref } from 'vue'
-export * from './contextmenu'
+export * as ctm from './contextmenu'
 
 type CurveStepLink = ({ source, target }: { source: TwoNumber, target: TwoNumber }) => string | null
 type Link = d3.Link<unknown, d3.DefaultLinkObject, [number, number]> | CurveStepLink

@@ -3,6 +3,7 @@ import { ref, Ref } from '@vue/reactivity'
 import { computed } from 'vue'
 import { scaleExtent, zoomTransform } from '.'
 
+export const pos = ref({ left: 0, top: 0 })
 export const collapseItem: Ref<MenuItem> = ref({ title: '折叠节点', name: 'collapse', disabled: true })
 export const expandItem: Ref<MenuItem> = ref({ title: '展开节点', name: 'expand', disabled: true })
 export const deleteItem: Ref<MenuItem> = ref({ title: '删除节点', name: 'delete', disabled: false })
