@@ -20,7 +20,7 @@ npm install vue3-mindmap
 | Name         | Type             | Default    | Description          |
 | ---          | ---              | ---        | ---                  |
 | v-model      | Data[]           | undefined  | 设置思维导图数据        |
-| x-gap        | Number           | 50         | 设置节点横向间隔        |
+| x-gap        | Number           | 84         | 设置节点横向间隔        |
 | y-gap        | Number           | 18         | 设置节点纵向间隔        |
 | branch       | Number           | 4          | 设置连线的宽度          |
 | drag         | Boolean          | false      | 设置节点是否可拖拽      |

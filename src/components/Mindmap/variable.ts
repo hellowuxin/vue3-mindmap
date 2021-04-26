@@ -19,19 +19,19 @@ export const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
 export const expandBtnRect = { width: 16, height: 4, radius: 2 }
 export let branch = 4
 export let yGap = 18
-export const xGap = 50
+export let xGap = 84
 export let textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
 export let sharpCorner = false
 
-emitter.on<number>('branch', (value) => branch = value ? value : branch)
+emitter.on<number>('branch', (value) => branch = value || branch)
 emitter.on<boolean>('sharp-corner', (value) => {
-  sharpCorner = value ? value : false
+  sharpCorner = !!value
   link = value ? curveStepLink : linkHorizontal
 })
-emitter.on<TwoNumber>('gap', (value) => {
-  if (!value) { return }
-  const xGap = value[0]
-  yGap = value[1]
+emitter.on<{ xGap: number, yGap: number}>('gap', (gap) => {
+  if (!gap) { return }
+  xGap = gap.xGap
+  yGap = gap.yGap
   textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
   textRectPadding = Math.min(xGap / 2 - 1, textRectPadding)
 })

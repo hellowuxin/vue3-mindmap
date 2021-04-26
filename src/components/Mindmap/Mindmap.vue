@@ -33,7 +33,7 @@ import * as d3 from './d3'
 import { ImData } from './data'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
-import { textRectPadding, nodeMenu } from './variable'
+import { textRectPadding, nodeMenu, xGap, yGap, branch } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -52,20 +52,15 @@ export default defineComponent({
     },
     width: Number,
     height: Number,
-    xGap: {
-      type: Number,
-      default: 50
-    },
-    yGap: {
-      type: Number,
-      default: 18
-    },
+    xGap: { type: Number, default: xGap },
+    yGap: { type: Number, default: yGap },
     branch: {
       type: Number,
-      default: 4,
+      default: branch,
       validator: (val: number) => val >= 1 && val <= 6 
     },
     scaleExtent: {
+      type: Object as PropType<TwoNumber>,
       default: (): TwoNumber => [0.1, 8]
     },
     centerBtn: Boolean,
@@ -81,6 +76,8 @@ export default defineComponent({
     sharpCorner: Boolean,
   },
   setup (props) {
+    // 立刻更新变量
+      emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap })
     // 变量
       let zoomTransform: Ref<d3.ZoomTransform> = ref(d3.zoomIdentity)
       const contextmenuPos = ref({ left: 0, top: 0 })
@@ -138,8 +135,8 @@ export default defineComponent({
 
       mmdata = new ImData(
         JSON.parse(JSON.stringify(props.modelValue[0])),
-        props.xGap,
-        props.yGap,
+        xGap,
+        yGap,
         getSize
       )
 
@@ -165,8 +162,8 @@ export default defineComponent({
       })
       watch(() => [props.branch, props.addNodeBtn], () => draw())
       watch(() => [props.xGap, props.yGap], (val) => {
-        emitter.emit('gap', val)
-        mmdata.setBoundingBox(val[0], val[1])
+        emitter.emit('gap', { xGap: val[0], yGap: val[1] })
+        mmdata.setBoundingBox(xGap, yGap)
         draw()
       })
       watch(() => [props.drag, props.edit], (val) => {
