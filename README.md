@@ -23,6 +23,8 @@ npm install vue3-mindmap
 | x-gap        | Number           | 84         | 设置节点横向间隔        |
 | y-gap        | Number           | 18         | 设置节点纵向间隔        |
 | branch       | Number           | 4          | 设置连线的宽度          |
+| scale-extent | [Number, Number] | [0.1, 0.8] | 设置缩放范围           |
+| timetravel   | Boolean          | false      | 是否显示撤销重做按钮     |
 | drag         | Boolean          | false      | 设置节点是否可拖拽      |
 | zoom         | Boolean          | false      | 是否可缩放、拖移        |
 | edit         | Boolean          | false      | 是否可编辑             |
@@ -30,7 +32,6 @@ npm install vue3-mindmap
 | fit-btn      | Boolean          | false      | 是否显示缩放按钮        |
 | add-node-btn | Boolean          | false      | 是否显示添加节点按钮     |
 | download-btn | Boolean          | false      | 是否显示下载按钮        |
-| scale-extent | [Number, Number] | [0.1, 0.8] | 设置缩放范围           |
 | sharp-corner | Boolean          | false      | 设置分支为圆角或直角     |
 | contextmenu  | Boolean          | false      | 是否响应右键菜单        |
 
