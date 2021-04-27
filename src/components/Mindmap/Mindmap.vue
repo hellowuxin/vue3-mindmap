@@ -40,7 +40,7 @@ import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelati
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
 import { textRectPadding, xGap, yGap, branch, scaleExtent, ctm, g, zoom, editFlag } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
-import { onMouseEnter, onMouseLeave } from './Listener'
+import { onMouseEnter, onMouseLeave, onSelect } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
 import { cloneDeep } from 'lodash'
 
@@ -367,10 +367,6 @@ export default defineComponent({
             rename(id, name)
           }
         }
-      }
-      const onSelect = (e: MouseEvent, d: Mdata) => {
-        e.stopPropagation()
-        selectGNode(d)
       }
       /**
        * 添加子节点并进入编辑模式

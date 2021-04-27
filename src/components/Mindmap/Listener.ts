@@ -1,6 +1,8 @@
 import style from './css/Mindmap.module.scss'
 import { g, zoomTransform } from './variable'
 import * as d3 from './d3'
+import { Mdata } from './interface'
+import { selectGNode } from './tool'
 
 /**
  * @param this - gContent
@@ -22,4 +24,9 @@ export const onZoomMove = (e: d3.D3ZoomEvent<SVGSVGElement, null>): void => {
   if (!g) { return }
   zoomTransform.value = e.transform
   g.attr('transform', e.transform.toString())
+}
+
+export const onSelect = (e: MouseEvent, d: Mdata): void => {
+  e.stopPropagation()
+  selectGNode(d)
 }
