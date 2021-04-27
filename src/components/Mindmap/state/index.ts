@@ -1,3 +1,4 @@
-import Snapshot from './snapshot'
+import { Mdata } from '../interface'
+import Snapshot from './Snapshot'
 
-export default new Snapshot()
+export default new Snapshot<Mdata>()
