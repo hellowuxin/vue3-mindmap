@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import emitter from '@/mitt'
-import { defineComponent, onMounted, PropType, Ref, ref, watch } from 'vue'
+import { defineComponent, onMounted, PropType, Ref, ref, watch, watchEffect } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
@@ -42,6 +42,7 @@ import { textRectPadding, xGap, yGap, branch, zoomTransform, scaleExtent, ctm } 
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
+import { cloneDeep } from 'lodash'
 
 type MenuEvent = 'zoomin' | 'zoomout' | 'zoomfit' | 'add' | 'delete' | 'selectall' | 'collapse' | 'expand'
 
@@ -55,8 +56,7 @@ export default defineComponent({
       type: Array as PropType<Data[]>,
       required: true
     },
-    width: Number,
-    height: Number,
+    // 绘制所需的变量
     xGap: { type: Number, default: xGap },
     yGap: { type: Number, default: yGap },
     branch: {
@@ -68,6 +68,8 @@ export default defineComponent({
       type: Object as PropType<TwoNumber>,
       default: scaleExtent
     },
+    sharpCorner: Boolean,
+    // 操作许可
     centerBtn: Boolean,
     fitBtn: Boolean,
     downloadBtn: Boolean,
@@ -78,12 +80,13 @@ export default defineComponent({
     keyboard: Boolean,
     contextmenu: Boolean,
     zoom: Boolean,
-    sharpCorner: Boolean,
   },
-  setup (props) {
-    // 立刻更新变量
-      emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap })
-      emitter.emit('scale-extent', props.scaleExtent)
+  setup (props, context) {
+    // 立即执行
+      watchEffect(() => emitter.emit('scale-extent', props.scaleExtent))
+      watchEffect(() => emitter.emit('branch', props.branch))
+      watchEffect(() => emitter.emit('sharp-corner', props.sharpCorner))
+      watchEffect(() => emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap }))
     // 变量
       const hasPrev = ref(false)
       const hasNext = ref(false)
@@ -110,7 +113,6 @@ export default defineComponent({
       })
       let mmdata: ImData
       let editFlag = false
-      const showAddNodeBtn = ref(true)
       const showViewMenu = ref(true)
 
     onMounted(() => {
@@ -143,15 +145,9 @@ export default defineComponent({
       switchContextmenu(props.contextmenu)
     })
     // watch
-      watch(() => props.branch, (value) => emitter.emit('branch', value), { immediate: true })
-      watch(() => props.sharpCorner, (val) => {
-        emitter.emit('sharp-corner', val)
-        draw()
-      })
-      watch(() => [props.branch, props.addNodeBtn], () => draw())
+      watch(() => [props.branch, props.addNodeBtn, props.sharpCorner], () => draw())
       watch(() => [props.xGap, props.yGap], (val) => {
-        emitter.emit('gap', { xGap: val[0], yGap: val[1] })
-        mmdata.setBoundingBox(xGap, yGap)
+        mmdata.setBoundingBox(val[0], val[1])
         draw()
       })
       watch(() => [props.drag, props.edit], (val) => {
@@ -160,9 +156,6 @@ export default defineComponent({
         switchEdit(val[1])
       })
       watch(() => props.zoom, (val) => switchZoom(val))
-      watch(showAddNodeBtn, (val) => {
-        g.value?.selectAll(`g.${style['add-btn']}`).style('display', val ? '' : 'none')
-      })
       watch(() => props.contextmenu, (val) => switchContextmenu(val))
     //
     const appendAndBindAddBtn = (g: SelectionG) => {
@@ -307,7 +300,7 @@ export default defineComponent({
        */
       function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
         const gNode = this.parentNode?.parentNode as SVGGElement
-        showAddNodeBtn.value = false
+        if (svgEle.value) { svgEle.value.classList.add(style.dragging) }
         if (!g.value) { return }
         moveNode(gNode, d, [e.x - d.x, e.y - d.y])
         // 鼠标相对gEle左上角的位置
@@ -336,7 +329,7 @@ export default defineComponent({
        */
       function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
         const gNode = this.parentNode?.parentNode as SVGGElement
-        showAddNodeBtn.value = true
+        if (svgEle.value) { svgEle.value.classList.remove(style.dragging) }
         // 判断是否找到了新的父节点
         const np = document.getElementsByClassName(style.outline)[0]
         if (np) {
@@ -516,6 +509,7 @@ export default defineComponent({
     // 数据操作
       const afterOperation = (snap = true) => { 
         if (snap) { snapshot.snap(mmdata.data) }
+        context.emit('update:modelValue', cloneDeep([mmdata.data.rawData]))
         updateTimeTravelState()
         draw()
       }

@@ -2,6 +2,7 @@ declare const style: {
   readonly container: string
   readonly 'svg-wrapper': string
   readonly svg: string
+  readonly dragging: string
   readonly 'button-list': string
   readonly 'right-bottom': string
   readonly 'right-top': string
@@ -15,6 +16,7 @@ declare const style: {
   readonly outline: string
   readonly download: string
   readonly 'add-btn': string
+  readonly 'hidden': string
   readonly 'expand-btn': string
   readonly 'collapse': string
   readonly content: string

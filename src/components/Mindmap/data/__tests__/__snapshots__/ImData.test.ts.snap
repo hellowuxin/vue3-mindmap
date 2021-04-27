@@ -658,15 +658,6 @@ test",
       Object {
         "children": Array [
           Object {
-            "name": "折叠节点",
-          },
-        ],
-        "collapse": true,
-        "name": "安装",
-      },
-      Object {
-        "children": Array [
-          Object {
             "name": "选择集",
           },
           Object {

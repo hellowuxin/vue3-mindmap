@@ -86,6 +86,7 @@ const traverse = (d: Mdata, processers: Processer[], id = '0') => {
       const child = children[index]
       if (child.id === 'del') {
         children.splice(index, 1)
+        d.rawData.children?.splice(index, 1)
       } else {
         traverse(child, processers, `${id}-${index}`) 
         index += 1

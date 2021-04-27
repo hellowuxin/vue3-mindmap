@@ -1,7 +1,7 @@
 import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from "../interface"
 import * as d3 from '../d3'
 import { addBtnRect, addBtnSide, branch, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from "../variable"
-import { getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from "./get"
+import { getAddBtnClass, getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from "./get"
 import style from '../css/Mindmap.module.scss'
 
 /**
@@ -74,8 +74,7 @@ export const attrExpandBtn = (g: SelectionG, trp: number): void => {
 }
  
 export const attrAddBtn = (g: SelectionG, trp: number): void => {
-  g.attr('class', style['add-btn']).attr('transform', (d) => getAddBtnTransform(d, trp))
-    .style('visibility', (d) => d.collapse ? 'hidden' : 'visible')
+  g.attr('class', (d) => getAddBtnClass(d).join(' ')).attr('transform', (d) => getAddBtnTransform(d, trp))
 }
 
 export const attrTrigger = (rect: SelectionRect, padding: number): void => {

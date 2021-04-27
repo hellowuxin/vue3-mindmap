@@ -6,7 +6,7 @@
     <div class="right-top"><span>Props</span></div>
     <mindmap
       class="left-bottom"
-      v-model="learn"
+      v-model="data"
       :branch="rangeList['branch'].value"
       :x-gap="rangeList['x-gap'].value"
       :y-gap="rangeList['y-gap'].value"
@@ -36,10 +36,12 @@
 
 <script lang="ts">
 import learn from './learn.json'
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import Mindmap from './components/Mindmap'
 import { xGap, yGap, branch } from './components/Mindmap/variable'
+
 type checkbox = { [key: string]: { value: boolean, disabled?: boolean } }
+
 export default defineComponent({
   name: 'App',
   components: {
@@ -65,8 +67,10 @@ export default defineComponent({
       'x-gap': { value: xGap, min: 0, max: 100 },
       'y-gap': { value: yGap, min: 0, max: 100 }
     })
+    const data = ref(learn)
+
     return {
-      learn,
+      data,
       checkboxList,
       rangeList
     }

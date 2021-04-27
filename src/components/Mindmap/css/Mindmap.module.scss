@@ -47,8 +47,14 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
     fill: transparent;
   }
 
+  &.dragging .add-btn { visibility: hidden; }
+
   .add-btn {
     opacity: 0;
+
+    &.hidden {
+      visibility: hidden;
+    }
 
     rect {
       stroke-width: 1;

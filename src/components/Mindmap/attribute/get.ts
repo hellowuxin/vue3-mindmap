@@ -21,6 +21,13 @@ export const getGClass = (d?: Mdata): string[] => {
   }
   return arr
 }
+export const getAddBtnClass = (d: Mdata): string[] => {
+  const arr = [style['add-btn']]
+  if (d.collapse) {
+    arr.push(style['hidden'])
+  }
+  return arr
+}
 export const getGTransform = (d: Mdata): string => { return `translate(${d.dx + d.px},${d.dy + d.py})` }
 export const getDataId = (d: Mdata): string => { return d.id }
 export const getTspanData = (d: Mdata): TspanData[] => {

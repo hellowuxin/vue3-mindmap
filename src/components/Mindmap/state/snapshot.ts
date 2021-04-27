@@ -1,5 +1,5 @@
 import { Mdata, IsMdata } from '../interface'
-import cloneDeep from 'lodash.clonedeep'
+import { cloneDeep } from 'lodash'
 
 export default class Snapshot {
   private length: number // 最大记录数
