@@ -2,7 +2,9 @@ import * as d3 from '../d3'
 import { TwoNumber } from '../interface'
 import emitter from '@/mitt'
 import { Ref, ref } from 'vue'
+import { onZoomMove } from '../Listener'
 export * as ctm from './contextmenu'
+export * from './element'
 
 type CurveStepLink = ({ source, target }: { source: TwoNumber, target: TwoNumber }) => string | null
 type Link = d3.Link<unknown, d3.DefaultLinkObject, [number, number]> | CurveStepLink
@@ -24,6 +26,8 @@ export let xGap = 84
 export let textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
 export let sharpCorner = false
 export let scaleExtent: TwoNumber = [0.1, 8]
+export const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(scaleExtent)
+export let editFlag = false
 
 emitter.on<number>('branch', (value) => branch = value || branch)
 emitter.on<TwoNumber>('scale-extent', (value) => scaleExtent = value || scaleExtent)
@@ -38,3 +42,4 @@ emitter.on<{ xGap: number, yGap: number}>('gap', (gap) => {
   textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
   textRectPadding = Math.min(xGap / 2 - 1, textRectPadding)
 })
+emitter.on<boolean>('edit-flag', (val) => editFlag = !!val)

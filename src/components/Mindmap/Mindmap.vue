@@ -36,9 +36,9 @@ import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData } from './data'
 import snapshot from './state'
-import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos } from './tool'
+import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos, selectGNode } from './tool'
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
-import { textRectPadding, xGap, yGap, branch, zoomTransform, scaleExtent, ctm } from './variable'
+import { textRectPadding, xGap, yGap, branch, scaleExtent, ctm, g, zoom, editFlag } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave } from './Listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -97,10 +97,8 @@ export default defineComponent({
       const foreignEle: Ref<SVGForeignObjectElement | undefined> = ref()
       const foreignDivEle: Ref<HTMLDivElement | undefined> = ref()
       const svg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
-      const g: Ref<d3.Selection<SVGGElement, null, null, undefined> | undefined> = ref()
       const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
       const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
-      const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(scaleExtent)
       const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
       const observer = new ResizeObserver((arr: any) => {
         if (!foreign.value) { return }
@@ -112,13 +110,12 @@ export default defineComponent({
         foreign.value.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
       })
       let mmdata: ImData
-      let editFlag = false
       const showViewMenu = ref(true)
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
       svg.value = d3.select(svgEle.value)
-      g.value = d3.select(gEle.value)
+      emitter.emit('selection-g', d3.select(gEle.value))
       asstSvg.value = d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0)
       foreign.value = d3.select(foreignEle.value)
       observer.observe(foreignDivEle.value)
@@ -224,7 +221,7 @@ export default defineComponent({
         gContent.raise()
         return update
       }
-      const draw = (d = [mmdata.data], sele = g.value as d3.Selection<SVGGElement, any, any, any>) => {
+      const draw = (d = [mmdata.data], sele = g as d3.Selection<SVGGElement, any, any, any>) => {
         const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d[0]).join('.')}`)
         temp.data(d, (d) => d.gKey).join(appendNode, updateNode)
       }
@@ -243,26 +240,6 @@ export default defineComponent({
         return {
           width: Math.max(tBox.width, 22),
           height: Math.max(tBox.height, 22) * multiline.length
-        }
-      }
-      function selectGNode (d: SVGGElement): void
-      function selectGNode (d: Mdata): void
-      function selectGNode (d: SVGGElement | Mdata) {
-        const ele = d instanceof SVGGElement ? d : document.querySelector<SVGGElement>(`g[data-id='${getDataId(d)}']`)
-        const oldSele = document.getElementsByClassName(style.selected)[0]
-        if (ele) {
-          if (oldSele) {
-            if (oldSele !== ele) {
-              oldSele.classList.remove(style.selected)
-              ele.classList.add(style.selected)
-            } else {
-              editFlag = true
-            }
-          } else {
-            ele.classList.add(style.selected)
-          }
-        } else {
-          throw new Error(`g[data-id='${getDataId(d as Mdata)}'] is null`)
         }
       }
       const moveNode = (node: SVGGElement, d: Mdata, p: TwoNumber, dura = 0) => {
@@ -290,24 +267,19 @@ export default defineComponent({
         }
       }
     // 监听事件
-      function onZoomMove (e: d3.D3ZoomEvent<SVGSVGElement, null>) {
-        if (!g.value) { return }
-        zoomTransform.value = e.transform
-        g.value.attr('transform', e.transform.toString())
-      }
       /**
        * @param this gText
        */
       function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
         const gNode = this.parentNode?.parentNode as SVGGElement
         if (svgEle.value) { svgEle.value.classList.add(style.dragging) }
-        if (!g.value) { return }
+        if (!g) { return }
         moveNode(gNode, d, [e.x - d.x, e.y - d.y])
         // 鼠标相对gEle左上角的位置
         const mousePos = d3.pointer(e, gEle.value)
         mousePos[1] += mmdata.data.y
 
-        const temp = g.value.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
+        const temp = g.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
           if (other !== d && other !== d.parent && !other.id.startsWith(d.id)) {
             const rect = {
               x0: other.x - textRectPadding,
@@ -374,7 +346,7 @@ export default defineComponent({
         const gNode = this.parentNode?.parentNode as SVGGElement
         if (editFlag && foreign.value && foreignDivEle.value) {
           gNode.classList.add(style.edited)
-          editFlag = false
+          emitter.emit('edit-flag', false)
           foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
             .attr('data-id', d.id).attr('data-name', d.name).style('display', '')
           const div = foreignDivEle.value
@@ -405,12 +377,12 @@ export default defineComponent({
        */
       const addAndEdit = (e: MouseEvent, d: Mdata) => {
         const child = add(d.id, '')
-        if (!g.value || !child) { return }
-        const gText = g.value.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(child)}'] g.${style.text}`)
+        if (!g || !child) { return }
+        const gText = g.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(child)}'] g.${style.text}`)
         const node = gText.node()
 
         if (node) {
-          editFlag = true
+          emitter.emit('edit-flag', true)
           onEdit.call(node, e, child)
         }
       }
@@ -472,8 +444,8 @@ export default defineComponent({
         }
       }
       const switchEdit = (editable: boolean) => {
-        if (!foreignDivEle.value || !g.value) { return }
-        const gText = g.value.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
+        if (!foreignDivEle.value || !g) { return }
+        const gText = g.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
         if (editable) {
           gText.on('click', onEdit)
         } else {
@@ -481,8 +453,8 @@ export default defineComponent({
         }
       }
       const switchDrag = (draggable: boolean) => {
-        if (!g.value) { return }
-        const gText = g.value.selectAll<SVGGElement, Mdata>(`g.node:not(.${style.root}) > g > g.${style.text}`)
+        if (!g) { return }
+        const gText = g.selectAll<SVGGElement, Mdata>(`g.node:not(.${style.root}) > g > g.${style.text}`)
         if (draggable) {
           drag(gText)
         } else {
@@ -490,8 +462,8 @@ export default defineComponent({
         }
       }
       const switchSelect = (selectable: boolean) => {
-        if (!g.value) { return }
-        const gText = g.value.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
+        if (!g) { return }
+        const gText = g.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
         if (selectable) {
           gText.on('mousedown', onSelect)
         } else {

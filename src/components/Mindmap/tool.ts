@@ -1,6 +1,9 @@
-import html2canvas from "html2canvas"
+import emitter from '@/mitt'
+import html2canvas from 'html2canvas'
+import { getDataId } from './attribute'
 import * as d3 from './d3'
-import { Mdata } from "./interface"
+import style from './css/Mindmap.module.scss'
+import { Mdata } from './interface'
 
 /**
  * 使页面重排
@@ -68,4 +71,25 @@ export const getRelativePos = (wrapper: HTMLElement, e: MouseEvent): { left: num
  */
 export function getDragContainer (this: SVGGElement): SVGGElement {
   return this.parentNode?.parentNode?.parentNode as SVGGElement
+}
+
+export function selectGNode (d: SVGGElement): void
+export function selectGNode (d: Mdata): void
+export function selectGNode (d: SVGGElement | Mdata): void {
+  const ele = d instanceof SVGGElement ? d : document.querySelector<SVGGElement>(`g[data-id='${getDataId(d)}']`)
+  const oldSele = document.getElementsByClassName(style.selected)[0]
+  if (ele) {
+    if (oldSele) {
+      if (oldSele !== ele) {
+        oldSele.classList.remove(style.selected)
+        ele.classList.add(style.selected)
+      } else {
+        emitter.emit('edit-flag', true)
+      }
+    } else {
+      ele.classList.add(style.selected)
+    }
+  } else {
+    throw new Error(`g[data-id='${getDataId(d as Mdata)}'] is null`)
+  }
 }
