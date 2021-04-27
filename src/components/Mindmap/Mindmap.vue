@@ -15,6 +15,10 @@
       <button v-if="fitBtn" @click="fitView()"><i :class="style['fit']"></i></button>
       <button v-if="downloadBtn" @click="download()"><i :class="style['download']"></i></button>
     </div>
+    <div v-if="timetravel" :class="[style['button-list'], style['right-top']]">
+      <button @click="prev" :class="{ [style['disabled']]: !hasPrev }"><i :class="style['prev']"></i></button>
+      <button @click="next" :class="{ [style['disabled']]: !hasNext }"><i :class="style['next']"></i></button>
+    </div>
     <contextmenu
       v-if="contextmenu"
       :position="contextmenuPos"
@@ -67,7 +71,7 @@ export default defineComponent({
     centerBtn: Boolean,
     fitBtn: Boolean,
     downloadBtn: Boolean,
-    undoBtn: Boolean,
+    timetravel: Boolean,
     addNodeBtn: Boolean,
     edit: Boolean,
     drag: Boolean,
@@ -81,6 +85,8 @@ export default defineComponent({
       emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap })
       emitter.emit('scale-extent', props.scaleExtent)
     // 变量
+      const hasPrev = ref(false)
+      const hasNext = ref(false)
       const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
       const svgEle: Ref<SVGSVGElement | undefined> = ref()
       const gEle: Ref<SVGGElement | undefined> = ref()
@@ -122,7 +128,7 @@ export default defineComponent({
         getSize
       )
 
-      draw()
+      afterOperation()
       foreign.value.raise()
       foreignDivEle.value.addEventListener('blur', onEditBlur)
       foreignDivEle.value.addEventListener('mousedown', (e: MouseEvent) => e.stopPropagation())
@@ -230,6 +236,10 @@ export default defineComponent({
         temp.data(d, (d) => d.gKey).join(appendNode, updateNode)
       }
     // 其他
+      const updateTimeTravelState = () => {
+        hasPrev.value = snapshot.hasPrev
+        hasNext.value = snapshot.hasNext
+      }
       const getSize = (text: string): { width: number, height: number } => {
         if (!asstSvg.value) { throw new Error('asstSvg undefined') }
         const multiline = getMultiline(text)
@@ -388,7 +398,7 @@ export default defineComponent({
           const id = foreignEle.value.getAttribute('data-id')
           const oldname = foreignEle.value.getAttribute('data-name')
           const name = foreignDivEle.value.textContent
-          if (id && name && name !== oldname) {
+          if (id && name !== null && name !== oldname) {
             rename(id, name)
           }
         }
@@ -504,41 +514,39 @@ export default defineComponent({
         }
       }
     // 数据操作
-      const beforeOperation = () => {
-        snapshot.snap(mmdata.data)
-      }
-      const afterOperation = () => {
+      const afterOperation = (snap = true) => { 
+        if (snap) { snapshot.snap(mmdata.data) }
+        updateTimeTravelState()
         draw()
       }
       const rename = (id: string, name: string) => {
-        beforeOperation()
         mmdata.rename(id, name)
-        draw()
+        afterOperation()
       }
       const moveChild = (pid: string, id: string) => {
         mmdata.moveChild(pid, id)
-        draw()
+        afterOperation()
       }
       const moveSibling = (id: string, referenceId: string, after = 0) => {
         mmdata.moveSibling(id, referenceId, after)
-        draw()
+        afterOperation()
       }
       const add = (id: string, name: string) => {
         const d = mmdata.add(id, name)
-        draw()
+        afterOperation()
         return d
       }
       const del = (id: string) => {
         mmdata.delete(id)
-        draw()
+        afterOperation()
       }
       const expand = (id: string) => {
         mmdata.expand(id)
-        draw()
+        afterOperation()
       }
       const collapse = (id: string) => {
         mmdata.collapse(id)
-        draw()
+        afterOperation()
       }
     // 辅助按钮的点击事件
       const centerView = () => {
@@ -575,6 +583,20 @@ export default defineComponent({
         if (!wrapperEle.value) { return }
         convertToImg(wrapperEle.value, mmdata.data.name)
       }
+      const next = () => {
+        const nextData = snapshot.next()
+        if (nextData) {
+          mmdata.data = nextData
+          afterOperation(false)
+        }
+      }
+      const prev = () => {
+        const prevData = snapshot.prev()
+        if (prevData) {
+          mmdata.data = prevData
+          afterOperation(false)
+        }
+      }
 
     return {
       wrapperEle,
@@ -591,7 +613,11 @@ export default defineComponent({
       viewMenu: ctm.viewMenu,
       nodeMenu: ctm.nodeMenu,
       contextmenuPos: ctm.pos,
-      onClickMenu
+      onClickMenu,
+      next,
+      prev,
+      hasPrev,
+      hasNext
     }
   }
 })

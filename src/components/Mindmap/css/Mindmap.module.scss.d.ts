@@ -4,6 +4,8 @@ declare const style: {
   readonly svg: string
   readonly 'button-list': string
   readonly 'right-bottom': string
+  readonly 'right-top': string
+  readonly disabled: string
   readonly gps: string
   readonly fit: string
   readonly root: string
@@ -18,5 +20,7 @@ declare const style: {
   readonly content: string
   readonly trigger: string
   readonly menu: string
+  readonly prev: string
+  readonly next: string
 }
 export default style

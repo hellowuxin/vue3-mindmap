@@ -28,7 +28,7 @@ export default class Snapshot {
   prev (): IsMdata {
     if (this.hasPrev) {
       this.cursor -= 1
-      return this.snapshots[this.cursor]
+      return cloneDeep(this.snapshots[this.cursor])
     }
     return null
   }
@@ -36,7 +36,7 @@ export default class Snapshot {
   next (): IsMdata {
     if (this.hasNext) {
       this.cursor += 1
-      return this.snapshots[this.cursor]
+      return cloneDeep(this.snapshots[this.cursor])
     }
     return null
   }

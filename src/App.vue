@@ -19,6 +19,7 @@
       :add-node-btn="checkboxList['add-node-btn'].value"
       :sharp-corner="checkboxList['sharp-corner'].value"
       :contextmenu="checkboxList['contextmenu'].value"
+      :timetravel="checkboxList['timetravel'].value"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -48,7 +49,7 @@ export default defineComponent({
     const checkboxList = reactive<checkbox>({
       'center-btn': { value: true },
       'fit-btn': { value: true },
-      'undo-btn': { value: false, disabled: true },
+      timetravel: { value: true },
       'download-btn': { value: true },
       'add-node-btn': { value: true },
       keyboard: { value: false, disabled: true },

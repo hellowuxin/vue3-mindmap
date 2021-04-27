@@ -119,13 +119,8 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
   position: absolute;
 
   &.right-bottom { bottom: 0; right: 0; }
-  &.top-right { top: 0; right: 0; display: flex; flex-direction: row; }
-
-  i { filter: invert(25%) sepia(40%) saturate(5050%) hue-rotate(227deg) brightness(78%) contrast(74%); }
-  button.disabled i { filter: invert(85%) sepia(20%) saturate(0%) hue-rotate(125deg) brightness(86%) contrast(93%); }
+  &.right-top { top: 0; right: 0; display: flex; }
 }
-
-.button-list button:focus { outline: none; }
 
 .button-list button {
   position: relative;
@@ -157,19 +152,21 @@ $seleColor: rgba($color: blue, $alpha: 0.15);
   &:hover::before { opacity: 0.1; }
 
   &.disabled {
-    cursor: not-allowed;
-    &:hover::before { opacity: 0; }
+    pointer-events: none;
+    
+    i { filter: invert(85%) sepia(20%) saturate(0%) hue-rotate(125deg) brightness(86%) contrast(93%); }
   }
 
   i {
+    filter: invert(25%) sepia(40%) saturate(5050%) hue-rotate(227deg) brightness(78%) contrast(74%);
     width: 24px;
     height: 24px;
 
     &.gps { background-image: url(/icons/24px/crosshairs-gps.png) }
     &.fit { background-image: url(/icons/24px/fit-to-page-outline.png) }
     &.download { background-image: url(/icons/24px/download.png) }
-    &.undo { background-image: url(/icons/24px/undo.png) }
-    &.redo { background-image: url(/icons/24px/redo.png) }
+    &.prev { background-image: url(/icons/24px/prev.png) }
+    &.next { background-image: url(/icons/24px/next.png) }
     &.close { background-image: url(/icons/24px/close.png) }
   }
 }
