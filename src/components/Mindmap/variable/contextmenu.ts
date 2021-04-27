@@ -21,7 +21,7 @@ export const viewMenu = computed(() => [
     {
       title: '放大',
       name: 'zoomin',
-      disabled: zoomTransform.value.k >= scaleExtent[1] 
+      disabled: zoomTransform.value.k >= scaleExtent[1]
     },
     {
       title: '缩小',

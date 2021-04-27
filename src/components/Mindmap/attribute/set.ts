@@ -1,17 +1,17 @@
-import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from "../interface"
+import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from '../interface'
 import * as d3 from '../d3'
-import { addBtnRect, addBtnSide, branch, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from "../variable"
-import { getAddBtnClass, getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from "./get"
+import { addBtnRect, addBtnSide, branch, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from '../variable'
+import { getAddBtnClass, getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from './get'
 import style from '../css/Mindmap.module.scss'
 
 /**
  * 根据该节点是否是根节点，绘制不同的效果
  */
 export const attrA = (
-  isRoot: boolean, 
-  gTrigger: SelectionRect, 
-  gTextRect: SelectionRect, 
-  gExpandBtn: SelectionG, 
+  isRoot: boolean,
+  gTrigger: SelectionRect,
+  gTextRect: SelectionRect,
+  gExpandBtn: SelectionG,
   gAddBtn?: SelectionG
 ): void => {
   if (isRoot) {
@@ -72,7 +72,7 @@ export const attrExpandBtn = (g: SelectionG, trp: number): void => {
     .attr('transform', (d) => getExpandBtnTransform(d, trp))
     .style('color', d => d.color)
 }
- 
+
 export const attrAddBtn = (g: SelectionG, trp: number): void => {
   g.attr('class', (d) => getAddBtnClass(d).join(' ')).attr('transform', (d) => getAddBtnTransform(d, trp))
 }

@@ -32,7 +32,7 @@ describe('思维导图数据测试', () => {
   })
 
   it('修改指定id的节点内容' , () => {
-    const name =  '新安装'
+    const name = '新安装'
     const d = mmdata.rename('0-1', name)
     expect(d?.name).toBe(name)
   })

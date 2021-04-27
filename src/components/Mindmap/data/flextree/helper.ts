@@ -18,8 +18,8 @@ export class BoundingBox {
   gap: number
   bottomPadding: number
   /**
-   * @param {number} gap - the gap between sibling nodes
-   * @param {number} bottomPadding - the height reserved for connection drawing
+   * @param gap - the gap between sibling nodes
+   * @param bottomPadding - the height reserved for connection drawing
    */
   constructor (gap: number, bottomPadding: number) {
     this.gap = gap
@@ -92,7 +92,7 @@ export class Layout {
   /**
    * Return the bounding box that encompasses all the nodes.
    * The result has a structure of
-   * { left: number, right: number, top: number, bottom: nubmer}.
+   * \{ left: number, right: number, top: number, bottom: nubmer \}.
    * This is not the same bounding box concept as the `BoundingBox` class
    * used to construct `Layout` class.
    */

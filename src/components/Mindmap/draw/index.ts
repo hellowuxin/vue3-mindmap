@@ -1,8 +1,8 @@
-import { TspanData, Mdata, SelectionG } from "@/components/Mindmap/interface"
+import { TspanData, Mdata, SelectionG } from '@/components/Mindmap/interface'
 import * as d3 from '../d3'
-import { attrAddBtnRect, attrExpandBtnCircle, attrExpandBtnRect, attrTspan } from "../attribute"
-import { getAddPath } from "../tool"
-import { addBtnRect } from "../variable"
+import { attrAddBtnRect, attrExpandBtnCircle, attrExpandBtnRect, attrTspan } from '../attribute'
+import { getAddPath } from '../tool'
+import { addBtnRect } from '../variable'
 
 export const appendTspan = (
   enter: d3.Selection<d3.EnterElement, TspanData, SVGTextElement, Mdata>

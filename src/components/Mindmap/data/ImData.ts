@@ -19,8 +19,8 @@ interface TreeData {
 /**
  * 返回TreeData（rawData、width、height、x、y、children）
  * @param d - Data
- * @param getSize - 
- * @returns 
+ * @param getSize -
+ * @returns
  */
 function initTreeData (d: Data, getSize: GetSize) {
   const size = getSize(d.name)
@@ -88,7 +88,7 @@ const traverse = (d: Mdata, processers: Processer[], id = '0') => {
         children.splice(index, 1)
         d.rawData.children?.splice(index, 1)
       } else {
-        traverse(child, processers, `${id}-${index}`) 
+        traverse(child, processers, `${id}-${index}`)
         index += 1
       }
     }
@@ -129,7 +129,7 @@ export class ImData {
    * @param id -
    * @param p -
    * @param c -
-   * @returns 
+   * @returns
    */
   init (d: TreeData, id = '0', p: IsMdata = null, c?: string): Mdata {
     const x = d.y
@@ -313,7 +313,7 @@ export class ImData {
    * 展开或折叠（expand or collapse ）
    * @param id -
    * @param collapse -
-   * @returns 
+   * @returns
    */
   eoc (id: string, collapse: boolean): IsMdata {
     const d = this.find(id)

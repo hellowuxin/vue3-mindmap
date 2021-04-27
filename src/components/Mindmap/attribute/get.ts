@@ -1,7 +1,7 @@
-import { Mdata, TspanData, TwoNumber } from "@/components/Mindmap/interface"
-import { getMultiline } from "../tool"
+import { Mdata, TspanData, TwoNumber } from '@/components/Mindmap/interface'
+import { getMultiline } from '../tool'
 import style from '../css/Mindmap.module.scss'
-import { addBtnSide, link, textRectPadding, sharpCorner, expandBtnRect } from "../variable"
+import { addBtnSide, link, textRectPadding, sharpCorner, expandBtnRect } from '../variable'
 const getYOffset = () => 3 // max-branch / 2
 
 export const getSiblingGClass = (d?: Mdata): string[] => {
