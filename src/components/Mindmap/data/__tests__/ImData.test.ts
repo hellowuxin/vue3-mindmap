@@ -1,7 +1,8 @@
 // TDD 单元测试
 import ImData from '../ImData'
 import learnData from '@/learn.json'
-import { xGap, yGap } from '@/components/Mindmap/variable'
+const yGap = 18
+const xGap = 84
 
 const getSize = () => ({ width: 10, height: 10 })
 
