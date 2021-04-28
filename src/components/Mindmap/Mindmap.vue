@@ -22,7 +22,7 @@
     <contextmenu
       v-if="contextmenu"
       :position="contextmenuPos"
-      :groups="showViewMenu ? viewMenu : nodeMenu"
+      :groups="menu"
       @click-item="onClickMenu"
     ></contextmenu>
   </div>
@@ -30,17 +30,18 @@
 
 <script lang="ts">
 import emitter from '@/mitt'
-import { defineComponent, onMounted, PropType, Ref, ref, watch, watchEffect } from 'vue'
+import { defineComponent, onMounted, PropType, watch, watchEffect } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
-import { ImData } from './data'
-import snapshot from './state'
-import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos, selectGNode } from './tool'
-import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
-import { textRectPadding, xGap, yGap, branch, scaleExtent, ctm, zoom, editFlag, selection, hasPrev, hasNext, observer } from './variable'
+import { ImData, mmdata } from './data'
+import { snapshot, updateTimeTravelState, hasNext, hasPrev } from './state'
+import { convertToImg, makeTransition, getDragContainer, getRelativePos, selectGNode, getSize, moveNode } from './tool'
+import { getDataId, getTspanData, attrG, attrTspan, attrPath, attrA, getSiblingGClass } from './attribute'
+import { xGap, yGap, branch, scaleExtent, ctm, zoom, editFlag, selection, observer } from './variable'
+import { wrapperEle, svgEle, gEle, asstSvgEle, foreignEle, foreignDivEle  } from './variable/element'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
-import { onMouseEnter, onMouseLeave, onSelect } from './listener'
+import { onMouseEnter, onMouseLeave, onSelect, onDragMove } from './listener'
 import Contextmenu from '../Contextmenu.vue'
 import { cloneDeep } from 'lodash'
 
@@ -83,21 +84,12 @@ export default defineComponent({
   },
   setup (props, context) {
     // 立即执行
-      watchEffect(() => emitter.emit('scale-extent', props.scaleExtent))
-      watchEffect(() => emitter.emit('branch', props.branch))
-      watchEffect(() => emitter.emit('sharp-corner', props.sharpCorner))
-      watchEffect(() => emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap }))
+    watchEffect(() => emitter.emit('scale-extent', props.scaleExtent))
+    watchEffect(() => emitter.emit('branch', props.branch))
+    watchEffect(() => emitter.emit('sharp-corner', props.sharpCorner))
+    watchEffect(() => emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap }))
     // 变量
-      const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
-      const svgEle: Ref<SVGSVGElement | undefined> = ref()
-      const gEle: Ref<SVGGElement | undefined> = ref()
-      const asstSvgEle: Ref<SVGSVGElement | undefined> = ref()
-      const foreignEle: Ref<SVGForeignObjectElement | undefined> = ref()
-      const foreignDivEle: Ref<HTMLDivElement | undefined> = ref()
-      const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
-      
-      let mmdata: ImData
-      const showViewMenu = ref(true)
+    const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
@@ -106,8 +98,7 @@ export default defineComponent({
       emitter.emit('selection-asstSvg', d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0))
       emitter.emit('selection-foreign',d3.select(foreignEle.value))
       observer.observe(foreignDivEle.value)
-
-      mmdata = new ImData(cloneDeep(props.modelValue[0]), xGap, yGap, getSize)
+      emitter.emit('mmdata', new ImData(cloneDeep(props.modelValue[0]), xGap, yGap, getSize))
 
       afterOperation()
       const { svg, foreign } = selection
@@ -209,32 +200,6 @@ export default defineComponent({
         temp.data(d, (d) => d.gKey).join(appendNode, updateNode)
       }
     // 其他
-      const updateTimeTravelState = () => {
-        hasPrev.value = snapshot.hasPrev
-        hasNext.value = snapshot.hasNext
-      }
-      const getSize = (text: string): { width: number, height: number } => {
-        const { asstSvg } = selection
-        if (!asstSvg) { throw new Error('asstSvg undefined') }
-        const multiline = getMultiline(text)
-        const t = asstSvg.append('text')
-        t.selectAll('tspan').data(multiline).enter().append('tspan').text((d) => d).attr('x', 0)
-        const tBox = (t.node() as SVGTextElement).getBBox()
-        t.remove()
-        return {
-          width: Math.max(tBox.width, 22),
-          height: Math.max(tBox.height, 22) * multiline.length
-        }
-      }
-      const moveNode = (node: SVGGElement, d: Mdata, p: TwoNumber, dura = 0) => {
-        const tran = makeTransition(dura, d3.easePolyOut)
-        d.px = p[0]
-        d.py = p[1]
-        d3.select<SVGGElement, Mdata>(node).transition(tran).attr('transform', getGTransform)
-        d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`)
-          .transition(tran)
-          .attr('d', (d) => getPath(d))
-      }
       const bindEvent = (g: SelectionG, isRoot: boolean) => {
         const gExpandBtn = g.select(`:scope > g.${style.content} > g.${style['expand-btn']}`)
         gExpandBtn.on('click', onClickExpandBtn)
@@ -251,36 +216,6 @@ export default defineComponent({
         }
       }
     // 监听事件
-      /**
-       * @param this gText
-       */
-      function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
-        const gNode = this.parentNode?.parentNode as SVGGElement
-        if (svgEle.value) { svgEle.value.classList.add(style.dragging) }
-        const { g } = selection
-        if (!g) { return }
-        moveNode(gNode, d, [e.x - d.x, e.y - d.y])
-        // 鼠标相对gEle左上角的位置
-        const mousePos = d3.pointer(e, gEle.value)
-        mousePos[1] += mmdata.data.y
-
-        const temp = g.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
-          if (other !== d && other !== d.parent && !other.id.startsWith(d.id)) {
-            const rect = {
-              x0: other.x - textRectPadding,
-              x1: other.x + other.width + textRectPadding,
-              y0: other.y - textRectPadding,
-              y1: other.y + other.height + textRectPadding
-            }
-            return mousePos[0] > rect.x0 && mousePos[1] > rect.y0 && mousePos[0] < rect.x1 && mousePos[1] < rect.y1
-          }
-          return false
-        })
-        const old = Array.from(document.getElementsByClassName(style.outline))
-        const n = temp.node()
-        old.forEach((o) => { if (o !== n) { o.classList.remove(style.outline) } })
-        n?.classList.add(style.outline)
-      }
       /**
        * @param this gText
        */
@@ -385,7 +320,7 @@ export default defineComponent({
           ctm.expandItem.value.disabled = !collapseFlag
           ctm.collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
         }
-        showViewMenu.value = gNode ? false : true
+        ctm.showViewMenu.value = gNode ? false : true
         emitter.emit('showContextmenu', true)
       }
       const onClickMenu = (name: MenuEvent) => {
@@ -565,9 +500,7 @@ export default defineComponent({
       centerView,
       fitView,
       download,
-      showViewMenu,
-      viewMenu: ctm.viewMenu,
-      nodeMenu: ctm.nodeMenu,
+      menu: ctm.menu,
       contextmenuPos: ctm.pos,
       onClickMenu,
       next,

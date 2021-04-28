@@ -1,9 +1,10 @@
 import emitter from '@/mitt'
 import html2canvas from 'html2canvas'
-import { getDataId } from './attribute'
+import { getDataId, getGTransform, getPath } from './attribute'
 import * as d3 from './d3'
 import style from './css/Mindmap.module.scss'
-import { Mdata } from './interface'
+import { Mdata, TwoNumber } from './interface'
+import { selection } from './variable'
 
 /**
  * 使页面重排
@@ -92,4 +93,33 @@ export function selectGNode (d: SVGGElement | Mdata): void {
   } else {
     throw new Error(`g[data-id='${getDataId(d as Mdata)}'] is null`)
   }
+}
+
+/**
+ * 获取文本在tspan中的宽度与高度
+ * @param text -
+ * @returns -
+ */
+export const getSize = (text: string): { width: number, height: number } => {
+  const { asstSvg } = selection
+  if (!asstSvg) { throw new Error('asstSvg undefined') }
+  const multiline = getMultiline(text)
+  const t = asstSvg.append('text')
+  t.selectAll('tspan').data(multiline).enter().append('tspan').text((d) => d).attr('x', 0)
+  const tBox = (t.node() as SVGTextElement).getBBox()
+  t.remove()
+  return {
+    width: Math.max(tBox.width, 22),
+    height: Math.max(tBox.height, 22) * multiline.length
+  }
+}
+
+export const moveNode = (node: SVGGElement, d: Mdata, p: TwoNumber, dura = 0): void => {
+  const tran = makeTransition(dura, d3.easePolyOut)
+  d.px = p[0]
+  d.py = p[1]
+  d3.select<SVGGElement, Mdata>(node).transition(tran).attr('transform', getGTransform)
+  d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`)
+    .transition(tran)
+    .attr('d', (d) => getPath(d))
 }

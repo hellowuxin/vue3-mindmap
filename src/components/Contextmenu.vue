@@ -37,7 +37,7 @@ export default defineComponent({
   setup (props, context) {
     const show = ref(false)
     const style = useCssModule()
-    emitter.on('showContextmenu', (val) => show.value = val)
+    emitter.on<boolean>('showContextmenu', (val) => show.value = !!val)
     const close = () => show.value = false
     const onClick = (name: string) => {
       close()

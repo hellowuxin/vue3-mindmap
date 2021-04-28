@@ -4,9 +4,10 @@ import emitter from '@/mitt'
 import { Ref, ref } from 'vue'
 import { onZoomMove } from '../listener'
 import * as selection from './selection'
+import * as element from './element'
 
 export * as ctm from './contextmenu'
-export { selection }
+export { selection, element }
 
 // 连线样式
 type CurveStepLink = ({ source, target }: { source: TwoNumber, target: TwoNumber }) => string | null
@@ -35,16 +36,9 @@ emitter.on<TwoNumber>('scale-extent', (value) => scaleExtent = value || scaleExt
 export let editFlag = false
 emitter.on<boolean>('edit-flag', (val) => editFlag = !!val)
 
-// 其他
+// 节点边距与间隔
 export const rootTextRectRadius = 6
 export const rootTextRectPadding = 10
-export const addBtnRect = { side: 12, padding: 2 }
-export const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
-export const expandBtnRect = { width: 16, height: 4, radius: 2 }
-export const zoomTransform: Ref<d3.ZoomTransform> = ref(d3.zoomIdentity)
-export const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(scaleExtent)
-
-// 节点边距与间隔
 export let yGap = 18
 export let xGap = 84
 export let textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
@@ -55,10 +49,6 @@ emitter.on<{ xGap: number, yGap: number}>('gap', (gap) => {
   textRectPadding = Math.min(yGap / 2 - 1, rootTextRectPadding)
   textRectPadding = Math.min(xGap / 2 - 1, textRectPadding)
 })
-
-// 时间旅行状态
-export const hasPrev = ref(false)
-export const hasNext = ref(false)
 
 // 观察foreign
 export const observer = new ResizeObserver((arr: any) => {
@@ -71,3 +61,10 @@ export const observer = new ResizeObserver((arr: any) => {
   const gap = (pl + b) * 2
   foreign.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
 })
+
+// 其他
+export const addBtnRect = { side: 12, padding: 2 }
+export const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
+export const expandBtnRect = { width: 16, height: 4, radius: 2 }
+export const zoomTransform: Ref<d3.ZoomTransform> = ref(d3.zoomIdentity)
+export const zoom = d3.zoom<SVGSVGElement, null>().on('zoom', onZoomMove).scaleExtent(scaleExtent)
