@@ -3,8 +3,10 @@ import { TwoNumber } from '../interface'
 import emitter from '@/mitt'
 import { Ref, ref } from 'vue'
 import { onZoomMove } from '../listener'
+import * as selection from './selection'
+
 export * as ctm from './contextmenu'
-export * as selection from './selection'
+export { selection }
 
 // 连线样式
 type CurveStepLink = ({ source, target }: { source: TwoNumber, target: TwoNumber }) => string | null
@@ -54,3 +56,18 @@ emitter.on<{ xGap: number, yGap: number}>('gap', (gap) => {
   textRectPadding = Math.min(xGap / 2 - 1, textRectPadding)
 })
 
+// 时间旅行状态
+export const hasPrev = ref(false)
+export const hasNext = ref(false)
+
+// 观察foreign
+export const observer = new ResizeObserver((arr: any) => {
+  const { foreign } = selection
+  if (!foreign) { return }
+  const temp = arr[0]
+  const target = temp.target
+  const pl = parseInt(getComputedStyle(target).paddingLeft || '0', 10)
+  const b = parseInt(getComputedStyle(target.parentNode as Element).borderTopWidth || '0', 10)
+  const gap = (pl + b) * 2
+  foreign.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
+})

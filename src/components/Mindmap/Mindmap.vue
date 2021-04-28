@@ -38,7 +38,7 @@ import { ImData } from './data'
 import snapshot from './state'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos, selectGNode } from './tool'
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
-import { textRectPadding, xGap, yGap, branch, scaleExtent, ctm, zoom, editFlag, selection } from './variable'
+import { textRectPadding, xGap, yGap, branch, scaleExtent, ctm, zoom, editFlag, selection, hasPrev, hasNext, observer } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave, onSelect } from './listener'
 import Contextmenu from '../Contextmenu.vue'
@@ -88,25 +88,14 @@ export default defineComponent({
       watchEffect(() => emitter.emit('sharp-corner', props.sharpCorner))
       watchEffect(() => emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap }))
     // 变量
-      const hasPrev = ref(false)
-      const hasNext = ref(false)
       const wrapperEle: Ref<HTMLDivElement | undefined> = ref()
       const svgEle: Ref<SVGSVGElement | undefined> = ref()
       const gEle: Ref<SVGGElement | undefined> = ref()
       const asstSvgEle: Ref<SVGSVGElement | undefined> = ref()
       const foreignEle: Ref<SVGForeignObjectElement | undefined> = ref()
       const foreignDivEle: Ref<HTMLDivElement | undefined> = ref()
-      const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
       const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
-      const observer = new ResizeObserver((arr: any) => {
-        if (!foreign.value) { return }
-        const temp = arr[0]
-        const target = temp.target
-        const pl = parseInt(getComputedStyle(target).paddingLeft || '0', 10)
-        const b = parseInt(getComputedStyle(target.parentNode as Element).borderTopWidth || '0', 10)
-        const gap = (pl + b) * 2
-        foreign.value.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
-      })
+      
       let mmdata: ImData
       const showViewMenu = ref(true)
 
@@ -115,24 +104,19 @@ export default defineComponent({
       emitter.emit('selection-svg', d3.select(svgEle.value))
       emitter.emit('selection-g', d3.select(gEle.value))
       emitter.emit('selection-asstSvg', d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0))
-      foreign.value = d3.select(foreignEle.value)
+      emitter.emit('selection-foreign',d3.select(foreignEle.value))
       observer.observe(foreignDivEle.value)
 
-      mmdata = new ImData(
-        JSON.parse(JSON.stringify(props.modelValue[0])),
-        xGap,
-        yGap,
-        getSize
-      )
+      mmdata = new ImData(cloneDeep(props.modelValue[0]), xGap, yGap, getSize)
 
       afterOperation()
-      foreign.value.raise()
+      const { svg, foreign } = selection
+      foreign?.raise()
       foreignDivEle.value.addEventListener('blur', onEditBlur)
       foreignDivEle.value.addEventListener('mousedown', (e: MouseEvent) => e.stopPropagation())
       centerView()
       fitView()
       // mousedown与drag/zoom绑定的先后顺序会有影响
-      const { svg } = selection
       svg?.on('mousedown', () => {
         const oldSele = document.getElementsByClassName(style.selected)[0]
         oldSele?.classList.remove(style.selected)
@@ -345,10 +329,11 @@ export default defineComponent({
        */
       function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata) {
         const gNode = this.parentNode?.parentNode as SVGGElement
-        if (editFlag && foreign.value && foreignDivEle.value) {
+        const { foreign } = selection
+        if (editFlag && foreign && foreignDivEle.value) {
           gNode.classList.add(style.edited)
           emitter.emit('edit-flag', false)
-          foreign.value.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
+          foreign.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
             .attr('data-id', d.id).attr('data-name', d.name).style('display', '')
           const div = foreignDivEle.value
           div.textContent = d.name
