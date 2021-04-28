@@ -38,9 +38,9 @@ import { ImData } from './data'
 import snapshot from './state'
 import { getMultiline, convertToImg, makeTransition, getDragContainer, getRelativePos, selectGNode } from './tool'
 import { getGTransform, getDataId, getTspanData, attrG, attrTspan, getPath, attrPath, attrA, getSiblingGClass } from './attribute'
-import { textRectPadding, xGap, yGap, branch, scaleExtent, ctm, g, zoom, editFlag } from './variable'
+import { textRectPadding, xGap, yGap, branch, scaleExtent, ctm, zoom, editFlag, selection } from './variable'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
-import { onMouseEnter, onMouseLeave, onSelect } from './Listener'
+import { onMouseEnter, onMouseLeave, onSelect } from './listener'
 import Contextmenu from '../Contextmenu.vue'
 import { cloneDeep } from 'lodash'
 
@@ -96,8 +96,6 @@ export default defineComponent({
       const asstSvgEle: Ref<SVGSVGElement | undefined> = ref()
       const foreignEle: Ref<SVGForeignObjectElement | undefined> = ref()
       const foreignDivEle: Ref<HTMLDivElement | undefined> = ref()
-      const svg: Ref<d3.Selection<SVGSVGElement, null, null, undefined> | undefined> = ref()
-      const asstSvg: Ref<d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined> = ref()
       const foreign: Ref<d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined> = ref()
       const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
       const observer = new ResizeObserver((arr: any) => {
@@ -114,9 +112,9 @@ export default defineComponent({
 
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
-      svg.value = d3.select(svgEle.value)
+      emitter.emit('selection-svg', d3.select(svgEle.value))
       emitter.emit('selection-g', d3.select(gEle.value))
-      asstSvg.value = d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0)
+      emitter.emit('selection-asstSvg', d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0))
       foreign.value = d3.select(foreignEle.value)
       observer.observe(foreignDivEle.value)
 
@@ -134,7 +132,8 @@ export default defineComponent({
       centerView()
       fitView()
       // mousedown与drag/zoom绑定的先后顺序会有影响
-      svg.value.on('mousedown', () => {
+      const { svg } = selection
+      svg?.on('mousedown', () => {
         const oldSele = document.getElementsByClassName(style.selected)[0]
         oldSele?.classList.remove(style.selected)
       })
@@ -221,7 +220,7 @@ export default defineComponent({
         gContent.raise()
         return update
       }
-      const draw = (d = [mmdata.data], sele = g as d3.Selection<SVGGElement, any, any, any>) => {
+      const draw = (d = [mmdata.data], sele = selection.g as d3.Selection<SVGGElement, any, any, any>) => {
         const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d[0]).join('.')}`)
         temp.data(d, (d) => d.gKey).join(appendNode, updateNode)
       }
@@ -231,9 +230,10 @@ export default defineComponent({
         hasNext.value = snapshot.hasNext
       }
       const getSize = (text: string): { width: number, height: number } => {
-        if (!asstSvg.value) { throw new Error('asstSvg undefined') }
+        const { asstSvg } = selection
+        if (!asstSvg) { throw new Error('asstSvg undefined') }
         const multiline = getMultiline(text)
-        const t = asstSvg.value.append('text')
+        const t = asstSvg.append('text')
         t.selectAll('tspan').data(multiline).enter().append('tspan').text((d) => d).attr('x', 0)
         const tBox = (t.node() as SVGTextElement).getBBox()
         t.remove()
@@ -273,6 +273,7 @@ export default defineComponent({
       function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata) {
         const gNode = this.parentNode?.parentNode as SVGGElement
         if (svgEle.value) { svgEle.value.classList.add(style.dragging) }
+        const { g } = selection
         if (!g) { return }
         moveNode(gNode, d, [e.x - d.x, e.y - d.y])
         // 鼠标相对gEle左上角的位置
@@ -373,6 +374,7 @@ export default defineComponent({
        */
       const addAndEdit = (e: MouseEvent, d: Mdata) => {
         const child = add(d.id, '')
+        const { g } = selection
         if (!g || !child) { return }
         const gText = g.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(child)}'] g.${style.text}`)
         const node = gText.node()
@@ -431,15 +433,17 @@ export default defineComponent({
       }
     // 功能开关
       const switchZoom = (zoomable: boolean) => {
-        if (!svg.value) { return }
+        const { svg } = selection
+        if (!svg) { return }
         if (zoomable) {
-          zoom(svg.value)
-          svg.value.on('dblclick.zoom', null)
+          zoom(svg)
+          svg.on('dblclick.zoom', null)
         } else {
-          svg.value.on('.zoom', null)
+          svg.on('.zoom', null)
         }
       }
       const switchEdit = (editable: boolean) => {
+        const { g } = selection
         if (!foreignDivEle.value || !g) { return }
         const gText = g.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
         if (editable) {
@@ -449,6 +453,7 @@ export default defineComponent({
         }
       }
       const switchDrag = (draggable: boolean) => {
+        const { g } = selection
         if (!g) { return }
         const gText = g.selectAll<SVGGElement, Mdata>(`g.node:not(.${style.root}) > g > g.${style.text}`)
         if (draggable) {
@@ -458,6 +463,7 @@ export default defineComponent({
         }
       }
       const switchSelect = (selectable: boolean) => {
+        const { g } = selection
         if (!g) { return }
         const gText = g.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
         if (selectable) {
@@ -512,15 +518,17 @@ export default defineComponent({
       }
     // 辅助按钮的点击事件
       const centerView = () => {
-        if (!svg.value) { return }
+        const { svg } = selection
+        if (!svg) { return }
         const data = mmdata.data
-        zoom.translateTo(svg.value, 0 + data.width / 2, 0 + data.height / 2)
+        zoom.translateTo(svg, 0 + data.width / 2, 0 + data.height / 2)
       }
       /**
        * 缩放至合适大小并移动至全部可见
        */
       const fitView = () => {
-        if (!svg.value || !gEle.value || !svgEle.value) { return }
+        const { svg } = selection
+        if (!svg || !gEle.value || !svgEle.value) { return }
         const gBB = gEle.value.getBBox()
         const svgBCR = svgEle.value.getBoundingClientRect()
         const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
@@ -531,15 +539,16 @@ export default defineComponent({
           -gBB.x * multiple + svgCenter.x - gCenter.x,
           -gBB.y * multiple + svgCenter.y - gCenter.y
         ).scale(multiple)
-        zoom.transform(svg.value, center)
+        zoom.transform(svg, center)
       }
       /**
        * 按一定程度缩放
        * @param flag - 为true时放大，false缩小
        */
       const scaleView = (flag: boolean) => {
-        if (!svg.value) { return }
-        zoom.scaleBy(svg.value, flag ? 1.1 : 0.9)
+        const { svg } = selection
+        if (!svg) { return }
+        zoom.scaleBy(svg, flag ? 1.1 : 0.9)
       }
       const download = () => {
         if (!wrapperEle.value) { return }

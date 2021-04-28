@@ -2,9 +2,9 @@ import * as d3 from '../d3'
 import { TwoNumber } from '../interface'
 import emitter from '@/mitt'
 import { Ref, ref } from 'vue'
-import { onZoomMove } from '../Listener'
+import { onZoomMove } from '../listener'
 export * as ctm from './contextmenu'
-export * from './element'
+export * as selection from './selection'
 
 // 连线样式
 type CurveStepLink = ({ source, target }: { source: TwoNumber, target: TwoNumber }) => string | null
