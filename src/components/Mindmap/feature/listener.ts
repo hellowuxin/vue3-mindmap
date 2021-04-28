@@ -1,10 +1,11 @@
-import style from './css/Mindmap.module.scss'
-import { selection, textRectPadding, zoomTransform } from './variable'
-import * as d3 from './d3'
-import { Mdata } from './interface'
-import { moveNode, selectGNode } from './tool'
-import { mmdata } from './data'
-import { svgEle, gEle } from './variable/element'
+import style from '../css/Mindmap.module.scss'
+import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../variable'
+import * as d3 from '../d3'
+import { Mdata } from '../interface'
+import { getRelativePos, moveNode, selectGNode } from '../tool'
+import { mmdata } from '../data'
+import { svgEle, gEle, foreignDivEle, wrapperEle } from '../variable/element'
+import emitter from '@/mitt'
 
 /**
  * @param this - gContent
@@ -63,4 +64,42 @@ export function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Md
   const n = temp.node()
   old.forEach((o) => { if (o !== n) { o.classList.remove(style.outline) } })
   n?.classList.add(style.outline)
+}
+
+/**
+ * @param this - gText
+ */
+export function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata): void {
+  const gNode = this.parentNode?.parentNode as SVGGElement
+  const { foreign } = selection
+  if (editFlag && foreign && foreignDivEle.value) {
+    gNode.classList.add(style.edited)
+    emitter.emit('edit-flag', false)
+    foreign.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
+      .attr('data-id', d.id).attr('data-name', d.name).style('display', '')
+    const div = foreignDivEle.value
+    div.textContent = d.name
+    div.focus()
+    getSelection()?.selectAllChildren(div)
+  }
+}
+
+export const onContextmenu = (e: MouseEvent): void => {
+  e.preventDefault()
+  if (!wrapperEle.value) { return }
+  const relativePos = getRelativePos(wrapperEle.value, e)
+  ctm.pos.value = relativePos
+  const eventTargets = e.composedPath() as SVGElement[]
+  const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
+  if (gNode) {
+    const { classList } = gNode
+    const collapseFlag = classList.contains(style['collapse'])
+    if (!classList.contains(style.selected)) { selectGNode(gNode) }
+    ctm.addItem.value.disabled = collapseFlag
+    ctm.deleteItem.value.disabled = classList.contains(style.root)
+    ctm.expandItem.value.disabled = !collapseFlag
+    ctm.collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
+  }
+  ctm.showViewMenu.value = gNode ? false : true
+  emitter.emit('showContextmenu', true)
 }

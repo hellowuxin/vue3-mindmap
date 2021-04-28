@@ -36,12 +36,12 @@ import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
 import { ImData, mmdata } from './data'
 import { snapshot, updateTimeTravelState, hasNext, hasPrev } from './state'
-import { convertToImg, makeTransition, getDragContainer, getRelativePos, selectGNode, getSize, moveNode } from './tool'
+import { convertToImg, makeTransition, getDragContainer, getSize, moveNode } from './tool'
 import { getDataId, getTspanData, attrG, attrTspan, attrPath, attrA, getSiblingGClass } from './attribute'
-import { xGap, yGap, branch, scaleExtent, ctm, zoom, editFlag, selection, observer } from './variable'
+import { xGap, yGap, branch, scaleExtent, ctm, zoom, selection, observer } from './variable'
 import { wrapperEle, svgEle, gEle, asstSvgEle, foreignEle, foreignDivEle  } from './variable/element'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
-import { onMouseEnter, onMouseLeave, onSelect, onDragMove } from './listener'
+import { onMouseEnter, onMouseLeave, onSelect, onDragMove, onEdit, switchZoom, switchEdit, switchSelect, switchContextmenu } from './feature'
 import Contextmenu from '../Contextmenu.vue'
 import { cloneDeep } from 'lodash'
 
@@ -259,23 +259,6 @@ export default defineComponent({
         // 复原
         moveNode(gNode, d, [0, 0], 500)
       }
-      /**
-       * @param this gText
-       */
-      function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata) {
-        const gNode = this.parentNode?.parentNode as SVGGElement
-        const { foreign } = selection
-        if (editFlag && foreign && foreignDivEle.value) {
-          gNode.classList.add(style.edited)
-          emitter.emit('edit-flag', false)
-          foreign.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
-            .attr('data-id', d.id).attr('data-name', d.name).style('display', '')
-          const div = foreignDivEle.value
-          div.textContent = d.name
-          div.focus()
-          getSelection()?.selectAllChildren(div)
-        }
-      }
       const onEditBlur = () => {
         document.getElementsByClassName(style.edited)[0]?.classList.remove(style.edited, style.selected)
 
@@ -303,25 +286,6 @@ export default defineComponent({
           emitter.emit('edit-flag', true)
           onEdit.call(node, e, child)
         }
-      }
-      const onContextmenu = (e: MouseEvent) => {
-        e.preventDefault()
-        if (!wrapperEle.value) { return }
-        const relativePos = getRelativePos(wrapperEle.value, e)
-        ctm.pos.value = relativePos
-        const eventTargets = e.composedPath() as SVGElement[]
-        const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
-        if (gNode) {
-          const { classList } = gNode
-          const collapseFlag = classList.contains(style['collapse'])
-          if (!classList.contains(style.selected)) { selectGNode(gNode) }
-          ctm.addItem.value.disabled = collapseFlag
-          ctm.deleteItem.value.disabled = classList.contains(style.root)
-          ctm.expandItem.value.disabled = !collapseFlag
-          ctm.collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
-        }
-        ctm.showViewMenu.value = gNode ? false : true
-        emitter.emit('showContextmenu', true)
       }
       const onClickMenu = (name: MenuEvent) => {
         if (name === 'zoomfit') {
@@ -352,26 +316,6 @@ export default defineComponent({
         expand(d.id)
       }
     // 功能开关
-      const switchZoom = (zoomable: boolean) => {
-        const { svg } = selection
-        if (!svg) { return }
-        if (zoomable) {
-          zoom(svg)
-          svg.on('dblclick.zoom', null)
-        } else {
-          svg.on('.zoom', null)
-        }
-      }
-      const switchEdit = (editable: boolean) => {
-        const { g } = selection
-        if (!foreignDivEle.value || !g) { return }
-        const gText = g.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
-        if (editable) {
-          gText.on('click', onEdit)
-        } else {
-          gText.on('click', null)
-        }
-      }
       const switchDrag = (draggable: boolean) => {
         const { g } = selection
         if (!g) { return }
@@ -380,24 +324,6 @@ export default defineComponent({
           drag(gText)
         } else {
           gText.on('.drag', null)
-        }
-      }
-      const switchSelect = (selectable: boolean) => {
-        const { g } = selection
-        if (!g) { return }
-        const gText = g.selectAll<SVGGElement, Mdata>(`g.${style.text}`)
-        if (selectable) {
-          gText.on('mousedown', onSelect)
-        } else {
-          gText.on('mousedown', null)
-        }
-      }
-      const switchContextmenu = (val: boolean) => {
-        if (!wrapperEle.value) { return }
-        if (val) {
-          wrapperEle.value.addEventListener('contextmenu', onContextmenu)
-        } else {
-          wrapperEle.value.removeEventListener('contextmenu', onContextmenu)
         }
       }
     // 数据操作

@@ -2,7 +2,7 @@ import * as d3 from '../d3'
 import { TwoNumber } from '../interface'
 import emitter from '@/mitt'
 import { Ref, ref } from 'vue'
-import { onZoomMove } from '../listener'
+import { onZoomMove } from '../feature'
 import * as selection from './selection'
 import * as element from './element'
 
