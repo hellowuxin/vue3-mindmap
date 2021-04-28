@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import emitter from '@/mitt'
-import { defineComponent, onMounted, PropType, watch, watchEffect } from 'vue'
+import { computed, defineComponent, onMounted, PropType, watch, watchEffect } from 'vue'
 import { Data, Mdata, TspanData, SelectionG, TwoNumber } from './interface'
 import style from './css/Mindmap.module.scss'
 import * as d3 from './d3'
@@ -89,6 +89,7 @@ export default defineComponent({
     watchEffect(() => emitter.emit('sharp-corner', props.sharpCorner))
     watchEffect(() => emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap }))
     // 变量
+    const addNodeBtn = computed(() => props.edit && props.addNodeBtn)
     const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on('drag', onDragMove).on('end', onDragEnd)
 
     onMounted(() => {
@@ -116,7 +117,7 @@ export default defineComponent({
       switchContextmenu(props.contextmenu)
     })
     // watch
-      watch(() => [props.branch, props.addNodeBtn, props.sharpCorner], () => draw())
+      watch(() => [props.branch, addNodeBtn.value, props.sharpCorner], () => draw())
       watch(() => [props.xGap, props.yGap], (val) => {
         mmdata.setBoundingBox(val[0], val[1])
         draw()
@@ -151,7 +152,7 @@ export default defineComponent({
         attrTspan(tspan)
         // 绘制添加按钮
         let gAddBtn
-        if (props.addNodeBtn) { gAddBtn = appendAndBindAddBtn(gContent) }
+        if (addNodeBtn.value) { gAddBtn = appendAndBindAddBtn(gContent) }
         // 绘制折叠按钮
         const gExpandBtn = appendExpandBtn(gContent)
 
@@ -180,7 +181,7 @@ export default defineComponent({
           .join(appendTspan, updateTspan, exit => exit.remove())
         let gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)
         let gExpandBtn = gContent.select<SVGGElement>(`g.${style['expand-btn']}`)
-        if (props.addNodeBtn) {
+        if (addNodeBtn.value) {
           if (!gAddBtn.node()) { gAddBtn = appendAndBindAddBtn(gContent) }
         } else {
           gAddBtn.remove()
@@ -209,7 +210,7 @@ export default defineComponent({
           if (props.drag && !isRoot) { drag(gText) }
           if (props.edit) { gText.on('click', onEdit) }
         }
-        if (props.addNodeBtn) {
+        if (addNodeBtn.value) {
           g.select<SVGGElement>(`:scope > g.${style.content}`)
             .on('mouseenter', onMouseEnter)
             .on('mouseleave', onMouseLeave)
