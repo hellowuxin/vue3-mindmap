@@ -39,6 +39,7 @@ export const getPath = (d: Mdata): string => {
   let dpw = 0
   let dph = 0
   const trp = Math.max(textRectPadding - 3, 0) // -3为了不超过选中框
+  let w = d.width + trp
   const targetOffset = getYOffset()
   let sourceOffset = targetOffset
   if (d.parent) {
@@ -50,14 +51,20 @@ export const getPath = (d: Mdata): string => {
       sourceOffset = 0
     }
   }
+  if (d.left) {
+    if (d.parent?.depth !== 0) { dpw = -dpw }
+    w = -w
+  }
   const source: TwoNumber = [-d.dx + dpw - d.px, -d.dy + dph + sourceOffset - d.py]
   const target: TwoNumber = [0, d.height + targetOffset]
-  return `${link({ source, target })}L${d.width + trp},${target[1]}`
+  return `${link({ source, target })}L${w},${target[1]}`
 }
 export const getAddBtnTransform = (d: Mdata, trp: number): string => {
   const gap = 8
   const y = d.depth === 0 ? d.height / 2 : d.height + getYOffset()
-  return `translate(${d.width + trp + addBtnSide / 2 + gap},${y})`
+  let x = d.width + trp + addBtnSide / 2 + gap
+  if (d.left) { x = -x }
+  return `translate(${x},${y})`
 }
 export const getExpandBtnTransform = (d: Mdata, trp: number): string => {
   const gap = 4

@@ -33,6 +33,10 @@ export const attrG = (g: SelectionG, tran?: Transition): void => {
   temp2.attr('transform', getGTransform)
 }
 
+export const attrText = (text: d3.Selection<SVGTextElement, Mdata, SVGGElement, Mdata | null>): void => {
+  text.attr('text-anchor', (d) => d.left ? 'end' : 'start')
+}
+
 export const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>): void => {
   tspan.attr('alignment-baseline', 'text-before-edge')
     .text((d) => d.name || ' ')
@@ -61,7 +65,7 @@ export const attrExpandBtnCircle = (circle: SelectionCircle, cx: number): void =
 }
 
 export const attrTextRect = (rect: SelectionRect, padding: number, radius = 4): void => {
-  rect.attr('x', -padding).attr('y', -padding)
+  rect.attr('x', (d) => -padding - (d.left ? d.width : 0)).attr('y', -padding)
     .attr('rx', radius).attr('ry', radius)
     .attr('width', (d) => d.width + padding * 2)
     .attr('height', (d) => d.height + padding * 2)

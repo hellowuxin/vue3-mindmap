@@ -5,6 +5,7 @@ import { BoundingBox, Layout } from './flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
 type Processer = (d: Mdata, id: string) => void
+type Temp = { collapse: boolean, children: Temp[], left: boolean, parent?: Temp | null }
 
 interface TreeData {
   rawData: Data
@@ -14,15 +15,11 @@ interface TreeData {
   y: number
   children: TreeData[]
   _children: TreeData[]
+  left: boolean,
+  collapse: boolean
 }
 
-/**
- * 返回TreeData（rawData、width、height、x、y、children）
- * @param d - Data
- * @param getSize -
- * @returns
- */
-function initTreeData (d: Data, getSize: GetSize) {
+function initTreeData (d: Data, getSize: GetSize, left = !!d.left) {
   const size = getSize(d.name)
   const data: TreeData = {
     rawData: d,
@@ -31,7 +28,9 @@ function initTreeData (d: Data, getSize: GetSize) {
     x: 0,
     y: 0,
     children: [],
-    _children: []
+    _children: [],
+    left,
+    collapse: !!d.collapse
   }
 
   const { children, collapse } = d
@@ -43,20 +42,14 @@ function initTreeData (d: Data, getSize: GetSize) {
       data.children = dataChildren
     }
     children.forEach((child) => {
-      dataChildren.push(initTreeData(child, getSize))
+      dataChildren.push(initTreeData(child, getSize, left || child.left))
     })
   }
 
   return data
 }
 
-const swapWidthAndHeight = <T extends { width: number, height: number }> (d: T) => {
-  [d.width, d.height] = [d.height, d.width]
-}
-
-const swapXAndY = <T extends { x: number, y: number }>(d: T) => {
-  [d.x, d.y] = [d.y, d.x]
-}
+const swapWidthAndHeight = <T extends { width: number, height: number }> (d: T) => [d.width, d.height] = [d.height, d.width]
 
 const renewDelta = <T extends { x: number, y: number, parent: T | null, dx: number, dy: number }>(d: T) => {
   if (d.parent) {
@@ -68,8 +61,37 @@ const renewDelta = <T extends { x: number, y: number, parent: T | null, dx: numb
   }
 }
 
-const renewId = <T extends { id: string }>(d: T, id: string) => {
-  d.id = id
+const renewId = <T extends { id: string }>(d: T, id: string) => d.id = id
+
+const separateLeftAndRight = <T extends Temp >(d: T): { left: T, right: T } => {
+  const ld = Object.assign({}, d)
+  if (d.collapse) {
+    //
+  } else {
+    const { children } = d
+    ld.children = []
+    d.children = []
+    children.forEach((child) => {
+      if (child.left) {
+        ld.children.push(child)
+        if (child.parent) { child.parent = ld }
+      } else {
+        d.children.push(child)
+      }
+    })
+  }
+  return { left: ld, right: d }
+}
+
+const pushLeftToRight = <T extends Temp>(right: T, left: T) => {
+  if (right.collapse) {
+    //
+  } else {
+    left.children.forEach(child => {
+      right.children.push(child)
+      if (child.parent) { child.parent = right }
+    })
+  }
 }
 
 /**
@@ -107,6 +129,8 @@ class ImData {
   private colorScale: d3Scale.ScaleOrdinal<string, string, never>
   private colorNumber = 0
   private gKey = 0
+  private rootWidth = 0
+  private diffY = 0 // 左树与右树的差值
 
   constructor (
     d: Data,
@@ -119,27 +143,41 @@ class ImData {
     this.getSize = getSize
     const data = initTreeData(d, getSize)
     this.layout = getLayout(xGap, yGap)
-    this.layout.layout(data) // 更新x、y
-    this.data = this.init(data)
+    const result = this.l(data)
+    this.data = this.init(result)
   }
 
   /**
-   * 返回Mdata（id、gKey、depth、dx、dy、name、left、color、px、py、collapse）
-   * @param d -
-   * @param id -
-   * @param p -
-   * @param c -
-   * @returns
+   * 默认更新x, y, dx, dy, width, height
+   * @param plugins - 需要更新其他属性时的函数
    */
+   renew (...plugins: Processer[]): void {
+    traverse(this.data, [swapWidthAndHeight])
+    this.data = this.l(this.data)
+    const temp: Processer[] = [swapWidthAndHeight, this.renewXY.bind(this), renewDelta]
+    traverse(this.data, temp.concat(plugins))
+  }
+
+  /**
+   * 分别计算左右树，最后合并成一颗树，右树为主树
+   */
+  l <T extends TreeData | Mdata>(data: T): T {
+    const { left, right } = separateLeftAndRight(data)
+    this.layout.layout(left) // 更新x,y
+    this.layout.layout(right)
+    this.diffY = right.x - left.x
+    this.rootWidth = left.height
+    pushLeftToRight(right, left)
+    return right
+  }
+
   init (d: TreeData, id = '0', p: IsMdata = null, c?: string): Mdata {
-    const x = d.y
-    const y = d.x
+    this.renewXY(d)
+    const { left, collapse, width: height, height: width, x, y, rawData } = d
     let color = ''
-    let left = false
     let px = x
     let py = y
     if (p) {
-      left = p.left
       px = p.x
       py = p.y
       color = c || this.colorScale(`${this.colorNumber += 1}`)
@@ -147,19 +185,19 @@ class ImData {
     const data: Mdata = {
       x,
       y,
-      width: d.height,
-      height: d.width,
+      width,
+      height,
       id,
       gKey: (this.gKey += 1),
       depth: Math.floor(id.length / 2),
-      name: d.rawData.name,
+      name: rawData.name,
       px: 0,
       py: 0,
-      rawData: d.rawData,
+      rawData,
       parent: p,
       color,
       left,
-      collapse: !!d.rawData.collapse,
+      collapse,
       dx: x - px,
       dy: y - py,
       children: [],
@@ -185,6 +223,14 @@ class ImData {
       } else if (!d.color) {
         d.color = this.colorScale(`${this.colorNumber += 1}`)
       }
+    }
+  }
+
+  renewXY (d: Mdata | TreeData): void {
+    [d.x, d.y] = [d.y, d.x]
+    if (d.left) {
+      d.x = -d.x + this.rootWidth
+      d.y += this.diffY
     }
   }
 
@@ -324,17 +370,6 @@ class ImData {
       this.renew()
     }
     return d
-  }
-
-  /**
-   * 默认更新x、y、dx、dy、width、height、x、y
-   * @param plugins - 需要更新其他属性时的函数
-   */
-  renew (...plugins: Processer[]): void {
-    traverse(this.data, [swapWidthAndHeight])
-    this.layout.layout(this.data)
-    const temp: Processer[] = [swapWidthAndHeight, swapXAndY, renewDelta]
-    traverse(this.data, temp.concat(plugins))
   }
 
   delete (id: string): void {

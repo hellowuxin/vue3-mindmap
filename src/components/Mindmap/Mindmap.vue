@@ -37,7 +37,7 @@ import * as d3 from './d3'
 import { ImData, mmdata } from './data'
 import { snapshot, updateTimeTravelState, hasNext, hasPrev } from './state'
 import { convertToImg, makeTransition, getDragContainer, getSize, moveNode } from './tool'
-import { getDataId, getTspanData, attrG, attrTspan, attrPath, attrA, getSiblingGClass } from './attribute'
+import { getDataId, getTspanData, attrG, attrTspan, attrPath, attrA, getSiblingGClass, attrText } from './attribute'
 import { xGap, yGap, branch, scaleExtent, ctm, zoom, selection, observer } from './variable'
 import { wrapperEle, svgEle, gEle, asstSvgEle, foreignEle, foreignDivEle  } from './variable/element'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
@@ -148,7 +148,9 @@ export default defineComponent({
         // 绘制文本
         const gText = gContent.append('g').attr('class', style.text)
         const gTextRect = gText.append('rect')
-        const tspan = gText.append('text').selectAll('tspan').data(getTspanData).enter().append('tspan')
+        const text = gText.append('text')
+        attrText(text)
+        const tspan = text.selectAll('tspan').data(getTspanData).enter().append('tspan')
         attrTspan(tspan)
         // 绘制添加按钮
         let gAddBtn
@@ -176,7 +178,9 @@ export default defineComponent({
         const gTrigger = gContent.select<SVGRectElement>(':scope > rect')
         const gText = gContent.select<SVGGElement>(`g.${style.text}`)
         const gTextRect = gText.select<SVGRectElement>('rect')
-        gText.select<SVGTextElement>('text').selectAll<SVGTSpanElement, TspanData>('tspan')
+        const text = gText.select<SVGTextElement>('text')
+        attrText(text)
+        text.selectAll<SVGTSpanElement, TspanData>('tspan')
           .data(getTspanData)
           .join(appendTspan, updateTspan, exit => exit.remove())
         let gAddBtn = gContent.select<SVGGElement>(`g.${style['add-btn']}`)

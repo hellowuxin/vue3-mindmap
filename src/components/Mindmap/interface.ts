@@ -25,6 +25,7 @@ export interface Mdata {
   y: number
   dx: number
   dy: number
+  // 拖拽时的偏移量
   px: number
   py: number
 }
