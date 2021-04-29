@@ -54,7 +54,7 @@ describe('思维导图数据测试', () => {
   })
 
   it('折叠指定id的节点', () => {
-    const d = mmdata.collapse('0-2-4')
+    const d = mmdata.collapse('0-3-4')
     expect(d).toMatchSnapshot()
   })
 })
