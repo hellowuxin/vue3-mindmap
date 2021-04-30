@@ -76,6 +76,13 @@ describe('思维导图数据-单元测试', () => {
       const d = mmdata.moveSibling('0-2-0', '0-2-3')
       expect(d).toBeNull()
     })
+
+    it('左边移到右边', () => {
+      const d = mmdata.moveSibling('0-3', '0-1')
+      expect(d?.left).toBeFalsy()
+      expect(d?.id).toBe('0-1')
+      expect(d).toMatchSnapshot()
+    })
   })
 
   describe('展开目标节点', () => {

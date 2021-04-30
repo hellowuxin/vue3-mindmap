@@ -69,6 +69,12 @@ const renewColor = (d: Mdata): void => {
   }
 }
 
+const renewLeft = (d: Mdata) => {
+  if (d.depth > 1 && d.parent) {
+    d.left = d.parent.left
+  }
+}
+
 const separateLeftAndRight = <T extends Temp >(d: T): { left: T, right: T } => {
   const ld = Object.assign({}, d)
   if (d.collapse) {
@@ -153,12 +159,14 @@ class ImData {
     this.data = this.init(result)
   }
 
+  getRootWidth (): number { return this.rootWidth }
+
   /**
-   * 默认更新x, y, dx, dy, width, height
+   * 默认更新x, y, dx, dy, width, height, left
    * @param plugins - 需要更新其他属性时的函数
    */
   renew (...plugins: Processer[]): void {
-    traverse(this.data, [swapWidthAndHeight])
+    traverse(this.data, [swapWidthAndHeight, renewLeft])
     this.data = this.l(this.data)
     const temp: Processer[] = [swapWidthAndHeight, this.renewXY.bind(this), renewDelta]
     traverse(this.data, temp.concat(plugins))
@@ -322,6 +330,7 @@ class ImData {
         children.splice(refIndex + after, 0, d)
         rawChildren.splice(index, 1)
         rawChildren.splice(refIndex + after, 0, d.rawData)
+        if (d.depth === 1) { d.left = r.left }
         this.renew(renewId)
         return d
       }

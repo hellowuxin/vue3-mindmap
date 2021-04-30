@@ -241,22 +241,28 @@ export default defineComponent({
           }
           return
         }
+        // 判断是否变换left
+        const xToCenter = d.x - mmdata.getRootWidth() / 2
+        const lr = d.depth === 1 && (xToCenter * (xToCenter + d.px) < 0)
+        const getSameSide = lr ? (a: Mdata) => a.left !== d.left : (a: Mdata) => a.left === d.left
         // 判断是否需要调换节点顺序
         const p = gNode.parentNode as SVGGElement
-        let downD = d
-        let upD = d
-        const brothers = d3.select<SVGGElement, Mdata>(p).selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d).join('.')}`)
-          .filter((a) => a !== d && a.left === d.left)
+        let downD = lr ? { y: Infinity, id: d.id } : d
+        let upD = lr ? { y: -Infinity, id: d.id } : d
+        const brothers = d3.select<SVGGElement, Mdata>(p)
+          .selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d).join('.')}`)
+          .filter((a) => a !== d && getSameSide(a))
+        const endY = d.y + d.py
         brothers.each((b) => {
-          if (b.y > d.y && b.y < (d.y + d.py) && b.y > upD.y) { upD = b } // 找新哥哥节点
-          if (b.y < d.y && b.y > (d.y + d.py) && b.y < downD.y) { downD = b } // 找新弟弟节点
+          if ((lr || b.y > d.y) && b.y < endY && b.y > upD.y) { upD = b } // 找新哥哥节点
+          if ((lr || b.y < d.y) && b.y > endY && b.y < downD.y) { downD = b } // 找新弟弟节点
         })
-        if (downD !== d) {
+        if (downD.id !== d.id) {
           d.px = 0
           d.py = 0
           moveSibling(d.id, downD.id)
           return
-        } else if (upD !== d) {
+        } else if (upD.id !== d.id) {
           d.px = 0
           d.py = 0
           moveSibling(d.id, upD.id, 1)
