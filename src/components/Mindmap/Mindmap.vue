@@ -245,7 +245,8 @@ export default defineComponent({
         const p = gNode.parentNode as SVGGElement
         let downD = d
         let upD = d
-        const brothers = d3.select<SVGGElement, Mdata>(p).selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d).join('.')}`).filter((a) => a !== d)
+        const brothers = d3.select<SVGGElement, Mdata>(p).selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d).join('.')}`)
+          .filter((a) => a !== d && a.left === d.left)
         brothers.each((b) => {
           if (b.y > d.y && b.y < (d.y + d.py) && b.y > upD.y) { upD = b } // 找新哥哥节点
           if (b.y < d.y && b.y > (d.y + d.py) && b.y < downD.y) { downD = b } // 找新弟弟节点

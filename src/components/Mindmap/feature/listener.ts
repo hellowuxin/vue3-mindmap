@@ -50,12 +50,18 @@ export function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Md
 
   const temp = g.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
     if (other !== d && other !== d.parent && !other.id.startsWith(d.id)) {
+      let diffx0 = textRectPadding
+      let diffx1 = other.width + textRectPadding
+      if (other.left && other.depth !== 0) {
+        [diffx0, diffx1] = [diffx1, diffx0]
+      }
       const rect = {
-        x0: other.x - textRectPadding,
-        x1: other.x + other.width + textRectPadding,
+        x0: other.x - diffx0,
+        x1: other.x + diffx1,
         y0: other.y - textRectPadding,
         y1: other.y + other.height + textRectPadding
       }
+
       return mousePos[0] > rect.x0 && mousePos[1] > rect.y0 && mousePos[0] < rect.x1 && mousePos[1] < rect.y1
     }
     return false

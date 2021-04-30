@@ -49,9 +49,9 @@ function initTreeData (d: Data, getSize: GetSize, left = !!d.left) {
   return data
 }
 
-const swapWidthAndHeight = <T extends { width: number, height: number }> (d: T) => [d.width, d.height] = [d.height, d.width]
+const swapWidthAndHeight = (d: Mdata) => [d.width, d.height] = [d.height, d.width]
 
-const renewDelta = <T extends { x: number, y: number, parent: T | null, dx: number, dy: number }>(d: T) => {
+const renewDelta = (d: Mdata) => {
   if (d.parent) {
     d.dx = d.x - d.parent.x
     d.dy = d.y - d.parent.y
@@ -61,7 +61,13 @@ const renewDelta = <T extends { x: number, y: number, parent: T | null, dx: numb
   }
 }
 
-const renewId = <T extends { id: string }>(d: T, id: string) => d.id = id
+const renewId = (d: Mdata, id: string) => d.id = id
+
+const renewColor = (d: Mdata): void => {
+  if (d.parent && d.parent.color) {
+    d.color = d.parent.color
+  }
+}
 
 const separateLeftAndRight = <T extends Temp >(d: T): { left: T, right: T } => {
   const ld = Object.assign({}, d)
@@ -95,7 +101,7 @@ const pushLeftToRight = <T extends Temp>(right: T, left: T) => {
 }
 
 /**
- * 遍历数据d，在此过程中会对每个数据调用指定函数，同时删除id为del的数据
+ * 遍历数据d，在此过程中会对每个数据调用指定函数，同时删除id为del的数据，不处理被折叠的数据
  * @param d - 数据
  * @param processers - 函数
  * @param id - 新id
@@ -151,7 +157,7 @@ class ImData {
    * 默认更新x, y, dx, dy, width, height
    * @param plugins - 需要更新其他属性时的函数
    */
-   renew (...plugins: Processer[]): void {
+  renew (...plugins: Processer[]): void {
     traverse(this.data, [swapWidthAndHeight])
     this.data = this.l(this.data)
     const temp: Processer[] = [swapWidthAndHeight, this.renewXY.bind(this), renewDelta]
@@ -216,16 +222,6 @@ class ImData {
     return data
   }
 
-  renewColor <T extends { color: string, parent: T | null }>(d: T): void {
-    if (d.parent) {
-      if (d.parent.color) {
-        d.color = d.parent.color
-      } else if (!d.color) {
-        d.color = this.colorScale(`${this.colorNumber += 1}`)
-      }
-    }
-  }
-
   renewXY (d: Mdata | TreeData): void {
     [d.x, d.y] = [d.y, d.x]
     if (d.left) {
@@ -249,7 +245,7 @@ class ImData {
         return null
       }
     }
-    return data
+    return data.id === id ? data : null
   }
 
   rename (id: string, name: string): IsMdata { // 修改名称
@@ -282,10 +278,18 @@ class ImData {
       del.parent = np
       del.gKey = this.gKey += 1
       del.depth = del.parent.depth + 1
-      if (del.depth === 1) { del.color = this.colorScale(`${this.colorNumber += 1}`) }
-      np.children ? np.children.push(del) : np.children = [del]
+      if (del.depth === 1) {
+        del.color = this.colorScale(`${this.colorNumber += 1}`)
+      } else {
+        del.left = del.parent.left
+      }
+      if (np.collapse) {
+        np._children.push(del)
+      } else {
+        np.children.push(del)
+      }
       np.rawData.children ? np.rawData.children.push(del.rawData) : np.rawData.children = [del.rawData]
-      this.renew(renewId, this.renewColor)
+      this.renew(renewId, renewColor)
     }
     return del
   }
@@ -352,22 +356,19 @@ class ImData {
     return null
   }
 
-  expand (id: string): IsMdata { return this.eoc(id, false) }
+  expand (id: string): IsMdata { return this.eoc(id, false, [renewColor, renewId]) }
   collapse (id: string): IsMdata { return this.eoc(id, true) }
 
   /**
-   * 展开或折叠（expand or collapse ）
-   * @param id -
-   * @param collapse -
-   * @returns
+   * 展开或折叠(expand or collapse)
    */
-  eoc (id: string, collapse: boolean): IsMdata {
+  eoc (id: string, collapse: boolean, plugins: Processer[] = []): IsMdata {
     const d = this.find(id)
     if (d) {
       d.collapse = collapse
       d.rawData.collapse = collapse
       ;[d._children, d.children] = [d.children, d._children]
-      this.renew()
+      this.renew(...plugins)
     }
     return d
   }

@@ -69,5 +69,7 @@ export const getAddBtnTransform = (d: Mdata, trp: number): string => {
 export const getExpandBtnTransform = (d: Mdata, trp: number): string => {
   const gap = 4
   const y = d.depth === 0 ? d.height / 2 : d.height + getYOffset()
-  return `translate(${d.width + trp + expandBtnRect.width / 2 + gap},${y})`
+  let x = d.width + trp + expandBtnRect.width / 2 + gap
+  if (d.left) { x = -x }
+  return `translate(${x},${y})`
 }
