@@ -239,8 +239,10 @@ class ImData {
     const array = id.split('-').map(n => ~~n)
     let data = this.data
     for (let i = 1; i < array.length; i++) {
-      if (data && data.children) {
-        data = data.children[array[i]] || null
+      const index = array[i]
+      const { children } = data
+      if (index < children.length) {
+        data = children[index]
       } else { // No data matching id
         return null
       }
@@ -266,7 +268,12 @@ class ImData {
     }
   }
 
-  moveChild (parentId: string, delId: string): IsMdata { // 节点移动到其他层
+  /**
+   * 将b节点移动到a节点下
+   * @param parentId - 目标节点a
+   * @param delId - 被移动节点b
+   */
+  moveChild (parentId: string, delId: string): IsMdata {
     if (parentId === delId) { return null }
     const np = this.find(parentId)
     const del = this.find(delId)
@@ -299,9 +306,12 @@ class ImData {
     const refArr = referenceId.split('-')
     let index: number | string | undefined = idArr.pop()
     let refIndex: number | string | undefined = refArr.pop()
-    if (id === referenceId || idArr.length !== refArr.length || !index || !refIndex) { return null }
+    if (id === referenceId || idArr.length !== refArr.length || !index || !refIndex) {
+      return null
+    }
     const d = this.find(id)
-    if (d && d.parent) {
+    const r = this.find(referenceId)
+    if (r && d && d.parent) {
       index = parseInt(index, 10)
       refIndex = parseInt(refIndex, 10)
       if (index < refIndex) { refIndex -= 1 } // 删除时可能会改变插入的序号
@@ -321,7 +331,7 @@ class ImData {
 
   add (id: string, name: string): IsMdata {
     const p = this.find(id)
-    if (p) {
+    if (p && !p.collapse) {
       if (!p.children) { p.children = [] }
       if (!p.rawData.children) { p.rawData.children = [] }
       const size = this.getSize(name)
