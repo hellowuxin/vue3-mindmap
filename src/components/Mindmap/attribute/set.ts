@@ -33,8 +33,9 @@ export const attrG = (g: SelectionG, tran?: Transition): void => {
   g2.attr('transform', getGTransform)
 }
 
-export const attrText = (text: d3.Selection<SVGTextElement, Mdata, SVGGElement, Mdata | null>): void => {
-  text.attr('text-anchor', (d) => d.left ? 'end' : 'start')
+export const attrText = (text: d3.Selection<SVGTextElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition): void => {
+  const t1 = tran ? text.transition(tran) : text
+  t1.attr('transform', (d) => `translate(${d.left ? -d.width : 0},0)`)
 }
 
 export const attrTspan = (tspan: d3.Selection<SVGTSpanElement, TspanData, SVGTextElement, Mdata>): void => {

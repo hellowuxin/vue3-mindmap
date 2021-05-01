@@ -183,7 +183,7 @@ export default defineComponent({
         const gText = gContent.select<SVGGElement>(`g.${style.text}`)
         const gTextRect = gText.select<SVGRectElement>('rect')
         const text = gText.select<SVGTextElement>('text')
-        attrText(text)
+        attrText(text, tran)
         text.selectAll<SVGTSpanElement, TspanData>('tspan')
           .data(getTspanData)
           .join(appendTspan, updateTspan, exit => exit.remove())

@@ -81,8 +81,11 @@ export function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata): void {
   if (editFlag && foreign && foreignDivEle.value) {
     gNode.classList.add(style.edited)
     emitter.emit('edit-flag', false)
-    foreign.attr('x', d.x - 2).attr('y', d.y - mmdata.data.y - 2)
-      .attr('data-id', d.id).attr('data-name', d.name).style('display', '')
+    foreign.attr('x', d.x - 2 - (d.left ? d.width : 0))
+      .attr('y', d.y - mmdata.data.y - 2)
+      .attr('data-id', d.id)
+      .attr('data-name', d.name)
+      .style('display', '')
     const div = foreignDivEle.value
     div.textContent = d.name
     div.focus()
