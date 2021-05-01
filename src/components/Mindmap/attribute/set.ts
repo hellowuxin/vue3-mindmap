@@ -1,6 +1,6 @@
 import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from '../interface'
 import * as d3 from '../d3'
-import { addBtnRect, addBtnSide, branch, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from '../variable'
+import { addBtnRect, addBtnSide, branch, changeSharpCorner, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from '../variable'
 import { getAddBtnClass, getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from './get'
 import style from '../css/Mindmap.module.scss'
 
@@ -28,9 +28,9 @@ export const attrA = (
 }
 
 export const attrG = (g: SelectionG, tran?: Transition): void => {
-  const temp1 = g.attr('class', (d) => getGClass(d).join(' ')).attr('data-id', getDataId)
-  const temp2 = tran ? temp1.transition(tran) : temp1
-  temp2.attr('transform', getGTransform)
+  const g1 = g.attr('class', (d) => getGClass(d).join(' ')).attr('data-id', getDataId)
+  const g2 = tran ? g1.transition(tran) : g1
+  g2.attr('transform', getGTransform)
 }
 
 export const attrText = (text: d3.Selection<SVGTextElement, Mdata, SVGGElement, Mdata | null>): void => {
@@ -93,7 +93,44 @@ export const attrPath = (
   p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>,
   tran?: Transition
 ): void => {
-  const temp1 = p.attr('stroke', (d) => d.color).attr('stroke-width', branch)
-  const temp2 = tran ? temp1.transition(tran) : temp1
-  temp2.attr('d', (d) => getPath(d))
+  const p1 = p.attr('stroke', (d) => d.color).attr('stroke-width', branch)
+
+  if (tran) {
+    const p2 = p1.transition(tran)
+    if (changeSharpCorner.value) { // 只有在改变sharpCorner的时候才应该调用
+      p2.attrTween('d', pathTween)
+    } else {
+      p2.attr('d', getPath)
+    }
+  } else {
+    p1.attr('d', getPath)
+  }
+}
+
+function pathTween (data: Mdata, index: number, paths: ArrayLike<SVGPathElement>) {
+  const precision = 10
+  const d = getPath(data)
+  const path0 = paths[index]
+  const path1 = path0.cloneNode() as SVGPathElement
+  const n0 = path0.getTotalLength()
+  path1.setAttribute('d', d)
+  const n1 = path1.getTotalLength()
+
+  // Uniform sampling of distance based on specified precision.
+  const distances = [0]
+  const dt = precision / Math.max(n0, n1)
+  let i = 0
+  while ((i += dt) < 1) distances.push(i)
+  distances.push(1)
+
+  // Compute point-interpolators at each distance.
+  const points = distances.map((t) => {
+    const p0 = path0.getPointAtLength(t * n0)
+    const p1 = path1.getPointAtLength(t * n1)
+    return d3.interpolate([p0.x, p0.y], [p1.x, p1.y])
+  })
+
+  return (t: number) => {
+    return t < 1 ? 'M' + points.map(p => p(t)).join('L') : d
+  }
 }

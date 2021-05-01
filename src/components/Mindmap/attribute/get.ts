@@ -42,17 +42,24 @@ export const getPath = (d: Mdata): string => {
   let w = d.width + trp
   const targetOffset = getYOffset()
   let sourceOffset = targetOffset
-  if (d.parent) {
-    dpw = d.parent.width
-    dph = d.parent.height
-    if (d.parent.depth === 0) {
+  const { parent } = d
+  if (parent) {
+    dpw = parent.width
+    dph = parent.height
+    if (parent.depth === 0) {
       if (!sharpCorner) { dpw /= 2 }
       dph /= 2
       sourceOffset = 0
     }
   }
   if (d.left) {
-    if (d.parent?.depth !== 0) { dpw = -dpw }
+    if (parent) {
+      if (parent.depth !== 0) {
+        dpw = -dpw
+      } else if (sharpCorner) {
+        dpw = 0
+      }
+    }
     w = -w
   }
   const source: TwoNumber = [-d.dx + dpw - d.px, -d.dy + dph + sourceOffset - d.py]

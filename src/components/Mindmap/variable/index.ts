@@ -19,7 +19,9 @@ const curveStepLine = d3.line().curve(d3.curveStep)
 export const curveStepLink: CurveStepLink = ({ source, target }) => curveStepLine([source, target])
 export let sharpCorner = false
 export let link: Link = linkHorizontal
+export const changeSharpCorner = ref(false) // 指示是否需要使用attrTween('d', pathTween)
 emitter.on<boolean>('sharp-corner', (value) => {
+  if (sharpCorner !== value) { changeSharpCorner.value = true }
   sharpCorner = !!value
   link = value ? curveStepLink : linkHorizontal
 })

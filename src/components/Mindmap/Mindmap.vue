@@ -38,7 +38,7 @@ import { ImData, mmdata } from './data'
 import { snapshot, updateTimeTravelState, hasNext, hasPrev } from './state'
 import { convertToImg, makeTransition, getDragContainer, getSize, moveNode } from './tool'
 import { getDataId, getTspanData, attrG, attrTspan, attrPath, attrA, getSiblingGClass, attrText } from './attribute'
-import { xGap, yGap, branch, scaleExtent, ctm, zoom, selection, observer } from './variable'
+import { xGap, yGap, branch, scaleExtent, ctm, zoom, selection, observer, changeSharpCorner } from './variable'
 import { wrapperEle, svgEle, gEle, asstSvgEle, foreignEle, foreignDivEle  } from './variable/element'
 import { appendAddBtn, appendExpandBtn, appendTspan, updateTspan } from './draw'
 import { onMouseEnter, onMouseLeave, onSelect, onDragMove, onEdit, switchZoom, switchEdit, switchSelect, switchContextmenu } from './feature'
@@ -101,6 +101,7 @@ export default defineComponent({
       observer.observe(foreignDivEle.value)
       emitter.emit('mmdata', new ImData(cloneDeep(props.modelValue[0]), xGap, yGap, getSize))
 
+      changeSharpCorner.value = false
       afterOperation()
       const { svg, foreign } = selection
       foreign?.raise()
@@ -117,7 +118,10 @@ export default defineComponent({
       switchContextmenu(props.contextmenu)
     })
     // watch
-      watch(() => [props.branch, addNodeBtn.value, props.sharpCorner], () => draw())
+      watch(() => [props.branch, addNodeBtn.value, props.sharpCorner], () => {
+        draw()
+        changeSharpCorner.value = false
+      })
       watch(() => [props.xGap, props.yGap], (val) => {
         mmdata.setBoundingBox(val[0], val[1])
         draw()
