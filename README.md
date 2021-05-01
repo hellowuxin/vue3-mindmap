@@ -82,4 +82,4 @@ export default defineComponent({
 
 ## 难解决
 
-- 直角和圆角分支的顺滑转换、直角分支radius
+- 直角分支radius
