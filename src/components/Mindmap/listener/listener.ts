@@ -77,11 +77,11 @@ export const onContextmenu = (e: MouseEvent): void => {
   const relativePos = getRelativePos(wrapperEle.value, e)
   ctm.pos.value = relativePos
   const eventTargets = e.composedPath() as SVGElement[]
-  const gNode = eventTargets.find((et) => et.classList?.contains('node')) as SVGGElement
+  const gNode = eventTargets.find((et) => et.classList?.contains('node'))
   if (gNode) {
     const { classList } = gNode
     const collapseFlag = classList.contains(style['collapse'])
-    if (!classList.contains(style.selected)) { selectGNode(gNode) }
+    if (!classList.contains(style.selected)) { selectGNode(gNode as SVGGElement) }
     ctm.addItem.value.disabled = collapseFlag
     ctm.deleteItem.value.disabled = classList.contains(style.root)
     ctm.expandItem.value.disabled = !collapseFlag

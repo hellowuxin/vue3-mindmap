@@ -94,7 +94,7 @@ export function selectGNode (d: SVGGElement | Mdata): void {
       ele.classList.add(style.selected)
     }
   } else {
-    throw new Error(`g[data-id='${getDataId(d as Mdata)}'] is null`)
+    throw new Error('selectGNode failed')
   }
 }
 
