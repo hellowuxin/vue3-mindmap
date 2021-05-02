@@ -66,7 +66,8 @@ export const attrExpandBtnCircle = (circle: SelectionCircle, cx: number): void =
 }
 
 export const attrTextRect = (rect: SelectionRect, padding: number, radius = 4): void => {
-  rect.attr('x', (d) => -padding - (d.left ? d.width : 0)).attr('y', -padding)
+  rect.attr('x', (d) => -padding - (d.left ? d.width : 0))
+    .attr('y', -padding)
     .attr('rx', radius).attr('ry', radius)
     .attr('width', (d) => d.width + padding * 2)
     .attr('height', (d) => d.height + padding * 2)
@@ -83,11 +84,13 @@ export const attrAddBtn = (g: SelectionG, trp: number): void => {
 }
 
 export const attrTrigger = (rect: SelectionRect, padding: number): void => {
+  const w = addBtnSide + addBtnRect.margin
+  const p = padding * 2
   rect.attr('class', style.trigger)
-    .attr('x', -padding)
+    .attr('x', (d) => -padding - (d.left ? d.width + w : 0))
     .attr('y', -padding)
-    .attr('width', (d) => d.width + padding * 2 + 8 + addBtnSide)
-    .attr('height', (d) => d.height + padding * 2)
+    .attr('width', (d) => d.width + p + w)
+    .attr('height', (d) => d.height + p)
 }
 
 export const attrPath = (
