@@ -39,43 +39,6 @@ export const onSelect = (e: MouseEvent, d: Mdata): void => {
 /**
  * @param this - gText
  */
-export function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata): void {
-  const gNode = this.parentNode?.parentNode as SVGGElement
-  if (svgEle.value) { svgEle.value.classList.add(style.dragging) }
-  const { g } = selection
-  if (!g) { return }
-  moveNode(gNode, d, [e.x - d.x, e.y - d.y])
-  // 鼠标相对gEle左上角的位置
-  const mousePos = d3.pointer(e, gEle.value)
-  mousePos[1] += mmdata.data.y
-
-  const temp = g.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
-    if (other !== d && other !== d.parent && !other.id.startsWith(d.id)) {
-      let diffx0 = textRectPadding
-      let diffx1 = other.width + textRectPadding
-      if (other.left && other.depth !== 0) {
-        [diffx0, diffx1] = [diffx1, diffx0]
-      }
-      const rect = {
-        x0: other.x - diffx0,
-        x1: other.x + diffx1,
-        y0: other.y - textRectPadding,
-        y1: other.y + other.height + textRectPadding
-      }
-
-      return mousePos[0] > rect.x0 && mousePos[1] > rect.y0 && mousePos[0] < rect.x1 && mousePos[1] < rect.y1
-    }
-    return false
-  })
-  const old = Array.from(document.getElementsByClassName(style.outline))
-  const n = temp.node()
-  old.forEach((o) => { if (o !== n) { o.classList.remove(style.outline) } })
-  n?.classList.add(style.outline)
-}
-
-/**
- * @param this - gText
- */
 export function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata): void {
   const gNode = this.parentNode?.parentNode as SVGGElement
   const { foreign } = selection
@@ -172,6 +135,43 @@ export const addAndEdit = (e: MouseEvent, d: Mdata): void => {
 
 export const onClickExpandBtn = (e: MouseEvent, d: Mdata): void => {
   expand(d.id)
+}
+
+/**
+ * @param this - gText
+ */
+export function onDragMove (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mdata, Mdata>, d: Mdata): void {
+  const gNode = this.parentNode?.parentNode as SVGGElement
+  if (svgEle.value) { svgEle.value.classList.add(style.dragging) }
+  const { g } = selection
+  if (!g) { return }
+  moveNode(gNode, d, [e.x - d.x, e.y - d.y])
+  // 鼠标相对gEle左上角的位置
+  const mousePos = d3.pointer(e, gEle.value)
+  mousePos[1] += mmdata.data.y
+
+  const temp = g.selectAll<SVGGElement, Mdata>('g.node').filter((other) => {
+    if (other !== d && other !== d.parent && !other.id.startsWith(d.id)) {
+      let diffx0 = textRectPadding
+      let diffx1 = other.width + textRectPadding
+      if (other.left && other.depth !== 0) {
+        [diffx0, diffx1] = [diffx1, diffx0]
+      }
+      const rect = {
+        x0: other.x - diffx0,
+        x1: other.x + diffx1,
+        y0: other.y - textRectPadding,
+        y1: other.y + other.height + textRectPadding
+      }
+
+      return mousePos[0] > rect.x0 && mousePos[1] > rect.y0 && mousePos[0] < rect.x1 && mousePos[1] < rect.y1
+    }
+    return false
+  })
+  const old = Array.from(document.getElementsByClassName(style.outline))
+  const n = temp.node()
+  old.forEach((o) => { if (o !== n) { o.classList.remove(style.outline) } })
+  n?.classList.add(style.outline)
 }
 
 /**
