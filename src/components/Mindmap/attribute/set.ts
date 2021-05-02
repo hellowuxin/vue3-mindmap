@@ -2,7 +2,7 @@ import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanDat
 import * as d3 from '../d3'
 import { addBtnRect, addBtnSide, branch, changeSharpCorner, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from '../variable'
 import { getAddBtnClass, getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from './get'
-import style from '../css/Mindmap.module.scss'
+import style from '../css'
 
 /**
  * 根据该节点是否是根节点，绘制不同的效果

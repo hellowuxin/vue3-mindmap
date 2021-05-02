@@ -1,4 +1,4 @@
-import style from '../css/Mindmap.module.scss'
+import style from '../css'
 import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../variable'
 import * as d3 from '../d3'
 import { Mdata, MenuEvent } from '../interface'

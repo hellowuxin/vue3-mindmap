@@ -32,7 +32,7 @@
 import emitter from '@/mitt'
 import { defineComponent, onMounted, PropType, watch, watchEffect } from 'vue'
 import { Data, TwoNumber } from './interface'
-import style from './css/Mindmap.module.scss'
+import style from './css'
 import * as d3 from './d3'
 import { afterOperation, ImData, mmdata } from './data'
 import { hasNext, hasPrev } from './state'

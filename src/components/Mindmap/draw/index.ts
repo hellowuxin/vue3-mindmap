@@ -5,7 +5,7 @@ import { getAddPath, makeTransition } from '../assistant'
 import { addBtnRect, addNodeBtn, drag, mmprops, selection } from '../variable'
 import { mmdata } from '../data'
 import { addAndEdit, onClickExpandBtn, onEdit, onMouseEnter, onMouseLeave, onSelect } from '../listener'
-import style from '../css/Mindmap.module.scss'
+import style from '../css'
 
 export const appendTspan = (
   enter: d3.Selection<d3.EnterElement, TspanData, SVGTextElement, Mdata>

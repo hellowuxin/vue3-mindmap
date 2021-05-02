@@ -1,4 +1,4 @@
-import style from '../css/Mindmap.module.scss'
+import style from '../css'
 import { Mdata } from '../interface'
 import { onContextmenu, onEdit, onSelect } from './listener'
 import { selection, zoom, drag } from '../variable'

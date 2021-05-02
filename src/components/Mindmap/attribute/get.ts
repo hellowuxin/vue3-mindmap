@@ -1,6 +1,6 @@
 import { Mdata, TspanData, TwoNumber } from '@/components/Mindmap/interface'
 import { getMultiline } from '../assistant'
-import style from '../css/Mindmap.module.scss'
+import style from '../css'
 import { addBtnSide, link, textRectPadding, sharpCorner, expandBtnRect } from '../variable'
 const getYOffset = () => 3 // max-branch / 2
 
