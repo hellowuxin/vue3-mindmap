@@ -1,15 +1,14 @@
-# vue3-mindmap（开发中）
+# vue3-mindmap
 
 [![npm](https://img.shields.io/npm/v/vue3-mindmap)](https://www.npmjs.com/package/vue3-mindmap)
 [![build](https://github.com/hellowuxin/vue3-mindmap/actions/workflows/blank.yml/badge.svg)](https://github.com/hellowuxin/vue3-mindmap/actions)
 [![coveralls](https://img.shields.io/coveralls/github/hellowuxin/vue3-mindmap)](https://coveralls.io/github/hellowuxin/vue3-mindmap)
 
-> 相比[mindmap](https://github.com/hellowuxin/mindmap)更新了技术栈：Vue3、d3v6、Vite  
-> 目前打算对项目进行重构，解决一些老旧问题（图片生成、加载慢...）
+> Mindmap component for Vue3 inspired by [MindNode](https://mindnode.com)
 
-在线演示：<https://hellowuxin.github.io/vue3-mindmap/>
+live demo: <https://hellowuxin.github.io/vue3-mindmap/>
 
-## 安装
+## Install
 
 ```sh
 npm install vue3-mindmap
@@ -35,7 +34,7 @@ npm install vue3-mindmap
 | sharp-corner | Boolean          | false      | 设置分支为圆角或直角     |
 | contextmenu  | Boolean          | false      | 是否响应右键菜单        |
 
-## 样例
+## Example
 
 ```html
 <template>
