@@ -4,7 +4,10 @@ import { getDataId, getGTransform, getPath } from './attribute'
 import * as d3 from './d3'
 import style from './css/Mindmap.module.scss'
 import { Mdata, TwoNumber } from './interface'
-import { selection } from './variable'
+import { selection, zoom } from './variable'
+import { afterOperation, mmdata } from './data'
+import { snapshot } from './state'
+import { gEle, svgEle, wrapperEle } from './variable/element'
 
 /**
  * 使页面重排
@@ -122,4 +125,58 @@ export const moveNode = (node: SVGGElement, d: Mdata, p: TwoNumber, dura = 0): v
   d3.select<SVGPathElement, Mdata>(`g[data-id='${getDataId(d)}'] > path`)
     .transition(tran)
     .attr('d', (d) => getPath(d))
+}
+
+export const centerView = (): void => {
+  const { svg } = selection
+  if (!svg) { return }
+  const data = mmdata.data
+  zoom.translateTo(svg, 0 + data.width / 2, 0 + data.height / 2)
+}
+
+/**e
+ * 缩放至合适大小并移动至全部可见
+ */
+export const fitView = (): void => {
+  const { svg } = selection
+  if (!svg || !gEle.value || !svgEle.value) { return }
+  const gBB = gEle.value.getBBox()
+  const svgBCR = svgEle.value.getBoundingClientRect()
+  const multiple = Math.min(svgBCR.width / gBB.width, svgBCR.height / gBB.height)
+  const svgCenter = { x: svgBCR.width / 2, y: svgBCR.height / 2 }
+  // after scale
+  const gCenter = { x: gBB.width * multiple / 2, y: gBB.height * multiple / 2 }
+  const center = d3.zoomIdentity.translate(
+    -gBB.x * multiple + svgCenter.x - gCenter.x,
+    -gBB.y * multiple + svgCenter.y - gCenter.y
+  ).scale(multiple)
+  zoom.transform(svg, center)
+}
+
+/**
+ * 按一定程度缩放
+ * @param flag - 为true时放大，false缩小
+ */
+export const scaleView = (flag: boolean): void => {
+  const { svg } = selection
+  if (!svg) { return }
+  zoom.scaleBy(svg, flag ? 1.1 : 0.9)
+}
+export const download = (): void => {
+  if (!wrapperEle.value) { return }
+  convertToImg(wrapperEle.value, mmdata.data.name)
+}
+export const next = (): void => {
+  const nextData = snapshot.next()
+  if (nextData) {
+    mmdata.data = nextData
+    afterOperation(false)
+  }
+}
+export const prev = (): void => {
+  const prevData = snapshot.prev()
+  if (prevData) {
+    mmdata.data = prevData
+    afterOperation(false)
+  }
 }

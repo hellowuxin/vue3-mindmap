@@ -47,3 +47,5 @@ export type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, Mda
 export type SelectionCircle = d3.Selection<SVGCircleElement, Mdata, SVGGElement, Mdata | null>
 export type TwoNumber = [number, number]
 export type IsMdata = Mdata | null
+export type MenuEvent = 'zoomin' | 'zoomout' | 'zoomfit' | 'add' | 'delete' | 'selectall' | 'collapse' | 'expand'
+

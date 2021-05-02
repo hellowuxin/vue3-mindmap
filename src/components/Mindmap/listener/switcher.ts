@@ -1,7 +1,7 @@
 import style from '../css/Mindmap.module.scss'
 import { Mdata } from '../interface'
 import { onContextmenu, onEdit, onSelect } from './listener'
-import { selection, zoom } from '../variable'
+import { selection, zoom, drag } from '../variable'
 import { foreignDivEle, wrapperEle } from '../variable/element'
 
 export const switchZoom = (zoomable: boolean): void => {
@@ -43,5 +43,16 @@ export const switchContextmenu = (val: boolean): void => {
     wrapperEle.value.addEventListener('contextmenu', onContextmenu)
   } else {
     wrapperEle.value.removeEventListener('contextmenu', onContextmenu)
+  }
+}
+
+export const switchDrag = (draggable: boolean): void => {
+  const { g } = selection
+  if (!g) { return }
+  const gText = g.selectAll<SVGGElement, Mdata>(`g.node:not(.${style.root}) > g > g.${style.text}`)
+  if (draggable) {
+    drag(gText)
+  } else {
+    gText.on('.drag', null)
   }
 }
