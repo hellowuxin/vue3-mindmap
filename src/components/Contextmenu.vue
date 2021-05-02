@@ -1,9 +1,10 @@
 <template>
-  <div :class="style['container']" v-show="show">
+  <div :class="style['container']" v-show="show" ref="containerEle">
     <div @mousedown="close"></div>
     <div
+      ref="menuEle"
       :id="style['menu']"
-      :style="{ top: position.top+'px', left: position.left+'px' }"
+      :style="{ top: pos.top+'px', left: pos.left+'px' }"
     >
       <ul 
         v-for="(group, index) in groups"
@@ -21,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, useCssModule, PropType, ref } from 'vue'
+import { defineComponent, useCssModule, PropType, ref, Ref, nextTick, reactive } from 'vue'
 import emitter from '@/mitt'
 import { MenuItem } from './Mindmap/interface'
 
@@ -37,7 +38,21 @@ export default defineComponent({
   setup (props, context) {
     const show = ref(false)
     const style = useCssModule()
-    emitter.on<boolean>('showContextmenu', (val) => show.value = !!val)
+    const containerEle: Ref<HTMLDivElement | undefined> = ref()
+    const menuEle: Ref<HTMLDivElement | undefined> = ref()
+    const pos = reactive({ top: 0, left: 0 })
+    const margin = 8
+
+    emitter.on<boolean>('showContextmenu', async (val) => {
+      if (!containerEle.value || !menuEle.value) { return }
+      show.value = !!val
+      await nextTick()
+      const { offsetWidth: w1, offsetHeight: h1 } = containerEle.value
+      const { offsetWidth: w2, offsetHeight: h2 } = menuEle.value
+      const { top, left } = props.position
+      pos.top = top + h2 > h1 ? h1 - h2 - margin : top
+      pos.left = left + w2 > w1 ? left - w2 : left
+    })
     const close = () => show.value = false
     const onClick = (name: string) => {
       close()
@@ -48,7 +63,10 @@ export default defineComponent({
       style,
       show,
       close,
-      onClick
+      onClick,
+      menuEle,
+      containerEle,
+      pos
     }
   }
 })
