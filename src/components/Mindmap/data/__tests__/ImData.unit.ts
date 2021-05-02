@@ -60,7 +60,7 @@ describe('思维导图数据-单元测试', () => {
       const pId = '0'
       const d = mmdata.moveChild(pId, '0-2-2')
       expect(d?.parent?.id).toBe(pId)
-      expect(d?.id).toBe('0-3')
+      expect(d?.id).toBe('0-5')
       expect(d).toMatchSnapshot()
     })
   })
@@ -73,7 +73,7 @@ describe('思维导图数据-单元测试', () => {
     })
 
     it('兄弟节点不存在时，移动失败', () => {
-      const d = mmdata.moveSibling('0-2-0', '0-2-3')
+      const d = mmdata.moveSibling('0-4-0', '0-4-3')
       expect(d).toBeNull()
     })
 
@@ -95,7 +95,7 @@ describe('思维导图数据-单元测试', () => {
 
   describe('折叠目标节点', () => {
     it('折叠成功', () => {
-      const d = mmdata.collapse('0-3-4')
+      const d = mmdata.collapse('0-2-4')
       expect(d?.collapse).toBeTruthy()
       expect(d).toMatchSnapshot()
     })

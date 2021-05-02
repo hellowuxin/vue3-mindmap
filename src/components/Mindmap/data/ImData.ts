@@ -77,33 +77,23 @@ const renewLeft = (d: Mdata) => {
 
 const separateLeftAndRight = <T extends Temp >(d: T): { left: T, right: T } => {
   const ld = Object.assign({}, d)
+  const rd = Object.assign({}, d)
   if (d.collapse) {
     //
   } else {
     const { children } = d
     ld.children = []
-    d.children = []
+    rd.children = []
     children.forEach((child) => {
       if (child.left) {
         ld.children.push(child)
-        if (child.parent) { child.parent = ld }
       } else {
-        d.children.push(child)
+        rd.children.push(child)
       }
+      if (child.parent) { child.parent = rd }
     })
   }
-  return { left: ld, right: d }
-}
-
-const pushLeftToRight = <T extends Temp>(right: T, left: T) => {
-  if (right.collapse) {
-    //
-  } else {
-    left.children.forEach(child => {
-      right.children.push(child)
-      if (child.parent) { child.parent = right }
-    })
-  }
+  return { left: ld, right: rd }
 }
 
 /**
@@ -181,7 +171,7 @@ class ImData {
     this.layout.layout(right)
     this.diffY = right.x - left.x
     this.rootWidth = left.height
-    pushLeftToRight(right, left)
+    right.children = data.children // children原顺序
     return right
   }
 
