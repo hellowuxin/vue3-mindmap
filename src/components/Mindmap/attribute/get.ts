@@ -1,7 +1,7 @@
 import { Mdata, TspanData, TwoNumber } from '@/components/Mindmap/interface'
 import { getMultiline } from '../assistant'
 import style from '../css'
-import { addBtnSide, link, textRectPadding, sharpCorner, expandBtnRect } from '../variable'
+import { addBtnSide, link, textRectPadding, sharpCorner, expandBtnRect, addBtnRect } from '../variable'
 const getYOffset = () => 3 // max-branch / 2
 
 export const getSiblingGClass = (d?: Mdata): string[] => {
@@ -67,9 +67,8 @@ export const getPath = (d: Mdata): string => {
   return `${link({ source, target })}L${w},${target[1]}`
 }
 export const getAddBtnTransform = (d: Mdata, trp: number): string => {
-  const gap = 8
   const y = d.depth === 0 ? d.height / 2 : d.height + getYOffset()
-  let x = d.width + trp + addBtnSide / 2 + gap
+  let x = d.width + trp + addBtnSide / 2 + addBtnRect.margin
   if (d.left) { x = -x }
   return `translate(${x},${y})`
 }

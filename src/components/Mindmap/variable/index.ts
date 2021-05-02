@@ -66,7 +66,7 @@ export const observer = new ResizeObserver((arr: any) => {
 })
 
 // 其他
-export const addBtnRect = { side: 12, padding: 2 }
+export const addBtnRect = { side: 12, padding: 2, margin: 8 }
 export const addBtnSide = addBtnRect.side + addBtnRect.padding * 2
 export const expandBtnRect = { width: 16, height: 4, radius: 2 }
 export const zoomTransform: Ref<d3.ZoomTransform> = ref(d3.zoomIdentity)
