@@ -54,7 +54,7 @@ emitter.on<{ xGap: number, yGap: number}>('gap', (gap) => {
 })
 
 // 观察foreign
-export const observer = new ResizeObserver((arr: any) => {
+export const observer = new ResizeObserver((arr: ResizeObserverEntry[]) => {
   const { foreign } = selection
   if (!foreign) { return }
   const temp = arr[0]

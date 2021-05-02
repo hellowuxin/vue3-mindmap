@@ -54,7 +54,7 @@ export const convertToImg = (svgdiv: HTMLDivElement, name: string): void => {
 
 export const makeTransition = (
   dura: number, easingFn: (normalizedTime: number) => number
-): d3.Transition<any, Mdata, null, undefined> => {
+): d3.Transition<d3.BaseType, Mdata, null, undefined> => {
   return d3.transition<Mdata>().duration(dura).ease(easingFn) as d3.Transition<any, Mdata, null, undefined>
 }
 

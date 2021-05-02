@@ -1,8 +1,8 @@
 import emitter from '@/mitt'
 import * as d3 from '../d3'
 
-export let svg: d3.Selection<SVGSVGElement, null, null, undefined> | undefined
-export let g: d3.Selection<SVGGElement, null, null, undefined> | undefined
+export let svg: d3.Selection<SVGSVGElement, null, null, null> | undefined
+export let g: d3.Selection<SVGGElement, null, SVGSVGElement, null> | undefined
 export let asstSvg: d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined
 export let foreign: d3.Selection<SVGForeignObjectElement, null, null, undefined> | undefined
 

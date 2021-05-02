@@ -93,6 +93,7 @@ const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mda
   gContent.raise()
   return enterG
 }
+
 const updateNode = (update: SelectionG) => {
   const isRoot = !update.data()[0]?.depth
   const tran = makeTransition(500, d3.easePolyOut)
@@ -124,6 +125,7 @@ const updateNode = (update: SelectionG) => {
   gContent.raise()
   return update
 }
+
 export const draw = (d = [mmdata.data], sele = selection.g as d3.Selection<SVGGElement, any, any, any>): void => {
   const temp = sele.selectAll<SVGGElement, Mdata>(`g.${getSiblingGClass(d[0]).join('.')}`)
   temp.data(d, (d) => d.gKey).join(appendNode, updateNode)
