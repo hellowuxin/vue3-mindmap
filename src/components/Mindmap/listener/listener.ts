@@ -40,7 +40,7 @@ export const onSelect = (e: MouseEvent, d: Mdata): void => {
 /**
  * @param this - gText
  */
-export function onEdit (this: SVGGElement, e: MouseEvent, d: Mdata): void {
+export function onEdit (this: SVGGElement, _e: MouseEvent, d: Mdata): void {
   const gNode = this.parentNode?.parentNode as SVGGElement
   const { foreign } = selection
   if (editFlag && foreign && foreignDivEle.value) {
@@ -123,27 +123,36 @@ export const onClickMenu = (name: MenuEvent): void => {
   } else if (name === 'add-sibling') {
     const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
     const seleData = sele.data()[0]
-    addSibling(seleData.id, '')
+    const d = addSibling(seleData.id, '')
+    if (d) { edit(d) }
   } else if (name === 'add-sibling-before') {
     const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
     const seleData = sele.data()[0]
-    addSibling(seleData.id, '', true)
+    const d = addSibling(seleData.id, '', true)
+    if (d) { edit(d) }
   }
 }
 
 /**
  * 添加子节点并进入编辑模式
  */
-export const addAndEdit = (e: MouseEvent, d: Mdata): void => {
+ export const addAndEdit = (e: MouseEvent, d: Mdata): void => {
   const child = add(d.id, '')
+  if (child) { edit(child, e) }
+}
+
+/**
+ * 选中节点进入编辑模式
+ */
+export function edit (d: Mdata, e = new MouseEvent('click')): void {
   const { g } = selection
-  if (!g || !child) { return }
-  const gText = g.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(child)}'] g.${style.text}`)
+  if (!g) { return }
+  const gText = g.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(d)}'] g.${style.text}`)
   const node = gText.node()
 
   if (node) {
     emitter.emit('edit-flag', true)
-    onEdit.call(node, e, child)
+    onEdit.call(node, e, d)
   }
 }
 

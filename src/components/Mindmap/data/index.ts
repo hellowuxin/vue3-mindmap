@@ -47,7 +47,8 @@ export const collapse = (id: string): void => {
   mmdata.collapse(id)
   afterOperation()
 }
-export const addSibling = (id: string, name: string, before = false): void => {
-  mmdata.addSibling(id, name, before)
+export const addSibling = (id: string, name: string, before = false): IsMdata => {
+  const d = mmdata.addSibling(id, name, before)
   afterOperation()
+  return d
 }
