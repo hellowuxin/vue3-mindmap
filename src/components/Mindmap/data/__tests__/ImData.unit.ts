@@ -100,4 +100,13 @@ describe('思维导图数据-单元测试', () => {
       expect(d).toMatchSnapshot()
     })
   })
+
+  describe('给目标节点添加兄弟节点', () => {
+    it('添加成功', () => {
+      const d = mmdata.addSibling('0-2-0', '新兄弟节点')
+      expect(d?.id).toBe('0-2-1')
+      expect(d?.name).toBe('新兄弟节点')
+      expect(d).toMatchSnapshot()
+    })
+  })
 })

@@ -26,7 +26,6 @@ describe('思维导图数据-集成测试', () => {
       const d = mmdata.find(a.id)
       expect(d).toBeTruthy()
       expect(d?.name).toBe('子节点')
-      // expect(d).toMatchSnapshot()
     }
   })
 })
