@@ -1,12 +1,13 @@
 import style from '../css'
 import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../variable'
 import * as d3 from '../d3'
-import { Mdata, MenuEvent } from '../interface'
+import { Mdata } from '../interface'
 import { fitView, getRelativePos, moveNode, scaleView, selectGNode } from '../assistant'
-import { add, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
+import { add, addSibling, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
 import { svgEle, gEle, foreignDivEle, wrapperEle, foreignEle } from '../variable/element'
 import emitter from '@/mitt'
 import { getDataId, getSiblingGClass } from '../attribute'
+import { MenuEvent } from '../variable/contextmenu'
 
 /**
  * @param this - gContent
@@ -80,14 +81,19 @@ export const onContextmenu = (e: MouseEvent): void => {
   const gNode = eventTargets.find((et) => et.classList?.contains('node'))
   if (gNode) {
     const { classList } = gNode
+    const isRoot = classList.contains(style.root)
     const collapseFlag = classList.contains(style['collapse'])
     if (!classList.contains(style.selected)) { selectGNode(gNode as SVGGElement) }
     ctm.addItem.value.disabled = collapseFlag
-    ctm.deleteItem.value.disabled = classList.contains(style.root)
+    ctm.deleteItem.value.disabled = isRoot
+    ctm.addSiblingItem.value.disabled = isRoot
+    ctm.addSiblingBeforeItem.value.disabled = isRoot
     ctm.expandItem.value.disabled = !collapseFlag
     ctm.collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
+    ctm.showViewMenu.value = false
+  } else {
+    ctm.showViewMenu.value = true
   }
-  ctm.showViewMenu.value = gNode ? false : true
   emitter.emit('showContextmenu', true)
 }
 
@@ -114,6 +120,14 @@ export const onClickMenu = (name: MenuEvent): void => {
     const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
     const seleData = sele.data()[0]
     expand(seleData.id)
+  } else if (name === 'add-sibling') {
+    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
+    const seleData = sele.data()[0]
+    addSibling(seleData.id, '')
+  } else if (name === 'add-sibling-before') {
+    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
+    const seleData = sele.data()[0]
+    addSibling(seleData.id, '', true)
   }
 }
 

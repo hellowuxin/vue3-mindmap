@@ -152,7 +152,7 @@ class ImData {
   getRootWidth (): number { return this.rootWidth }
 
   /**
-   * 默认更新x, y, dx, dy, width, height, left
+   * 默认更新x, y, dx, dy, left
    * @param plugins - 需要更新其他属性时的函数
    */
   renew (...plugins: Processer[]): void {
@@ -334,9 +334,9 @@ class ImData {
       if (!p.children) { p.children = [] }
       if (!p.rawData.children) { p.rawData.children = [] }
       const size = this.getSize(name)
-      const rawData = { name }
+      const rawData: Data = { name }
       const color = p.color ? p.color : this.colorScale(`${this.colorNumber += 1}`)
-      const d = {
+      const d: Mdata = {
         id: `${p.id}-${p.children.length}`,
         name,
         rawData,
@@ -396,6 +396,44 @@ class ImData {
     } else {
       throw new Error('暂不支持删除根节点')
     }
+  }
+
+  addSibling (id: string, name: string, before = false): IsMdata {
+    const d = this.find(id)
+    if (d && d.parent) {
+      const index = parseInt(id.split('-').pop() as string, 10)
+      const { parent } = d
+      const rawSibling: Data = { name }
+      const size = this.getSize(name)
+      const start = before ? index : index + 1
+      const color = parent.color ? parent.color : this.colorScale(`${this.colorNumber += 1}`)
+      const sibling: Mdata = {
+        name,
+        parent,
+        children: [],
+        _children: [],
+        color,
+        collapse: false,
+        rawData: rawSibling,
+        id: `${parent.id}-${start}`,
+        left: d.left,
+        gKey: this.gKey += 1,
+        depth: d.depth,
+        width: size.width,
+        height: size.height,
+        x: 0,
+        y: 0,
+        dx: 0,
+        dy: 0,
+        px: 0,
+        py: 0,
+      }
+      parent.children.splice(start, 0, sibling)
+      parent.rawData.children?.splice(start, 0, rawSibling)
+      this.renew(renewId)
+      return sibling
+    }
+    return null
   }
 }
 
