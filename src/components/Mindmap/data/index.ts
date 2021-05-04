@@ -52,3 +52,8 @@ export const addSibling = (id: string, name: string, before = false): IsMdata =>
   afterOperation()
   return d
 }
+export const addParent = (id: string, name: string): IsMdata => {
+  const d = mmdata.addParent(id, name)
+  afterOperation()
+  return d
+}

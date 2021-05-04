@@ -2,8 +2,8 @@ import style from '../css'
 import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../variable'
 import * as d3 from '../d3'
 import { Mdata } from '../interface'
-import { fitView, getRelativePos, moveNode, scaleView, selectGNode } from '../assistant'
-import { add, addSibling, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
+import { fitView, getRelativePos, getSelectedGData, moveNode, scaleView, selectGNode } from '../assistant'
+import { add, addParent, addSibling, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
 import { svgEle, gEle, foreignDivEle, wrapperEle, foreignEle } from '../variable/element'
 import emitter from '@/mitt'
 import { getDataId, getSiblingGClass } from '../attribute'
@@ -88,6 +88,7 @@ export const onContextmenu = (e: MouseEvent): void => {
     ctm.deleteItem.value.disabled = isRoot
     ctm.addSiblingItem.value.disabled = isRoot
     ctm.addSiblingBeforeItem.value.disabled = isRoot
+    ctm.addParentItem.value.disabled = isRoot
     ctm.expandItem.value.disabled = !collapseFlag
     ctm.collapseItem.value.disabled = collapseFlag || classList.contains('leaf')
     ctm.showViewMenu.value = false
@@ -105,30 +106,28 @@ export const onClickMenu = (name: MenuEvent): void => {
   } else if (name === 'zoomout') {
     scaleView(false)
   } else if (name === 'add') {
-    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
-    const seleData = sele.data()[0]
+    const seleData = getSelectedGData()
     addAndEdit(new MouseEvent('click'), seleData)
   } else if (name === 'delete') {
-    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
-    const seleData = sele.data()[0]
+    const seleData = getSelectedGData()
     del(seleData.id)
   } else if (name === 'collapse') {
-    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
-    const seleData = sele.data()[0]
+    const seleData = getSelectedGData()
     collapse(seleData.id)
   } else if (name === 'expand') {
-    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
-    const seleData = sele.data()[0]
+    const seleData = getSelectedGData()
     expand(seleData.id)
   } else if (name === 'add-sibling') {
-    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
-    const seleData = sele.data()[0]
+    const seleData = getSelectedGData()
     const d = addSibling(seleData.id, '')
     if (d) { edit(d) }
   } else if (name === 'add-sibling-before') {
-    const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
-    const seleData = sele.data()[0]
+    const seleData = getSelectedGData()
     const d = addSibling(seleData.id, '', true)
+    if (d) { edit(d) }
+  } else if (name === 'add-parent') {
+    const seleData = getSelectedGData()
+    const d = addParent(seleData.id, '')
     if (d) { edit(d) }
   }
 }
@@ -147,7 +146,7 @@ export const onClickMenu = (name: MenuEvent): void => {
 export function edit (d: Mdata, e = new MouseEvent('click')): void {
   const { g } = selection
   if (!g) { return }
-  const gText = g.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(d)}'] g.${style.text}`)
+  const gText = g.selectAll<SVGGElement, Mdata>(`g[data-id='${getDataId(d)}'] > g.${style.content} > g.${style.text}`)
   const node = gText.node()
 
   if (node) {

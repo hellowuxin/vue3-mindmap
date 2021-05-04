@@ -98,6 +98,11 @@ export function selectGNode (d: SVGGElement | Mdata): void {
   }
 }
 
+export function getSelectedGData (): Mdata {
+  const sele = d3.select<SVGGElement, Mdata>(`.${style.selected}`)
+  return sele.data()[0]
+}
+
 /**
  * 获取文本在tspan中的宽度与高度
  * @param text -

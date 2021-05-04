@@ -62,6 +62,13 @@ const renewDelta = (d: Mdata) => {
 }
 
 const renewId = (d: Mdata, id: string) => d.id = id
+const renewDepth = (d: Mdata) => {
+  if (d.parent) {
+    d.depth = d.parent.depth + 1
+  } else {
+    d.depth = 0
+  }
+}
 
 const renewColor = (d: Mdata): void => {
   if (d.parent && d.parent.color) {
@@ -294,7 +301,7 @@ class ImData {
         np.children.push(del)
       }
       np.rawData.children ? np.rawData.children.push(del.rawData) : np.rawData.children = [del.rawData]
-      this.renew(renewId, renewColor)
+      this.renew(renewId, renewColor, renewDepth)
     }
     return del
   }
@@ -402,8 +409,8 @@ class ImData {
     const d = this.find(id)
     if (d && d.parent) {
       const index = parseInt(id.split('-').pop() as string, 10)
-      const { parent } = d
-      const rawSibling: Data = { name }
+      const { parent, left } = d
+      const rawSibling: Data = { name, left }
       const size = this.getSize(name)
       const start = before ? index : index + 1
       const color = parent.color ? parent.color : this.colorScale(`${this.colorNumber += 1}`)
@@ -416,7 +423,7 @@ class ImData {
         collapse: false,
         rawData: rawSibling,
         id: `${parent.id}-${start}`,
-        left: d.left,
+        left,
         gKey: this.gKey += 1,
         depth: d.depth,
         width: size.width,
@@ -432,6 +439,44 @@ class ImData {
       parent.rawData.children?.splice(start, 0, rawSibling)
       this.renew(renewId)
       return sibling
+    }
+    return null
+  }
+
+  addParent (id: string, name: string): IsMdata {
+    const d = this.find(id)
+    if (d && d.parent) {
+      const { parent: oldP, left } = d
+      const size = this.getSize(name)
+      const color = oldP.color ? oldP.color : this.colorScale(`${this.colorNumber += 1}`)
+      const index = parseInt(d.id.split('-').pop() as string, 10)
+      const rawP: Data = { name, children: [d.rawData], left }
+      oldP.rawData.children?.splice(index, 1, rawP)
+      const p: Mdata = {
+        rawData: rawP,
+        left,
+        name,
+        color,
+        collapse: false,
+        parent: oldP,
+        id: d.id,
+        depth: d.depth,
+        width: size.width,
+        height: size.height,
+        gKey: this.gKey += 1,
+        children: [d],
+        _children: [],
+        x: 0,
+        y: 0,
+        dx: 0,
+        dy: 0,
+        px: 0,
+        py: 0
+      }
+      d.parent = p
+      oldP.children.splice(index, 1, p)
+      this.renew(renewId, renewDepth)
+      return p
     }
     return null
   }
