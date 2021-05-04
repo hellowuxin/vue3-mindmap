@@ -57,10 +57,10 @@ describe('思维导图数据-单元测试', () => {
 
   describe('移动目标节点到指定的父亲节点下', () => {
     it('移动成功', () => {
-      const pId = '0'
-      const d = mmdata.moveChild(pId, '0-2-2')
-      expect(d?.parent?.id).toBe(pId)
-      expect(d?.id).toBe('0-5')
+      const d = mmdata.moveChild('0-3', '0-2')
+      expect(d?.parent?.id).toBe('0-2')
+      expect(d?.id).toBe('0-2-0')
+      expect(d?.children[0].depth).toBe(3)
       expect(d).toMatchSnapshot()
     })
   })
@@ -101,11 +101,21 @@ describe('思维导图数据-单元测试', () => {
     })
   })
 
-  describe('给目标节点添加兄弟节点', () => {
+  describe('给目标节点添加新兄弟节点', () => {
     it('添加成功', () => {
       const d = mmdata.addSibling('0-2-0', '新兄弟节点')
       expect(d?.id).toBe('0-2-1')
       expect(d?.name).toBe('新兄弟节点')
+      expect(d).toMatchSnapshot()
+    })
+  })
+
+  describe('给目标节点添加新父节点', () => {
+    it('添加成功', () => {
+      const d = mmdata.addParent('0-2-0', '新父节点')
+      expect(d?.id).toBe('0-2-0')
+      expect(d?.name).toBe('新父节点')
+      expect(d?.children[0].depth).toBe(3)
       expect(d).toMatchSnapshot()
     })
   })
