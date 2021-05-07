@@ -20,7 +20,7 @@
       <button @click="next" :class="{ [style['disabled']]: !hasNext }"><i :class="style['next']"></i></button>
     </div>
     <contextmenu
-      v-if="contextmenu"
+      v-if="ctm"
       :position="contextmenuPos"
       :groups="menu"
       @click-item="onClickMenu"
@@ -76,7 +76,7 @@ export default defineComponent({
     edit: Boolean,
     drag: Boolean,
     keyboard: Boolean,
-    contextmenu: Boolean,
+    ctm: Boolean,
     zoom: Boolean,
   },
   setup (props, context) {
@@ -112,7 +112,7 @@ export default defineComponent({
         oldSele?.classList.remove(style.selected)
       })
       switchZoom(props.zoom)
-      switchContextmenu(props.contextmenu)
+      switchContextmenu(props.ctm)
     })
     // watch
     watch(() => [props.branch, addNodeBtn.value, props.sharpCorner], () => {
@@ -129,7 +129,7 @@ export default defineComponent({
       switchEdit(val[1])
     })
     watch(() => props.zoom, (val) => switchZoom(val))
-    watch(() => props.contextmenu, (val) => switchContextmenu(val))
+    watch(() => props.ctm, (val) => switchContextmenu(val))
 
     return {
       wrapperEle,

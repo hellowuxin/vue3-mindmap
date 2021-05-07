@@ -32,7 +32,7 @@ npm install vue3-mindmap
 | add-node-btn | Boolean          | false      | 是否显示添加节点按钮     |
 | download-btn | Boolean          | false      | 是否显示下载按钮        |
 | sharp-corner | Boolean          | false      | 设置分支为圆角或直角     |
-| contextmenu  | Boolean          | false      | 是否响应右键菜单        |
+| ctm          | Boolean          | false      | 是否响应右键菜单        |
 
 ## Example
 

@@ -18,7 +18,7 @@
       :edit="checkboxList['edit'].value"
       :add-node-btn="checkboxList['add-node-btn'].value"
       :sharp-corner="checkboxList['sharp-corner'].value"
-      :contextmenu="checkboxList['contextmenu'].value"
+      :ctm="checkboxList['contextmenu'].value"
       :timetravel="checkboxList['timetravel'].value"
     ></mindmap>
     <div class="right-bottom">
