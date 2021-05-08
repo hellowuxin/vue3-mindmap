@@ -38,7 +38,6 @@
 import learn from './learn.json'
 import { defineComponent, reactive, ref } from 'vue'
 import Mindmap from './components/Mindmap'
-import { xGap, yGap, branch } from './components/Mindmap/variable'
 
 type checkbox = { [key: string]: { value: boolean, disabled?: boolean } }
 
@@ -63,9 +62,9 @@ export default defineComponent({
       vertical: { value: false, disabled: true }
     })
     const rangeList = reactive({
-      branch: { value: branch, min: 1, max: 6 },
-      'x-gap': { value: xGap, min: 0, max: 100 },
-      'y-gap': { value: yGap, min: 0, max: 100 }
+      branch: { value: 4, min: 1, max: 6 },
+      'x-gap': { value: 84, min: 0, max: 100 },
+      'y-gap': { value: 18, min: 0, max: 100 }
     })
     const data = ref(learn)
 
