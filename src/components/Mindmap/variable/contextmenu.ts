@@ -1,5 +1,4 @@
-import { ref, Ref } from '@vue/reactivity'
-import { computed } from 'vue'
+import { computed, ref, Ref } from 'vue'
 import { scaleExtent, zoomTransform } from '.'
 
 export type MenuEvent = 'zoomin' | 'zoomout' | 'zoomfit' | 'add' | 'delete' |
