@@ -2,13 +2,11 @@
 
 ### [0.5.4](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.3...v0.5.4) (2021-05-08)
 
-
 ### Features
 
 * 可以直接添加兄弟节点 ([0ede6a1](https://github.com/hellowuxin/vue3-mindmap/commit/0ede6a1d91ecda23546cf1dc678e8f8175d685d1))
 * 可以直接添加新父节点 ([ce7ad06](https://github.com/hellowuxin/vue3-mindmap/commit/ce7ad063d787673cf5ada4b5cd13376d5f816a8a))
 * 添加兄弟节点也会立刻进入编辑模式 ([731ac89](https://github.com/hellowuxin/vue3-mindmap/commit/731ac893fbcf0f81a8dd4e6ef41ed37d96439f72))
-
 
 ### Bug Fixes
 
