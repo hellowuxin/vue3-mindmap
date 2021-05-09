@@ -120,4 +120,11 @@ describe('思维导图数据-单元测试', () => {
       expect(d).toMatchSnapshot()
     })
   })
+
+  describe('变更目标节点的左右布局', () => {
+    it('变更成功', () => {
+      const d = mmdata.changeLeft('0-0')
+      expect(d?.left).toBe(true)
+    })
+  })
 })
