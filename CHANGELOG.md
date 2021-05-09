@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.5.5](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.4...v0.5.5) (2021-05-09)
+
+
+### Bug Fixes
+
+* 修复节点都在同侧时不能改变左右布局的问题（[#11](https://github.com/hellowuxin/vue3-mindmap/issues/11)） ([656cf0a](https://github.com/hellowuxin/vue3-mindmap/commit/656cf0ae637f9f632ed166864b625b81333e42a4))
+* 修正了添加一级节点的新父节点时颜色不统一的问题 ([4e3221c](https://github.com/hellowuxin/vue3-mindmap/commit/4e3221c64eafaa2299ad3c7c50adcf0800d2fa5f))
+
 ### [0.5.4](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.3...v0.5.4) (2021-05-08)
 
 ### Features

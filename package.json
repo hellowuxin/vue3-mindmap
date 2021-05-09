@@ -15,7 +15,7 @@
     },
     "./dist/style.css": "./dist/style.css"
   },
-  "version": "0.5.4",
+  "version": "0.5.5",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
