@@ -15,7 +15,7 @@ export interface Mdata {
   _children: Array<Mdata> // 当折叠时保存children数据
   left: boolean
   collapse: boolean
-  id: string
+  id: string // 代表着数据的顺序和嵌套层次
   color: string
   gKey: number
   width: number
