@@ -446,9 +446,8 @@ class ImData {
   addParent (id: string, name: string): IsMdata {
     const d = this.find(id)
     if (d && d.parent) {
-      const { parent: oldP, left } = d
+      const { parent: oldP, left, color } = d
       const size = this.getSize(name)
-      const color = oldP.color ? oldP.color : this.colorScale(`${this.colorNumber += 1}`)
       const index = parseInt(d.id.split('-').pop() as string, 10)
       const rawP: Data = { name, children: [d.rawData], left }
       oldP.rawData.children?.splice(index, 1, rawP)
