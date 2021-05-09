@@ -479,6 +479,15 @@ class ImData {
     }
     return null
   }
+
+  changeLeft (id: string): IsMdata {
+    const d = this.find(id)
+    if (d) {
+      d.left = !d.left
+      this.renew()
+    }
+    return d
+  }
 }
 
 export default ImData

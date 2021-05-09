@@ -3,7 +3,7 @@ import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../var
 import * as d3 from '../d3'
 import { Mdata } from '../interface'
 import { fitView, getRelativePos, getSelectedGData, moveNode, scaleView, selectGNode } from '../assistant'
-import { add, addParent, addSibling, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
+import { add, addParent, addSibling, changeLeft, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
 import { svgEle, gEle, foreignDivEle, wrapperEle, foreignEle } from '../variable/element'
 import emitter from '@/mitt'
 import { getDataId, getSiblingGClass } from '../attribute'
@@ -236,13 +236,16 @@ export function onDragEnd (this: SVGGElement, e: d3.D3DragEvent<SVGGElement, Mda
     d.px = 0
     d.py = 0
     moveSibling(d.id, downD.id)
-    return
   } else if (upD.id !== d.id) {
     d.px = 0
     d.py = 0
     moveSibling(d.id, upD.id, 1)
-    return
+  } else if (lr) {
+    d.px = 0
+    d.py = 0
+    changeLeft(d.id)
+  } else {
+    // 复原
+    moveNode(gNode, d, [0, 0], 500)
   }
-  // 复原
-  moveNode(gNode, d, [0, 0], 500)
 }

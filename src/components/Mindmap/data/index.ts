@@ -57,3 +57,7 @@ export const addParent = (id: string, name: string): IsMdata => {
   afterOperation()
   return d
 }
+export const changeLeft = (id: string): void => {
+  mmdata.changeLeft(id)
+  afterOperation()
+}
