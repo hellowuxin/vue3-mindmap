@@ -112,10 +112,11 @@ describe('思维导图数据-单元测试', () => {
 
   describe('给目标节点添加新父节点', () => {
     it('添加成功', () => {
-      const d = mmdata.addParent('0-2-0', '新父节点')
-      expect(d?.id).toBe('0-2-0')
+      const d = mmdata.addParent('0-0', '新父节点')
+      expect(d?.id).toBe('0-0')
       expect(d?.name).toBe('新父节点')
-      expect(d?.children[0].depth).toBe(3)
+      expect(d?.children[0].depth).toBe(2)
+      expect(d?.color).toBe(d?.children[0].color)
       expect(d).toMatchSnapshot()
     })
   })
