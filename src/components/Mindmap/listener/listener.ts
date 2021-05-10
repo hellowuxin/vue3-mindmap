@@ -2,7 +2,7 @@ import style from '../css'
 import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../variable'
 import * as d3 from '../d3'
 import { Mdata } from '../interface'
-import { fitView, getRelativePos, getSelectedGData, moveNode, scaleView, selectGNode } from '../assistant'
+import { fitView, getRelativePos, getSelectedGData, moveNode, moveView, scaleView, selectGNode } from '../assistant'
 import { add, addParent, addSibling, changeLeft, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
 import { svgEle, gEle, foreignDivEle, wrapperEle, foreignEle } from '../variable/element'
 import emitter from '@/mitt'
@@ -38,6 +38,7 @@ export const onSelect = (e: MouseEvent, d: Mdata): void => {
 }
 
 /**
+ * 进入编辑状态
  * @param this - gText
  */
 export function onEdit (this: SVGGElement, _e: MouseEvent, d: Mdata): void {
@@ -55,6 +56,7 @@ export function onEdit (this: SVGGElement, _e: MouseEvent, d: Mdata): void {
     div.textContent = d.name
     div.focus()
     getSelection()?.selectAllChildren(div)
+    moveView()
   }
 }
 

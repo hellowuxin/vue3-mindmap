@@ -4,7 +4,7 @@ import { getDataId, getGTransform, getPath } from './attribute'
 import * as d3 from './d3'
 import style from './css'
 import { Mdata, TwoNumber } from './interface'
-import { selection, zoom } from './variable'
+import { selection, zoom, zoomTransform } from './variable'
 import { afterOperation, mmdata } from './data'
 import { snapshot } from './state'
 import { gEle, svgEle, wrapperEle } from './variable/element'
@@ -139,7 +139,7 @@ export const centerView = (): void => {
   zoom.translateTo(svg, 0 + data.width / 2, 0 + data.height / 2)
 }
 
-/**e
+/**
  * 缩放至合适大小并移动至全部可见
  */
 export const fitView = (): void => {
@@ -156,6 +156,40 @@ export const fitView = (): void => {
     -gBB.y * multiple + svgCenter.y - gCenter.y
   ).scale(multiple)
   zoom.transform(svg, center)
+}
+
+/**
+ * 新增节点被遮挡时，移动至可见
+ */
+export const moveView = (): void => {
+  const { svg } = selection
+  // 得到d相对于视图左上角的坐标
+  const gEle = document.querySelector<SVGGElement>(`g.node.${style.edited}`)
+  if (svg && gEle && svgEle.value) {
+    const { k } = zoomTransform.value
+    const gBCR = gEle.getBoundingClientRect()
+    const svgBCR = svgEle.value.getBoundingClientRect()
+    const gLeft = gBCR.x - svgBCR.x
+    const gRight = gLeft + gBCR.width
+    const gTop = gBCR.y - svgBCR.y
+    const gBottom = gTop + gBCR.height
+    let x = 0
+    let y = 0
+
+    if (gLeft < 0) {
+      x = -gLeft / k
+    } else if (gRight > svgBCR.width) {
+      x = -(gRight - svgBCR.width) / k
+    }
+
+    if (gTop < 0) {
+      y = -gTop / k
+    } else if (gBottom > svgBCR.height) {
+      y = -(gBottom - svgBCR.height) / k
+    }
+
+    zoom.translateBy(svg, x, y)
+  }
 }
 
 /**
