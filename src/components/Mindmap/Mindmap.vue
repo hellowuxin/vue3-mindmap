@@ -9,7 +9,7 @@
         </g>
       </svg>
     </div>
-    <svg ref="asstSvgEle"></svg>
+    <svg ref="asstSvgEle" :class="style['asst-svg']"></svg>
     <div :class="[style['button-list'], style['right-bottom']]">
       <button v-if="centerBtn" @click="centerView()"><i :class="style['gps']"></i></button>
       <button v-if="fitBtn" @click="fitView()"><i :class="style['fit']"></i></button>
@@ -94,7 +94,7 @@ export default defineComponent({
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
       emitter.emit('selection-svg', d3.select(svgEle.value))
       emitter.emit('selection-g', d3.select(gEle.value))
-      emitter.emit('selection-asstSvg', d3.select(asstSvgEle.value).attr('width', 0).attr('height', 0))
+      emitter.emit('selection-asstSvg', d3.select(asstSvgEle.value))
       emitter.emit('selection-foreign',d3.select(foreignEle.value))
       observer.observe(foreignDivEle.value)
       emitter.emit('mmdata', new ImData(cloneDeep(props.modelValue[0]), xGap, yGap, getSize))

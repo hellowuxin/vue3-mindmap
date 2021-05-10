@@ -2,6 +2,7 @@ declare const style: {
   readonly container: string
   readonly 'svg-wrapper': string
   readonly svg: string
+  readonly 'asst-svg': string
   readonly dragging: string
   readonly 'button-list': string
   readonly 'right-bottom': string
