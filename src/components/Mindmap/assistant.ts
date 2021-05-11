@@ -174,14 +174,15 @@ export const moveView = (ele: Element): void => {
     const gRight = gLeft + gBCR.width
     const gTop = gBCR.y - y
     const gBottom = gTop + gBCR.height
+    const space = 2 // 元素与视图的空隙，方便区分
     let x1 = 0
     let y1 = 0
 
-    if (gLeft < 0) { x1 = -gLeft / k }
-    if (gBCR.width > width || gRight > width) { x1 = -(gRight - width) / k }
+    if (gLeft < 0) { x1 = -gLeft / k + space }
+    if (gBCR.width > width || gRight > width) { x1 = -(gRight - width) / k - space }
 
-    if (gTop < 0) { y1 = -gTop / k }
-    if (gBCR.height > height || gBottom > height) { y1 = -(gBottom - height) / k }
+    if (gTop < 0) { y1 = -gTop / k + space }
+    if (gBCR.height > height || gBottom > height) { y1 = -(gBottom - height) / k - space}
 
     zoom.translateBy(svg, x1, y1)
   }
