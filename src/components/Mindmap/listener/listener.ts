@@ -56,7 +56,10 @@ export function onEdit (this: SVGGElement, _e: MouseEvent, d: Mdata): void {
     div.textContent = d.name
     div.focus()
     getSelection()?.selectAllChildren(div)
-    moveView()
+    const gContent = gNode.querySelector<SVGGElement>(`:scope > .${style.content}`)
+    if (gContent) {
+      moveView(gContent)
+    }
   }
 }
 

@@ -160,15 +160,15 @@ export const fitView = (): void => {
 }
 
 /**
- * 新增节点被遮挡时，移动至可见
+ * 元素被遮挡时，移动视图使其处于可见区域
+ * @param ele - 元素
  */
-export const moveView = (): void => {
+export const moveView = (ele: Element): void => {
   const { svg } = selection
   // 得到d相对于视图左上角的坐标
-  const gEle = document.querySelector<SVGGElement>(`g.node.${style.edited} > .${style.content}`)
-  if (svg && gEle && svgEle.value) {
+  if (svg && svgEle.value) {
     const { k } = zoomTransform.value
-    const gBCR = gEle.getBoundingClientRect()
+    const gBCR = ele.getBoundingClientRect()
     const svgBCR = svgEle.value.getBoundingClientRect()
     const gLeft = gBCR.x - svgBCR.x
     const gRight = gLeft + gBCR.width

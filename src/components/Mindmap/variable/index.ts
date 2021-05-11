@@ -5,7 +5,7 @@ import { Ref, ref, SetupContext } from 'vue'
 import { onDragEnd, onDragMove, onZoomMove } from '../listener'
 import * as selection from './selection'
 import * as element from './element'
-import { getDragContainer } from '../assistant'
+import { getDragContainer, moveView } from '../assistant'
 
 export * as ctm from './contextmenu'
 export { selection, element }
@@ -53,16 +53,22 @@ emitter.on<{ xGap: number, yGap: number}>('gap', (gap) => {
   textRectPadding = Math.min(xGap / 2 - 1, textRectPadding)
 })
 
-// 观察foreign
+/**
+ * 观察foreignDiv，改变foreignObject的宽度和高度，并使其保持可见
+ */
 export const observer = new ResizeObserver((arr: ResizeObserverEntry[]) => {
   const { foreign } = selection
   if (!foreign) { return }
   const temp = arr[0]
-  const target = temp.target
-  const pl = parseInt(getComputedStyle(target).paddingLeft || '0', 10)
-  const b = parseInt(getComputedStyle(target.parentNode as Element).borderTopWidth || '0', 10)
+  const foreignDiv = temp.target
+  const { width, height } = temp.contentRect
+  const pl = parseInt(getComputedStyle(foreignDiv).paddingLeft || '0', 10)
+  const b = parseInt(getComputedStyle(foreignDiv.parentNode as Element).borderTopWidth || '0', 10)
   const gap = (pl + b) * 2
-  foreign.attr('width', temp.contentRect.width + gap).attr('height', temp.contentRect.height + gap)
+  foreign.attr('width', width + gap).attr('height', height + gap)
+  if (foreign.style('display') !== 'none') {
+    moveView(foreignDiv)
+  }
 })
 
 // 其他
