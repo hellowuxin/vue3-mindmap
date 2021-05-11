@@ -164,7 +164,7 @@ export const fitView = (): void => {
 export const moveView = (): void => {
   const { svg } = selection
   // 得到d相对于视图左上角的坐标
-  const gEle = document.querySelector<SVGGElement>(`g.node.${style.edited}`)
+  const gEle = document.querySelector<SVGGElement>(`g.node.${style.edited} > .${style.content}`)
   if (svg && gEle && svgEle.value) {
     const { k } = zoomTransform.value
     const gBCR = gEle.getBoundingClientRect()
