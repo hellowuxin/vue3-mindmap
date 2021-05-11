@@ -36,11 +36,11 @@ import style from './css'
 import * as d3 from './d3'
 import { afterOperation, ImData, mmdata } from './data'
 import { hasNext, hasPrev } from './state'
-import { fitView, getSize, centerView, next, prev, download } from './assistant'
-import { xGap, yGap, branch, scaleExtent, ctm, selection, observer, changeSharpCorner, addNodeBtn, mmprops } from './variable'
+import { fitView, getSize, centerView, next, prev, download, bindForeignDiv } from './assistant'
+import { xGap, yGap, branch, scaleExtent, ctm, selection, changeSharpCorner, addNodeBtn, mmprops } from './variable'
 import { wrapperEle, svgEle, gEle, asstSvgEle, foreignEle, foreignDivEle  } from './variable/element'
 import { draw } from './draw'
-import { switchZoom, switchEdit, switchSelect, switchContextmenu, onEditBlur, switchDrag, onClickMenu } from './listener'
+import { switchZoom, switchEdit, switchSelect, switchContextmenu, switchDrag, onClickMenu } from './listener'
 import Contextmenu from '../Contextmenu.vue'
 import { cloneDeep } from 'lodash'
 
@@ -96,15 +96,13 @@ export default defineComponent({
       emitter.emit('selection-g', d3.select(gEle.value))
       emitter.emit('selection-asstSvg', d3.select(asstSvgEle.value))
       emitter.emit('selection-foreign',d3.select(foreignEle.value))
-      observer.observe(foreignDivEle.value)
       emitter.emit('mmdata', new ImData(cloneDeep(props.modelValue[0]), xGap, yGap, getSize))
 
       changeSharpCorner.value = false
       afterOperation()
       const { svg, foreign } = selection
       foreign?.raise()
-      foreignDivEle.value.addEventListener('blur', onEditBlur)
-      foreignDivEle.value.addEventListener('mousedown', (e: MouseEvent) => e.stopPropagation())
+      bindForeignDiv()
       fitView()
       // mousedown与drag/zoom绑定的先后顺序会有影响
       svg?.on('mousedown', () => {

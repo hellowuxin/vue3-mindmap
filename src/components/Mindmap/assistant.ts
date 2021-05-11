@@ -4,10 +4,11 @@ import { getDataId, getGTransform, getPath } from './attribute'
 import * as d3 from './d3'
 import style from './css'
 import { Mdata, TwoNumber } from './interface'
-import { selection, zoom, zoomTransform } from './variable'
+import { observer, selection, zoom, zoomTransform } from './variable'
 import { afterOperation, mmdata } from './data'
 import { snapshot } from './state'
-import { gEle, svgEle, wrapperEle } from './variable/element'
+import { foreignDivEle, gEle, svgEle, wrapperEle } from './variable/element'
+import { onEditBlur } from './listener'
 
 /**
  * 使页面重排
@@ -217,5 +218,16 @@ export const prev = (): void => {
   if (prevData) {
     mmdata.data = prevData
     afterOperation(false)
+  }
+}
+
+/**
+ * foreignDivEle事件监听与观察
+ */
+export const bindForeignDiv = (): void => {
+  if (foreignDivEle.value) {
+    observer.observe(foreignDivEle.value)
+    foreignDivEle.value.addEventListener('blur', onEditBlur)
+    foreignDivEle.value.addEventListener('mousedown', (e: MouseEvent) => e.stopPropagation())
   }
 }
