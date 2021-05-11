@@ -169,27 +169,21 @@ export const moveView = (ele: Element): void => {
   if (svg && svgEle.value) {
     const { k } = zoomTransform.value
     const gBCR = ele.getBoundingClientRect()
-    const svgBCR = svgEle.value.getBoundingClientRect()
-    const gLeft = gBCR.x - svgBCR.x
+    const { x, y, width, height } = svgEle.value.getBoundingClientRect()
+    const gLeft = gBCR.x - x
     const gRight = gLeft + gBCR.width
-    const gTop = gBCR.y - svgBCR.y
+    const gTop = gBCR.y - y
     const gBottom = gTop + gBCR.height
-    let x = 0
-    let y = 0
+    let x1 = 0
+    let y1 = 0
 
-    if (gLeft < 0) {
-      x = -gLeft / k
-    } else if (gRight > svgBCR.width) {
-      x = -(gRight - svgBCR.width) / k
-    }
+    if (gLeft < 0) { x1 = -gLeft / k }
+    if (gBCR.width > width || gRight > width) { x1 = -(gRight - width) / k }
 
-    if (gTop < 0) {
-      y = -gTop / k
-    } else if (gBottom > svgBCR.height) {
-      y = -(gBottom - svgBCR.height) / k
-    }
+    if (gTop < 0) { y1 = -gTop / k }
+    if (gBCR.height > height || gBottom > height) { y1 = -(gBottom - height) / k }
 
-    zoom.translateBy(svg, x, y)
+    zoom.translateBy(svg, x1, y1)
   }
 }
 
