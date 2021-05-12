@@ -2,7 +2,7 @@ import style from '../css'
 import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../variable'
 import * as d3 from '../d3'
 import { Mdata } from '../interface'
-import { fitView, getRelativePos, getSelectedGData, moveNode, moveView, scaleView, selectGNode } from '../assistant'
+import { fitView, getRelativePos, getSelectedGData, isData, moveNode, moveView, scaleView, selectGNode } from '../assistant'
 import { add, addParent, addSibling, changeLeft, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
 import { svgEle, gEle, foreignDivEle, wrapperEle, foreignEle } from '../variable/element'
 import emitter from '@/mitt'
@@ -134,6 +134,19 @@ export const onClickMenu = (name: MenuEvent): void => {
     const seleData = getSelectedGData()
     const d = addParent(seleData.id, '')
     if (d) { edit(d) }
+  } else if (name === 'copy') {
+    const seleData = getSelectedGData()
+    const rawdata = mmdata.find(seleData.id)?.rawData
+    if (rawdata) {
+      // navigator.clipboard.write
+      navigator.clipboard.writeText(JSON.stringify(rawdata))
+    }
+  } else if (name === 'paste') {
+    const seleData = getSelectedGData()
+    navigator.clipboard.readText().then(clipText => {
+      const rawdata = isData(clipText) || { name: clipText }
+      add(seleData.id, rawdata.name)
+    })
   }
 }
 

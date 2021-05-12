@@ -3,7 +3,7 @@ import html2canvas from 'html2canvas'
 import { getDataId, getGTransform, getPath } from './attribute'
 import * as d3 from './d3'
 import style from './css'
-import { Mdata, TwoNumber } from './interface'
+import { Data, Mdata, TwoNumber } from './interface'
 import { observer, selection, zoom, zoomTransform } from './variable'
 import { afterOperation, mmdata } from './data'
 import { snapshot } from './state'
@@ -224,5 +224,18 @@ export const bindForeignDiv = (): void => {
     observer.observe(foreignDivEle.value)
     foreignDivEle.value.addEventListener('blur', onEditBlur)
     foreignDivEle.value.addEventListener('mousedown', (e: MouseEvent) => e.stopPropagation())
+  }
+}
+
+/**
+ * 判断字符串是否符合Data的数据格式，如果是，则返回格式化的数据，如果不是，返回false
+ */
+export const isData = (str: string): Data | false => {
+  let data
+  try {
+    data = JSON.parse(str)
+    return 'name' in data ? data : false
+  } catch (error) {
+    return false
   }
 }
