@@ -104,49 +104,45 @@ export const onContextmenu = (e: MouseEvent): void => {
 }
 
 export const onClickMenu = (name: MenuEvent): void => {
-  if (name === 'zoomfit') {
-    fitView()
-  } else if (name === 'zoomin') {
-    scaleView(true)
-  } else if (name === 'zoomout') {
-    scaleView(false)
-  } else if (name === 'add') {
-    const seleData = getSelectedGData()
-    addAndEdit(new MouseEvent('click'), seleData)
-  } else if (name === 'delete') {
-    const seleData = getSelectedGData()
-    del(seleData.id)
-  } else if (name === 'collapse') {
-    const seleData = getSelectedGData()
-    collapse(seleData.id)
-  } else if (name === 'expand') {
-    const seleData = getSelectedGData()
-    expand(seleData.id)
-  } else if (name === 'add-sibling') {
-    const seleData = getSelectedGData()
-    const d = addSibling(seleData.id, '')
-    if (d) { edit(d) }
-  } else if (name === 'add-sibling-before') {
-    const seleData = getSelectedGData()
-    const d = addSibling(seleData.id, '', true)
-    if (d) { edit(d) }
-  } else if (name === 'add-parent') {
-    const seleData = getSelectedGData()
-    const d = addParent(seleData.id, '')
-    if (d) { edit(d) }
-  } else if (name === 'copy') {
-    const seleData = getSelectedGData()
-    const rawdata = mmdata.find(seleData.id)?.rawData
-    if (rawdata) {
-      // navigator.clipboard.write
-      navigator.clipboard.writeText(JSON.stringify(rawdata))
-    }
-  } else if (name === 'paste') {
-    const seleData = getSelectedGData()
-    navigator.clipboard.readText().then(clipText => {
-      const rawdata = isData(clipText) || { name: clipText }
-      add(seleData.id, rawdata.name)
-    })
+  switch (name) {
+    case 'zoomfit': fitView(); break
+    case 'zoomin': scaleView(true); break
+    case 'zoomout': scaleView(true); break
+    case 'add': addAndEdit(new MouseEvent('click'), getSelectedGData()); break
+    case 'delete': del(getSelectedGData().id); break
+    case 'collapse': collapse(getSelectedGData().id); break
+    case 'expand': expand(getSelectedGData().id); break
+    case 'add-sibling': {
+      const seleData = getSelectedGData()
+      const d = addSibling(seleData.id, '')
+      if (d) { edit(d) }
+    } break
+    case 'add-sibling-before': {
+      const seleData = getSelectedGData()
+      const d = addSibling(seleData.id, '', true)
+      if (d) { edit(d) }
+    } break
+    case 'add-parent': {
+      const seleData = getSelectedGData()
+      const d = addParent(seleData.id, '')
+      if (d) { edit(d) }
+    } break
+    case 'copy': {
+      const seleData = getSelectedGData()
+      const rawdata = mmdata.find(seleData.id)?.rawData
+      if (rawdata) {
+        // navigator.clipboard.write
+        navigator.clipboard.writeText(JSON.stringify(rawdata))
+      }
+    } break
+    case 'paste': {
+      const seleData = getSelectedGData()
+      navigator.clipboard.readText().then(clipText => {
+        const rawdata = isData(clipText) || { name: clipText }
+        add(seleData.id, rawdata.name)
+      })
+    } break
+    default: break
   }
 }
 
