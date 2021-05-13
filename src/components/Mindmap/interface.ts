@@ -7,6 +7,18 @@ export interface Data {
   collapse?: boolean
 }
 
+export interface TreeData {
+  rawData: Data
+  width: number
+  height: number
+  x: number
+  y: number
+  children: TreeData[]
+  _children: TreeData[]
+  left: boolean,
+  collapse: boolean
+}
+
 export interface Mdata {
   rawData: Data
   name: string

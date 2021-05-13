@@ -1,23 +1,11 @@
 import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as d3Scale from 'd3-scale'
-import { Data, Mdata, IsMdata } from '@/components/Mindmap/interface'
+import { Data, Mdata, IsMdata, TreeData } from '@/components/Mindmap/interface'
 import { BoundingBox, Layout } from './flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
 type Processer = (d: Mdata, id: string) => void
 type Temp = { collapse: boolean, children: Temp[], left: boolean, parent?: Temp | null }
-
-interface TreeData {
-  rawData: Data
-  width: number
-  height: number
-  x: number
-  y: number
-  children: TreeData[]
-  _children: TreeData[]
-  left: boolean,
-  collapse: boolean
-}
 
 function initTreeData (d: Data, getSize: GetSize, left = !!d.left) {
   const size = getSize(d.name)
@@ -150,10 +138,14 @@ class ImData {
   ) {
     this.colorScale = colorScale
     this.getSize = getSize
-    const data = initTreeData(d, getSize)
     this.layout = getLayout(xGap, yGap)
+    this.data = this.c(d)
+  }
+
+  c (d: Data): Mdata {
+    const data = initTreeData(d, this.getSize)
     const result = this.l(data)
-    this.data = this.init(result)
+    return this.init(result)
   }
 
   getRootWidth (): number { return this.rootWidth }
@@ -224,6 +216,45 @@ class ImData {
         data._children.push(this.init(c, `${id}-${j}`, data, color))
       })
     }
+    return data
+  }
+
+  initMdata(d: TreeData, id: string, p: Mdata): Mdata {
+    const { children, collapse, width: height, height: width, rawData, left } = d
+    const data: Mdata = {
+      id,
+      name: rawData.name,
+      rawData,
+      parent: p,
+      left,
+      collapse,
+      color: p.color,
+      gKey: this.gKey += 1,
+      width,
+      height,
+      depth: p.depth + 1,
+      x: 0,
+      y: 0,
+      dx: 0,
+      dy: 0,
+      px: 0,
+      py: 0,
+      children: [],
+      _children: []
+    }
+
+    if (children) {
+      const dataChildren: Mdata[] = []
+      if (collapse) {
+        data._children = dataChildren
+      } else {
+        data.children = dataChildren
+      }
+      children.forEach((child, index) => {
+        dataChildren.push(this.initMdata(child, `${data.id}-${index}`, data))
+      })
+    }
+
     return data
   }
 
@@ -335,39 +366,50 @@ class ImData {
     return null
   }
 
-  add (id: string, name: string): IsMdata {
+  add (id: string, variable: string | Data): IsMdata {
     const p = this.find(id)
     if (p && !p.collapse) {
       if (!p.children) { p.children = [] }
       if (!p.rawData.children) { p.rawData.children = [] }
-      const size = this.getSize(name)
-      const rawData: Data = { name }
-      const color = p.color ? p.color : this.colorScale(`${this.colorNumber += 1}`)
-      const d: Mdata = {
-        id: `${p.id}-${p.children.length}`,
-        name,
-        rawData,
-        parent: p,
-        left: p.left,
-        collapse: false,
-        color,
-        gKey: this.gKey += 1,
-        width: size.width,
-        height: size.height,
-        depth: p.depth + 1,
-        x: 0,
-        y: 0,
-        dx: 0,
-        dy: 0,
-        px: 0,
-        py: 0,
-        children: [],
-        _children: []
+      if (typeof variable === 'string') {
+        const name = variable
+        const size = this.getSize(name)
+        const rawData: Data = { name }
+        const color = p.color ? p.color : this.colorScale(`${this.colorNumber += 1}`)
+        const d: Mdata = {
+          id: `${p.id}-${p.children.length}`,
+          name,
+          rawData,
+          parent: p,
+          left: p.left,
+          collapse: false,
+          color,
+          gKey: this.gKey += 1,
+          width: size.width,
+          height: size.height,
+          depth: p.depth + 1,
+          x: 0,
+          y: 0,
+          dx: 0,
+          dy: 0,
+          px: 0,
+          py: 0,
+          children: [],
+          _children: []
+        }
+        p.children.push(d)
+        p.rawData.children.push(rawData)
+        this.renew()
+        return d
+      } else {
+        const rawData = variable
+        const tree = initTreeData(rawData, this.getSize)
+        const m = this.initMdata(tree, `${p.id}-${p.children.length}`, p)
+        p.children.push(m)
+        p.rawData.children.push(rawData)
+        this.renew()
+        return m
       }
-      p.children.push(d)
-      p.rawData.children.push(rawData)
-      this.renew()
-      return d
     }
     return null
   }

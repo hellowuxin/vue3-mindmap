@@ -139,7 +139,7 @@ export const onClickMenu = (name: MenuEvent): void => {
       const seleData = getSelectedGData()
       navigator.clipboard.readText().then(clipText => {
         const rawdata = isData(clipText) || { name: clipText }
-        add(seleData.id, rawdata.name)
+        add(seleData.id, rawdata)
       })
     } break
     default: break

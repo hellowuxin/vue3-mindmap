@@ -1,7 +1,7 @@
 import emitter from '@/mitt'
 import cloneDeep from 'lodash.clonedeep'
 import { draw } from '../draw'
-import { IsMdata } from '../interface'
+import { Data, IsMdata } from '../interface'
 import { snapshot, updateTimeTravelState } from '../state'
 import { mmcontext } from '../variable'
 import ImData from './ImData'
@@ -30,7 +30,7 @@ export const moveSibling = (id: string, referenceId: string, after = 0): void =>
   mmdata.moveSibling(id, referenceId, after)
   afterOperation()
 }
-export const add = (id: string, name: string): IsMdata => {
+export const add = (id: string, name: string | Data): IsMdata => {
   const d = mmdata.add(id, name)
   afterOperation()
   return d
