@@ -1,41 +1,11 @@
 import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as d3Scale from 'd3-scale'
-import { Data, Mdata, IsMdata, TreeData } from '@/components/Mindmap/interface'
+import { Data, Mdata, IsMdata } from '@/components/Mindmap/interface'
 import { BoundingBox, Layout } from './flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
 type Processer = (d: Mdata, id: string) => void
 type Temp = { collapse: boolean, children: Temp[], left: boolean, parent?: Temp | null }
-
-function initTreeData (d: Data, getSize: GetSize, left = !!d.left) {
-  const size = getSize(d.name)
-  const data: TreeData = {
-    rawData: d,
-    width: size.height,
-    height: size.width,
-    x: 0,
-    y: 0,
-    children: [],
-    _children: [],
-    left,
-    collapse: !!d.collapse
-  }
-
-  const { children, collapse } = d
-  if (children) {
-    const dataChildren: TreeData[] = []
-    if (collapse) {
-      data._children = dataChildren
-    } else {
-      data.children = dataChildren
-    }
-    children.forEach((child) => {
-      dataChildren.push(initTreeData(child, getSize, left || child.left))
-    })
-  }
-
-  return data
-}
 
 const swapWidthAndHeight = (d: Mdata) => [d.width, d.height] = [d.height, d.width]
 
@@ -139,22 +109,49 @@ class ImData {
     this.colorScale = colorScale
     this.getSize = getSize
     this.layout = getLayout(xGap, yGap)
-    this.data = this.c(d)
+    this.data = this.createMdataFromData(d, '0')
+    this.renew()
   }
 
-  c (d: Data): Mdata {
-    const data = initTreeData(d, this.getSize)
-    const result = this.l(data)
-    return this.init(result)
-  }
+  private createMdataFromData (rawData: Data, id: string, parent: IsMdata = null): Mdata {
+    const { name, collapse, children: rawChildren } = rawData
+    const { width, height } = this.getSize(name)
+    const depth = parent ? parent.depth + 1 : 0
+    let left = false
+    let color = parent ? parent.color : ''
+    if (depth === 1) {
+      left = !!rawData.left
+      color = this.colorScale(`${this.colorNumber += 1}`)
+    } else if (depth !== 0 && parent) {
+      left = parent.left
+    }
+    const data: Mdata = {
+      id, name, rawData, parent, left, color, depth,
+      x: 0, y: 0, dx: 0, dy: 0, px: 0, py: 0,
+      width, height, children: [], _children: [],
+      collapse: !!collapse,
+      gKey: this.gKey += 1,
+    }
+    if (rawChildren) {
+      if (!data.collapse) {
+        rawChildren.forEach((c, j) => {
+          data.children.push(this.createMdataFromData(c, `${id}-${j}`, data))
+        })
+      } else {
+        rawChildren.forEach((c, j) => {
+          data._children.push(this.createMdataFromData(c, `${id}-${j}`, data))
+        })
+      }
+    }
 
-  getRootWidth (): number { return this.rootWidth }
+    return data
+  }
 
   /**
    * 默认更新x, y, dx, dy, left
    * @param plugins - 需要更新其他属性时的函数
    */
-  renew (...plugins: Processer[]): void {
+  private renew (...plugins: Processer[]): void {
     traverse(this.data, [swapWidthAndHeight, renewLeft])
     this.data = this.l(this.data)
     const temp: Processer[] = [swapWidthAndHeight, this.renewXY.bind(this), renewDelta]
@@ -164,7 +161,7 @@ class ImData {
   /**
    * 分别计算左右树，最后合并成一颗树，右树为主树
    */
-  l <T extends TreeData | Mdata>(data: T): T {
+  private l (data: Mdata): Mdata {
     const { left, right } = separateLeftAndRight(data)
     this.layout.layout(left) // 更新x,y
     this.layout.layout(right)
@@ -174,97 +171,15 @@ class ImData {
     return right
   }
 
-  init (d: TreeData, id = '0', p: IsMdata = null, c?: string): Mdata {
-    this.renewXY(d)
-    const { left, collapse, width: height, height: width, x, y, rawData } = d
-    let color = ''
-    let px = x
-    let py = y
-    if (p) {
-      px = p.x
-      py = p.y
-      color = c || this.colorScale(`${this.colorNumber += 1}`)
-    }
-    const data: Mdata = {
-      x,
-      y,
-      width,
-      height,
-      id,
-      gKey: (this.gKey += 1),
-      depth: Math.floor(id.length / 2),
-      name: rawData.name,
-      px: 0,
-      py: 0,
-      rawData,
-      parent: p,
-      color,
-      left,
-      collapse,
-      dx: x - px,
-      dy: y - py,
-      children: [],
-      _children: []
-    }
-    if (d.children && !data.collapse) {
-      d.children.forEach((c, j) => {
-        data.children.push(this.init(c, `${id}-${j}`, data, color))
-      })
-    }
-    if (d._children && data.collapse) {
-      d._children.forEach((c, j) => {
-        data._children.push(this.init(c, `${id}-${j}`, data, color))
-      })
-    }
-    return data
-  }
-
-  initMdata(d: TreeData, id: string, p: Mdata): Mdata {
-    const { children, collapse, width: height, height: width, rawData, left } = d
-    const data: Mdata = {
-      id,
-      name: rawData.name,
-      rawData,
-      parent: p,
-      left,
-      collapse,
-      color: p.color,
-      gKey: this.gKey += 1,
-      width,
-      height,
-      depth: p.depth + 1,
-      x: 0,
-      y: 0,
-      dx: 0,
-      dy: 0,
-      px: 0,
-      py: 0,
-      children: [],
-      _children: []
-    }
-
-    if (children) {
-      const dataChildren: Mdata[] = []
-      if (collapse) {
-        data._children = dataChildren
-      } else {
-        data.children = dataChildren
-      }
-      children.forEach((child, index) => {
-        dataChildren.push(this.initMdata(child, `${data.id}-${index}`, data))
-      })
-    }
-
-    return data
-  }
-
-  renewXY (d: Mdata | TreeData): void {
+  private renewXY (d: Mdata): void {
     [d.x, d.y] = [d.y, d.x]
     if (d.left) {
       d.x = -d.x + this.rootWidth
       d.y += this.diffY
     }
   }
+
+  getRootWidth (): number { return this.rootWidth }
 
   setBoundingBox (xGap: number, yGap: number): void {
     this.layout = getLayout(xGap, yGap)
@@ -403,8 +318,7 @@ class ImData {
         return d
       } else {
         const rawData = variable
-        const tree = initTreeData(rawData, this.getSize)
-        const m = this.initMdata(tree, `${p.id}-${p.children.length}`, p)
+        const m = this.createMdataFromData(rawData, `${p.id}-${p.children.length}`, p)
         p.children.push(m)
         p.rawData.children.push(rawData)
         this.renew()
