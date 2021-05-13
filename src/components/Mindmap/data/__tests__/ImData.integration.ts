@@ -2,6 +2,7 @@ import ImData from '../ImData'
 import learnData from '@/learn.json'
 import { xGap, yGap, getSize } from './config'
 import { cloneDeep } from 'lodash'
+import { Data } from '../../interface'
 
 describe('思维导图数据-集成测试', () => {
   let mmdata = new ImData(JSON.parse(JSON.stringify(learnData[0])), xGap, yGap, getSize)
@@ -27,5 +28,18 @@ describe('思维导图数据-集成测试', () => {
       expect(d).toBeTruthy()
       expect(d?.name).toBe('子节点')
     }
+  })
+
+  it('添加新子树时，颜色保持一致', () => {
+    const tree: Data = {
+      name: '1',
+      children: [
+        { name: '2' },
+        { name: '3' },
+      ]
+    }
+    const p = mmdata.find('0-0')
+    const d = mmdata.add('0-0', tree)
+    expect(d?.color).toBe(p?.color)
   })
 })

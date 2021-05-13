@@ -2,6 +2,7 @@ import ImData from '../ImData'
 import learnData from '@/learn.json'
 import { xGap, yGap, getSize } from './config'
 import { cloneDeep } from 'lodash'
+import { Data } from '../../interface'
 
 describe('思维导图数据-单元测试', () => {
   let mmdata = new ImData(JSON.parse(JSON.stringify(learnData[0])), xGap, yGap, getSize)
@@ -36,6 +37,22 @@ describe('思维导图数据-单元测试', () => {
     it('目标节点处于折叠状态下时，添加失败', () => {
       const d = mmdata.add('0-1', '子节点')
       expect(d).toBeNull()
+    })
+
+    it('添加新子树', () => {
+      const tree: Data = {
+        name: '1',
+        children: [
+          { name: '2' },
+          { name: '3' },
+        ]
+      }
+      const d = mmdata.add('0-0', tree)
+      expect(d?.id).toBe('0-0-5')
+      expect(d?.name).toBe('1')
+      expect(d?.children[0].id).toBe('0-0-5-0')
+      expect(d?.children[0].name).toBe('2')
+      expect(d).toMatchSnapshot()
     })
   })
 
