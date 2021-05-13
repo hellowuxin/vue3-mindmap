@@ -1,5 +1,24 @@
 # Changelog
 
+### [0.5.6](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.5...v0.5.6) (2021-05-13)
+
+
+### Features
+
+* 新增节点被遮挡时，移动至可见 ([a534ac7](https://github.com/hellowuxin/vue3-mindmap/commit/a534ac7c961844018e98459151f5d18c60f29ea4))
+* 现在可以复制和粘贴单个节点 ([51ac02c](https://github.com/hellowuxin/vue3-mindmap/commit/51ac02c0c54687b9a2093b192b4d275a056f8026))
+* 现在可以复制粘贴子树 ([843528d](https://github.com/hellowuxin/vue3-mindmap/commit/843528d5cf06a24715bc608724e249db26ce1f00))
+* 编辑文本时也保持可见 ([e1cf965](https://github.com/hellowuxin/vue3-mindmap/commit/e1cf9656389d094ba2088cce4a904e420b02462d))
+
+
+### Bug Fixes
+
+* 修正判断是否遮挡的元素 ([92908a5](https://github.com/hellowuxin/vue3-mindmap/commit/92908a525ed464d65b7d6a72da94036758615efa))
+* 修正当更新asstSvg内容时，可能挤占空间的错误情况 ([09e6f0f](https://github.com/hellowuxin/vue3-mindmap/commit/09e6f0f420ded45edb8fadefa36c66368b4248e6))
+* 增加元素与视图的空隙，方便区分 ([b77b430](https://github.com/hellowuxin/vue3-mindmap/commit/b77b4306ad3771c044eba8ce7191be8d106cf4e6))
+* 当元素宽度或高度超过视图的宽度或高度，保持右下角可见 ([f93d531](https://github.com/hellowuxin/vue3-mindmap/commit/f93d5319167157276dd09bc611e6f6c0b69dc6c6))
+* 避免产生空隙 ([2ae4939](https://github.com/hellowuxin/vue3-mindmap/commit/2ae4939d29bd4d42460db21394a49e70c6c49900))
+
 ### [0.5.5](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.4...v0.5.5) (2021-05-09)
 
 
