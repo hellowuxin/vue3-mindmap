@@ -42,4 +42,12 @@ describe('思维导图数据-集成测试', () => {
     const d = mmdata.add('0-0', tree)
     expect(d?.color).toBe(p?.color)
   })
+
+  it('删除单个目标节点', () => {
+    mmdata.deleteOne('0-2')
+    const d = mmdata.find('0-2')
+    expect(d?.name).toBe('选择集')
+    expect(d?.depth).toBe(1)
+    expect(d?.left).toBe(true)
+  })
 })

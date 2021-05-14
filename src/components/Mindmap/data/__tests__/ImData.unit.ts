@@ -63,6 +63,13 @@ describe('思维导图数据-单元测试', () => {
     })
   })
 
+  describe('删除单个目标节点', () => {
+    it('删除成功', () => {
+      mmdata.deleteOne('0-1')
+      expect(mmdata.data).toMatchSnapshot()
+    })
+  })
+
   describe('修改目标节点内容' , () => {
     it('修改成功', () => {
       const name = '新安装'
