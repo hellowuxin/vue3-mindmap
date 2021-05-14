@@ -34,9 +34,11 @@ describe('思维导图数据-单元测试', () => {
       expect(d).toMatchSnapshot()
     })
 
-    it('目标节点处于折叠状态下时，添加失败', () => {
+    it('目标节点处于折叠状态下时，转换为展开状态并添加成功', () => {
       const d = mmdata.add('0-1', '子节点')
-      expect(d).toBeNull()
+      expect(d?.parent?.collapse).toBeFalsy()
+      expect(d?.id).toBe('0-1-1')
+      expect(d?.name).toBe('子节点')
     })
 
     it('添加新子树', () => {
