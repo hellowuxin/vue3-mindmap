@@ -91,6 +91,7 @@ export const onContextmenu = (e: MouseEvent): void => {
     if (!classList.contains(style.selected)) { selectGNode(gNode as SVGGElement) }
     ctm.addItem.value.disabled = collapseFlag
     ctm.deleteItem.value.disabled = isRoot
+    ctm.cutItem.value.disabled = isRoot
     ctm.addSiblingItem.value.disabled = isRoot
     ctm.addSiblingBeforeItem.value.disabled = isRoot
     ctm.addParentItem.value.disabled = isRoot
@@ -126,6 +127,15 @@ export const onClickMenu = (name: MenuEvent): void => {
       const seleData = getSelectedGData()
       const d = addParent(seleData.id, '')
       if (d) { edit(d) }
+    } break
+    case 'cut': {
+      const { id } = getSelectedGData()
+      const rawdata = mmdata.find(id)?.rawData
+      if (rawdata) {
+        // navigator.clipboard.write
+        navigator.clipboard.writeText(JSON.stringify(rawdata))
+      }
+      del(id)
     } break
     case 'copy': {
       const seleData = getSelectedGData()
