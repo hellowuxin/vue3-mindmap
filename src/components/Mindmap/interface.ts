@@ -22,7 +22,7 @@ export interface TreeData {
 export interface Mdata {
   rawData: Data
   name: string
-  parent: Mdata | null
+  parent: IsMdata
   children: Array<Mdata>
   _children: Array<Mdata> // 当折叠时保存children数据
   left: boolean
@@ -48,8 +48,8 @@ export interface TspanData {
 }
 
 export type Transition = d3.Transition<d3.BaseType, Mdata, d3.BaseType, unknown>
-export type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null>
-export type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, Mdata | null>
-export type SelectionCircle = d3.Selection<SVGCircleElement, Mdata, SVGGElement, Mdata | null>
+export type SelectionG = d3.Selection<SVGGElement, Mdata, SVGGElement, IsMdata>
+export type SelectionRect = d3.Selection<SVGRectElement, Mdata, SVGGElement, IsMdata>
+export type SelectionCircle = d3.Selection<SVGCircleElement, Mdata, SVGGElement, IsMdata>
 export type TwoNumber = [number, number]
 export type IsMdata = Mdata | null

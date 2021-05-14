@@ -22,7 +22,7 @@ export const updateTspan = (
   return update
 }
 
-export const appendAddBtn = (g: SelectionG): d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null> => {
+export const appendAddBtn = (g: SelectionG): d3.Selection<SVGGElement, Mdata, SVGGElement, IsMdata> => {
   const gAddBtn = g.append('g')
   attrAddBtnRect(gAddBtn.append('rect'))
   gAddBtn.append('path').attr('d', getAddPath(2, addBtnRect.side))
@@ -35,7 +35,7 @@ const appendAndBindAddBtn = (g: SelectionG) => {
   return gAddBtn
 }
 
-export const appendExpandBtn = (g: SelectionG): d3.Selection<SVGGElement, Mdata, SVGGElement, Mdata | null> => {
+export const appendExpandBtn = (g: SelectionG): d3.Selection<SVGGElement, Mdata, SVGGElement, IsMdata> => {
   const expandBtn = g.append('g')
   attrExpandBtnRect(expandBtn.append('rect'))
   attrExpandBtnCircle(expandBtn.append('circle'), -4)
@@ -60,7 +60,7 @@ const bindEvent = (g: SelectionG, isRoot: boolean) => {
   }
 }
 
-const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, Mdata | null>) => {
+const appendNode = (enter: d3.Selection<d3.EnterElement, Mdata, SVGGElement, IsMdata>) => {
   const isRoot = !enter.data()[0]?.depth
   const enterG = enter.append('g')
   attrG(enterG)

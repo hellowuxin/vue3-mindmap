@@ -33,7 +33,7 @@ export const attrG = (g: SelectionG, tran?: Transition): void => {
   g2.attr('transform', getGTransform)
 }
 
-export const attrText = (text: d3.Selection<SVGTextElement, Mdata, SVGGElement, Mdata | null>, tran?: Transition): void => {
+export const attrText = (text: d3.Selection<SVGTextElement, Mdata, SVGGElement, IsMdata>, tran?: Transition): void => {
   const t1 = tran ? text.transition(tran) : text
   t1.attr('transform', (d) => `translate(${d.left ? -d.width : 0},0)`)
 }
@@ -94,7 +94,7 @@ export const attrTrigger = (rect: SelectionRect, padding: number): void => {
 }
 
 export const attrPath = (
-  p: d3.Selection<SVGPathElement, Mdata, SVGGElement, Mdata | null>,
+  p: d3.Selection<SVGPathElement, Mdata, SVGGElement, IsMdata>,
   tran?: Transition
 ): void => {
   const p1 = p.attr('stroke', (d) => d.color).attr('stroke-width', branch)
