@@ -282,8 +282,8 @@ class ImData {
 
   add (id: string, variable: string | Data): IsMdata {
     const p = this.find(id)
-    if (p && !p.collapse) {
-      if (!p.children) { p.children = [] }
+    if (p) {
+      if (p.collapse) { this.expand(id) }
       if (!p.rawData.children) { p.rawData.children = [] }
       if (typeof variable === 'string') {
         const name = variable
@@ -324,6 +324,7 @@ class ImData {
         return m
       }
     }
+
     return null
   }
 

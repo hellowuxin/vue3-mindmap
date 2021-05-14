@@ -89,7 +89,6 @@ export const onContextmenu = (e: MouseEvent): void => {
     const isRoot = classList.contains(style.root)
     const collapseFlag = classList.contains(style['collapse'])
     if (!classList.contains(style.selected)) { selectGNode(gNode as SVGGElement) }
-    ctm.addItem.value.disabled = collapseFlag
     ctm.deleteItem.value.disabled = isRoot
     ctm.cutItem.value.disabled = isRoot
     ctm.deleteOneItem.value.disabled = isRoot
