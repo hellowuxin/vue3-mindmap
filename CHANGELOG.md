@@ -1,5 +1,14 @@
 # Changelog
 
+### [0.5.7](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.6...v0.5.7) (2021-05-14)
+
+
+### Features
+
+* 现在可以剪切节点 ([3db4349](https://github.com/hellowuxin/vue3-mindmap/commit/3db43498ac6bf96e929c1d7fe6af8c7d03691903))
+* 现在可以只删除单个节点 ([69678df](https://github.com/hellowuxin/vue3-mindmap/commit/69678df3a837bc950cafd2667f027401f4d50375))
+* 现在折叠状态下也可以添加子节点 ([b206658](https://github.com/hellowuxin/vue3-mindmap/commit/b20665871519a35bd9d8fbdcdb41a96031fc9cdc))
+
 ### [0.5.6](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.5...v0.5.6) (2021-05-13)
 
 
