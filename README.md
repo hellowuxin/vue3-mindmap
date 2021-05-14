@@ -85,7 +85,6 @@ export default defineComponent({
 
 ## Todo
 
-- 复制节点
 - 多选节点
 - 多主节点
 - 更多节点样式
