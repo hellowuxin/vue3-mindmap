@@ -3,7 +3,7 @@ import { scaleExtent, zoomTransform } from '.'
 
 export type MenuEvent = 'zoomin' | 'zoomout' | 'zoomfit' | 'add' | 'delete' |
   'selectall' | 'collapse' | 'expand' | 'add-sibling' | 'add-sibling-before' |
-  'add-parent' | 'copy' | 'paste' | 'cut'
+  'add-parent' | 'copy' | 'paste' | 'cut' | 'delete-one'
 export interface MenuItem {
   title: string
   name: string
@@ -21,11 +21,12 @@ export const addSiblingBeforeItem: Ref<MenuItem> = ref({ title: '在此之前新
 export const cutItem: Ref<MenuItem> = ref({ title: '剪切', name: 'cut', disabled: false })
 export const copyItem: Ref<MenuItem> = ref({ title: '拷贝', name: 'copy', disabled: false })
 export const pasteItem: Ref<MenuItem> = ref({ title: '粘贴', name: 'paste', disabled: false })
+export const deleteOneItem: Ref<MenuItem> = ref({ title: '删除单个节点', name: 'delete-one', disabled: false })
 
 
 const nodeMenu = computed<MenuItem[][]>(() => [
   [ addItem.value, addParentItem.value, addSiblingItem.value, addSiblingBeforeItem.value ],
-  [ cutItem.value, copyItem.value, pasteItem.value, deleteItem.value ],
+  [ cutItem.value, copyItem.value, pasteItem.value, deleteItem.value, deleteOneItem.value ],
   [ { title: '全选', name: 'selectall', disabled: true } ],
   [ collapseItem.value, expandItem.value ]
 ])

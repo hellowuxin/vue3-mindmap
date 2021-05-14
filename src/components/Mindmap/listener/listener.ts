@@ -3,7 +3,7 @@ import { ctm, editFlag, selection, textRectPadding, zoomTransform } from '../var
 import * as d3 from '../d3'
 import { Mdata } from '../interface'
 import { fitView, getRelativePos, getSelectedGData, isData, moveNode, moveView, scaleView, selectGNode } from '../assistant'
-import { add, addParent, addSibling, changeLeft, collapse, del, expand, mmdata, moveChild, moveSibling, rename } from '../data'
+import { add, addParent, addSibling, changeLeft, collapse, del, delOne, expand, mmdata, moveChild, moveSibling, rename } from '../data'
 import { svgEle, gEle, foreignDivEle, wrapperEle, foreignEle } from '../variable/element'
 import emitter from '@/mitt'
 import { getDataId, getSiblingGClass } from '../attribute'
@@ -92,6 +92,7 @@ export const onContextmenu = (e: MouseEvent): void => {
     ctm.addItem.value.disabled = collapseFlag
     ctm.deleteItem.value.disabled = isRoot
     ctm.cutItem.value.disabled = isRoot
+    ctm.deleteOneItem.value.disabled = isRoot
     ctm.addSiblingItem.value.disabled = isRoot
     ctm.addSiblingBeforeItem.value.disabled = isRoot
     ctm.addParentItem.value.disabled = isRoot
@@ -111,6 +112,7 @@ export const onClickMenu = (name: MenuEvent): void => {
     case 'zoomout': scaleView(true); break
     case 'add': addAndEdit(new MouseEvent('click'), getSelectedGData()); break
     case 'delete': del(getSelectedGData().id); break
+    case 'delete-one': delOne(getSelectedGData().id); break
     case 'collapse': collapse(getSelectedGData().id); break
     case 'expand': expand(getSelectedGData().id); break
     case 'add-sibling': {

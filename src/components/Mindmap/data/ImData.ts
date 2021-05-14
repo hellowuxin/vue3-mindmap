@@ -5,7 +5,6 @@ import { BoundingBox, Layout } from './flextree'
 
 type GetSize = (text: string) => { width: number, height: number }
 type Processer = (d: Mdata, id: string) => void
-type Temp = { collapse: boolean, children: Temp[], left: boolean, parent?: Temp | null }
 
 const swapWidthAndHeight = (d: Mdata) => [d.width, d.height] = [d.height, d.width]
 
@@ -40,7 +39,7 @@ const renewLeft = (d: Mdata) => {
   }
 }
 
-const separateLeftAndRight = <T extends Temp >(d: T): { left: T, right: T } => {
+const separateLeftAndRight = (d: Mdata): { left: Mdata, right: Mdata } => {
   const ld = Object.assign({}, d)
   const rd = Object.assign({}, d)
   if (d.collapse) {
@@ -148,11 +147,11 @@ class ImData {
   }
 
   /**
-   * 默认更新x, y, dx, dy, left
+   * 默认更新x, y, dx, dy, left, depth
    * @param plugins - 需要更新其他属性时的函数
    */
   private renew (...plugins: Processer[]): void {
-    traverse(this.data, [swapWidthAndHeight, renewLeft])
+    traverse(this.data, [swapWidthAndHeight, renewDepth, renewLeft])
     this.data = this.l(this.data)
     const temp: Processer[] = [swapWidthAndHeight, this.renewXY.bind(this), renewDelta]
     traverse(this.data, temp.concat(plugins))
@@ -247,7 +246,7 @@ class ImData {
         np.children.push(del)
       }
       np.rawData.children ? np.rawData.children.push(del.rawData) : np.rawData.children = [del.rawData]
-      this.renew(renewId, renewColor, renewDepth)
+      this.renew(renewId, renewColor)
     }
     return del
   }
@@ -355,6 +354,21 @@ class ImData {
     }
   }
 
+  deleteOne (id: string): void {
+    const del = this.find(id)
+    if (del && del.parent) {
+      const { parent, children, _children, collapse, rawData } = del
+      const index = parseInt(id.split('-').pop() as string, 10)
+      parent.children.splice(index, 1, ...(collapse ? _children : children))
+      parent.rawData.children?.splice(index, 1, ...(rawData.children || []))
+      children.forEach(c => {
+        c.parent = parent
+        if (c.depth === 1) { c.rawData.left = c.left }
+      })
+      this.renew(renewId)
+    }
+  }
+
   addSibling (id: string, name: string, before = false): IsMdata {
     const d = this.find(id)
     if (d && d.parent) {
@@ -424,7 +438,7 @@ class ImData {
       }
       d.parent = p
       oldP.children.splice(index, 1, p)
-      this.renew(renewId, renewDepth)
+      this.renew(renewId)
       return p
     }
     return null

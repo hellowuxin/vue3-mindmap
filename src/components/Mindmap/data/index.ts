@@ -39,6 +39,10 @@ export const del = (id: string): void => {
   mmdata.delete(id)
   afterOperation()
 }
+export const delOne = (id: string): void => {
+  mmdata.deleteOne(id)
+  afterOperation()
+}
 export const expand = (id: string): void => {
   mmdata.expand(id)
   afterOperation()
