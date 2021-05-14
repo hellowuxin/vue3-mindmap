@@ -6,7 +6,7 @@
 
 > Mindmap component for Vue3 inspired by [MindNode](https://mindnode.com)
 
-live demo: <https://hellowuxin.github.io/vue3-mindmap/>
+live demo: <https://5xin.xyz/vue3-mindmap/>
 
 ## Install
 
