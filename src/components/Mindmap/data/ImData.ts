@@ -346,18 +346,12 @@ class ImData {
   }
 
   delete (id: string): void {
-    const idArr = id.split('-')
-    if (idArr.length >= 2) { // 有parent
-      const delIndex = idArr.pop()
-      const parent = this.find(idArr.join('-'))
-      if (delIndex && parent) {
-        if (parent.children) {
-          parent.children[~~delIndex].id = 'del' // 更新id时删除
-        }
-      }
+    const del = this.find(id)
+    if (del && del.parent) {
+      del.id = 'del'
       this.renew(renewId)
     } else {
-      throw new Error('暂不支持删除根节点')
+      throw new Error(del ? '暂不支持删除根节点' : '未找到需要删除的节点')
     }
   }
 
