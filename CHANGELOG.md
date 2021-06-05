@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.8](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.7...v0.5.8) (2021-06-05)
+
+
+### Bug Fixes
+
+* 修复编辑状态下换行的异常行为（[#12](https://github.com/hellowuxin/vue3-mindmap/issues/12)） ([654305c](https://github.com/hellowuxin/vue3-mindmap/commit/654305c818a5bd77497aa8844fb61f2f8d19e83a))
+
 ### [0.5.7](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.6...v0.5.7) (2021-05-14)
 
 
