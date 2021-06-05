@@ -35,7 +35,7 @@ export const getAddPath = (stroke: number, side: number): string => {
  */
 export const getMultiline = (str: string): string[] => {
   const multiline = str.split('\n')
-  if (multiline.length > 2 && multiline[multiline.length - 1] === '') {
+  if (multiline.length > 1 && multiline[multiline.length - 1] === '') {
     multiline.pop()
   }
   return multiline
