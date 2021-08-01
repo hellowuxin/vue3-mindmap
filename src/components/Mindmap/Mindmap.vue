@@ -49,6 +49,7 @@ export default defineComponent({
   components: {
     Contextmenu
   },
+  emits: ['update:modelValue'],
   props: {
     modelValue: {
       type: Array as PropType<Data[]>,

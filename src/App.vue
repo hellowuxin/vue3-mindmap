@@ -20,6 +20,7 @@
       :sharp-corner="checkboxList['sharp-corner'].value"
       :ctm="checkboxList['contextmenu'].value"
       :timetravel="checkboxList['timetravel'].value"
+      @update:model-value="onChange"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -67,11 +68,13 @@ export default defineComponent({
       'y-gap': { value: 18, min: 0, max: 100 }
     })
     const data = ref(learn)
+    const onChange = () => console.log('update:model-value')
 
     return {
       data,
       checkboxList,
-      rangeList
+      rangeList,
+      onChange
     }
   }
 })
