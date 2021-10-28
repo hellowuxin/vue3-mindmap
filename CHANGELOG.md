@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.9](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.8...v0.5.9) (2021-10-28)
+
+
+### Bug Fixes
+
+* edit为false时，右键菜单不可有编辑类型的选项（[#21](https://github.com/hellowuxin/vue3-mindmap/issues/21)） ([aff7101](https://github.com/hellowuxin/vue3-mindmap/commit/aff710137764ebaa9de5a75403c9a4626b436527))
+
 ### [0.5.8](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.7...v0.5.8) (2021-06-05)
 
 
