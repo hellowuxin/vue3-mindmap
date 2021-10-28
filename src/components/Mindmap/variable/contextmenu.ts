@@ -1,5 +1,5 @@
 import { computed, ref, Ref } from 'vue'
-import { scaleExtent, zoomTransform } from '.'
+import { mmprops, scaleExtent, zoomTransform } from '.'
 
 export type MenuEvent = 'zoomin' | 'zoomout' | 'zoomfit' | 'add' | 'delete' |
   'selectall' | 'collapse' | 'expand' | 'add-sibling' | 'add-sibling-before' |
@@ -29,7 +29,13 @@ const nodeMenu = computed<MenuItem[][]>(() => [
   [ cutItem.value, copyItem.value, pasteItem.value, deleteItem.value, deleteOneItem.value ],
   [ { title: '全选', name: 'selectall', disabled: true } ],
   [ collapseItem.value, expandItem.value ]
-])
+].filter((item, index) => {
+  if (index === 0 || index === 1) {
+    return mmprops.value.edit
+  } else {
+    return true
+  }
+}))
 
 const viewMenu = computed(() => [
   [

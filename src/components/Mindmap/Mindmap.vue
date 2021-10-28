@@ -87,8 +87,8 @@ export default defineComponent({
     watchEffect(() => emitter.emit('gap', { xGap: props.xGap, yGap: props.yGap }))
     watchEffect(() => emitter.emit('mindmap-context', context))
     watchEffect(() => addNodeBtn.value = props.edit && props.addNodeBtn)
-    watchEffect(() => mmprops.drag = props.drag)
-    watchEffect(() => mmprops.edit = props.edit)
+    watchEffect(() => mmprops.value.drag = props.drag)
+    watchEffect(() => mmprops.value.edit = props.edit)
     // onMounted
     onMounted(() => {
       if (!svgEle.value || !gEle.value || !asstSvgEle.value || !foreignEle.value || !foreignDivEle.value) { return }
