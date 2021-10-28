@@ -1,5 +1,7 @@
 # Changelog
 
+### [0.5.10](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.9...v0.5.10) (2021-10-28)
+
 ### [0.5.9](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.8...v0.5.9) (2021-10-28)
 
 
