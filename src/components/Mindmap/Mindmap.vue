@@ -43,6 +43,7 @@ import { draw } from './draw'
 import { switchZoom, switchEdit, switchSelect, switchContextmenu, switchDrag, onClickMenu } from './listener'
 import Contextmenu from '../Contextmenu.vue'
 import { cloneDeep } from 'lodash'
+import i18next from '../../i18n'
 
 export default defineComponent({
   name: 'Mindmap',
@@ -78,9 +79,12 @@ export default defineComponent({
     keyboard: Boolean,
     ctm: Boolean,
     zoom: Boolean,
+    // i18n
+    locale: { type: String as PropType<'zh' | 'en'>, default: 'zh' }
   },
   setup (props, context) {
     // 立即执行
+    watchEffect(() => i18next.changeLanguage(props.locale))
     watchEffect(() => emitter.emit('scale-extent', props.scaleExtent))
     watchEffect(() => emitter.emit('branch', props.branch))
     watchEffect(() => emitter.emit('sharp-corner', props.sharpCorner))
