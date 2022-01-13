@@ -43,6 +43,7 @@ import { draw } from './draw'
 import { switchZoom, switchEdit, switchSelect, switchContextmenu, switchDrag, onClickMenu } from './listener'
 import Contextmenu from '../Contextmenu.vue'
 import { cloneDeep } from 'lodash'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'Mindmap',
@@ -78,6 +79,8 @@ export default defineComponent({
     keyboard: Boolean,
     ctm: Boolean,
     zoom: Boolean,
+    // i18n
+    locale: String,
   },
   setup (props, context) {
     // 立即执行
@@ -111,6 +114,10 @@ export default defineComponent({
       })
       switchZoom(props.zoom)
       switchContextmenu(props.ctm)
+
+      // i18n
+      const { locale } = useI18n({ useScope: 'global' })
+      locale.value = props.locale
     })
     // watch
     watch(() => [props.branch, addNodeBtn.value, props.sharpCorner], () => {

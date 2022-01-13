@@ -15,7 +15,7 @@
           v-for="item in group"
           :key="item.name"
           @click="onClick(item.name)"
-        >{{ item.title }}</li>
+        >{{ t(`components.Contextmenu.${item.name}`) }}</li>
       </ul>
     </div>
   </div>
@@ -25,6 +25,7 @@
 import { defineComponent, useCssModule, PropType, ref, Ref, nextTick, reactive } from 'vue'
 import emitter from '@/mitt'
 import { MenuItem } from './Mindmap/variable/contextmenu'
+import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   name: 'contextmenu',
@@ -36,6 +37,7 @@ export default defineComponent({
   },
   emits: ['click-item'],
   setup (props, context) {
+    const { t } = useI18n()
     const show = ref(false)
     const style = useCssModule()
     const containerEle: Ref<HTMLDivElement | undefined> = ref()
@@ -66,7 +68,8 @@ export default defineComponent({
       onClick,
       menuEle,
       containerEle,
-      pos
+      pos,
+      t
     }
   }
 })

@@ -20,6 +20,7 @@
       :sharp-corner="checkboxList['sharp-corner'].value"
       :ctm="checkboxList['contextmenu'].value"
       :timetravel="checkboxList['timetravel'].value"
+      :locale="locale"
     ></mindmap>
     <div class="right-bottom">
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -38,6 +39,7 @@
 import learn from './learn.json'
 import { defineComponent, reactive, ref } from 'vue'
 import Mindmap from './components/Mindmap'
+import { PRIMARY_LOCALE } from './constants'
 
 type checkbox = { [key: string]: { value: boolean, disabled?: boolean } }
 
@@ -67,11 +69,13 @@ export default defineComponent({
       'y-gap': { value: 18, min: 0, max: 100 }
     })
     const data = ref(learn)
+    const locale = ref(PRIMARY_LOCALE)
 
     return {
       data,
       checkboxList,
-      rangeList
+      rangeList,
+      locale,
     }
   }
 })

@@ -1,0 +1,21 @@
+{
+  "components": {
+    "Contextmenu": {
+      "zoomin": "Zoom in",
+      "zoomout": "Zoom out",
+      "zoomfit": "Zoom fit",
+      "selectall": "Select all",
+      "collapse": "Collapse node",
+      "expand": "Expand node",
+      "add": "Add child node",
+      "delete": "Delete node",
+      "add-parent": "Add parent node",
+      "add-sibling": "Add sibling node",
+      "add-sibling-before": "Add sibling node before this",
+      "cut": "Cut",
+      "copy": "Copy",
+      "paste": "Paste",
+      "delete-one": "Delete a single node"
+    }
+  }
+}
