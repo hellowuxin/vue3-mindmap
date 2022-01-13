@@ -33,6 +33,7 @@ npm install vue3-mindmap
 | download-btn | Boolean          | false      | 是否显示下载按钮        |
 | sharp-corner | Boolean          | false      | 设置分支为圆角或直角     |
 | ctm          | Boolean          | false      | 是否响应右键菜单        |
+| locale       | 'zh' \| 'en'     | 'zh'       | i18n                   |
 
 ## Example
 
