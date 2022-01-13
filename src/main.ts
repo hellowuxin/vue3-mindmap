@@ -3,9 +3,11 @@ import App from './App.vue'
 import { createI18n } from 'vue-i18n'
 import zhMesasge from './locales/zh.json'
 import enMessage from './locales/en.json'
-import { PRIMARY_LOCALE, FALLBACK_LOCALE } from './constants'
 
 type MessageSchema = typeof zhMesasge
+
+const PRIMARY_LOCALE = 'zh'
+const FALLBACK_LOCALE = 'zh'
 
 const i18n = createI18n<[MessageSchema], 'zh' | 'en'>({
   legacy: false,
