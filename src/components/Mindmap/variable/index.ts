@@ -81,7 +81,7 @@ export const drag = d3.drag<SVGGElement, Mdata>().container(getDragContainer).on
 export const addNodeBtn = ref(false)
 export let mmcontext: SetupContext
 emitter.on<SetupContext>('mindmap-context', (val) => val ? mmcontext = val : null)
-export const mmprops = {
+export const mmprops = ref({
   drag: false,
   edit: false
-}
+})

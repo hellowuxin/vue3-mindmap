@@ -21,8 +21,16 @@
       :ctm="checkboxList['contextmenu'].value"
       :timetravel="checkboxList['timetravel'].value"
       @update:model-value="onChange"
+      :locale="locale"
     ></mindmap>
     <div class="right-bottom">
+      <div>
+        <label for="language-select">Language</label>
+        <select id="language-select" v-model="locale">
+          <option value="zh">简体中文</option>
+          <option value="en">English</option>
+        </select>
+      </div>
       <div v-for="(item, key) in checkboxList" :key="key">
         <input type="checkbox" :name="key.toString()" v-model="item.value" :disabled="item.disabled">
         <label :for="key.toString()">{{ key }}</label>
@@ -69,12 +77,14 @@ export default defineComponent({
     })
     const data = ref(learn)
     const onChange = () => console.log('update:model-value')
+    const locale = ref<'zh' | 'en'>('zh')
 
     return {
       data,
       checkboxList,
       rangeList,
       onChange
+      locale
     }
   }
 })

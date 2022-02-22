@@ -1,4 +1,4 @@
-import { TspanData, Mdata, SelectionG } from '@/components/Mindmap/interface'
+import { TspanData, Mdata, SelectionG, IsMdata } from '@/components/Mindmap/interface'
 import * as d3 from '../d3'
 import { attrA, attrAddBtnRect, attrExpandBtnCircle, attrExpandBtnRect, attrG, attrPath, attrText, attrTspan, getSiblingGClass, getTspanData } from '../attribute'
 import { getAddPath, makeTransition } from '../assistant'
@@ -47,11 +47,11 @@ export const appendExpandBtn = (g: SelectionG): d3.Selection<SVGGElement, Mdata,
 const bindEvent = (g: SelectionG, isRoot: boolean) => {
   const gExpandBtn = g.select(`:scope > g.${style.content} > g.${style['expand-btn']}`)
   gExpandBtn.on('click', onClickExpandBtn)
-  if (mmprops.drag || mmprops.edit) {
+  if (mmprops.value.drag || mmprops.value.edit) {
     const gText = g.select<SVGGElement>(`:scope > g.${style.content} > g.${style.text}`)
     gText.on('mousedown', onSelect)
-    if (mmprops.drag && !isRoot) { drag(gText) }
-    if (mmprops.edit) { gText.on('click', onEdit) }
+    if (mmprops.value.drag && !isRoot) { drag(gText) }
+    if (mmprops.value.edit) { gText.on('click', onEdit) }
   }
   if (addNodeBtn.value) {
     g.select<SVGGElement>(`:scope > g.${style.content}`)
