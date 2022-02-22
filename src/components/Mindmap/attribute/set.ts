@@ -1,4 +1,4 @@
-import { Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from '../interface'
+import { IsMdata, Mdata, SelectionCircle, SelectionG, SelectionRect, Transition, TspanData } from '../interface'
 import * as d3 from '../d3'
 import { addBtnRect, addBtnSide, branch, changeSharpCorner, expandBtnRect, rootTextRectPadding, rootTextRectRadius, textRectPadding } from '../variable'
 import { getAddBtnClass, getAddBtnTransform, getDataId, getExpandBtnTransform, getGClass, getGTransform, getPath } from './get'
