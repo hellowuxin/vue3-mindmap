@@ -22,7 +22,7 @@
       :timetravel="checkboxList['timetravel'].value"
       @update:model-value="onChange"
       :locale="locale"
-    ></mindmap>
+    />
     <div class="right-bottom">
       <div>
         <label for="language-select">Language</label>
@@ -83,7 +83,7 @@ export default defineComponent({
       data,
       checkboxList,
       rangeList,
-      onChange
+      onChange,
       locale
     }
   }
