@@ -81,7 +81,7 @@ export default defineComponent({
     ctm: Boolean,
     zoom: Boolean,
     // i18n
-    locale: { type: String as PropType<'zh' | 'en'>, default: 'zh' }
+    locale: { type: String as PropType<'zh' | 'en' | 'ptBR'>, default: 'zh' }
   },
   setup (props, context) {
     // 立即执行
