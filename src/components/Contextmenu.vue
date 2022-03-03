@@ -35,7 +35,7 @@ export default defineComponent({
     },
     groups: Array as PropType<MenuItem[][]>
   },
-  emits: ['click-item'],
+  emits: ['click-item', 'click-button'],
   setup (props, context) {
     const show = ref(false)
     const style = useCssModule()
@@ -58,6 +58,7 @@ export default defineComponent({
     const onClick = (name: string) => {
       close()
       context.emit('click-item', name)
+      context.emit('click-button', name)
     }
 
     return {

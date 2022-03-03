@@ -21,6 +21,7 @@
       :ctm="checkboxList['contextmenu'].value"
       :timetravel="checkboxList['timetravel'].value"
       @update:model-value="onChange"
+      @click-button="onClickButton"
       :locale="locale"
     />
     <div class="right-bottom">
@@ -80,11 +81,14 @@ export default defineComponent({
     const onChange = () => console.log('update:model-value')
     const locale = ref<'zh' | 'en' | 'ptBR'>('ptBR')
 
+    const onClickButton = (name: String) => console.log(name)
+
     return {
       data,
       checkboxList,
       rangeList,
       onChange,
+      onClickButton,
       locale
     }
   }

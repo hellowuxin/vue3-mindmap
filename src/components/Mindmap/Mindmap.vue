@@ -24,6 +24,7 @@
       :position="contextmenuPos"
       :groups="menu"
       @click-item="onClickMenu"
+      @click-button="onClickButton"
     ></contextmenu>
   </div>
 </template>
@@ -134,6 +135,8 @@ export default defineComponent({
     watch(() => props.zoom, (val) => switchZoom(val))
     watch(() => props.ctm, (val) => switchContextmenu(val))
 
+    const onClickButton = (name: String) => context.emit('click-button', name)
+
     return {
       wrapperEle,
       svgEle,
@@ -148,6 +151,7 @@ export default defineComponent({
       menu: ctm.menu,
       contextmenuPos: ctm.pos,
       onClickMenu,
+      onClickButton,
       next,
       prev,
       hasPrev,
