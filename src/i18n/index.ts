@@ -1,6 +1,7 @@
 import i18next from 'i18next'
 import zh from './zh'
 import en from './en'
+import ptBR from './ptBR'
 
 i18next.init({
   fallbackLng: 'zh',
@@ -8,7 +9,8 @@ i18next.init({
   // debug: true,
   resources: {
     zh,
-    en
+    en,
+    ptBR
   }
 })
 

@@ -31,7 +31,7 @@
 <script lang="ts">
 import emitter from '@/mitt'
 import { defineComponent, onMounted, PropType, watch, watchEffect } from 'vue'
-import { Data, TwoNumber } from './interface'
+import { Data, Locale, TwoNumber } from './interface'
 import style from './css'
 import * as d3 from './d3'
 import { afterOperation, ImData, mmdata } from './data'
@@ -81,7 +81,7 @@ export default defineComponent({
     ctm: Boolean,
     zoom: Boolean,
     // i18n
-    locale: { type: String as PropType<'zh' | 'en'>, default: 'zh' }
+    locale: { type: String as PropType<Locale>, default: 'zh' }
   },
   setup (props, context) {
     // 立即执行
