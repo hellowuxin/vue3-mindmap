@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.5.12](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.11...v0.5.12) (2022-03-05)
+
+
+### Features
+
+* emits: ['update:modelValue'] ([cf9fce9](https://github.com/hellowuxin/vue3-mindmap/commit/cf9fce9038ce60977fe3e3c308c1af92bed32c11))
+* 添加巴西葡萄牙语 ([2302ac8](https://github.com/hellowuxin/vue3-mindmap/commit/2302ac83dbfc2c694510573422be4b1349f6a88d))
+
 ### [0.5.11](https://github.com/hellowuxin/vue3-mindmap/compare/v0.5.9...v0.5.11) (2022-01-13)
 
 
