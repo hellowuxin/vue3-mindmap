@@ -29,6 +29,7 @@
         <select id="language-select" v-model="locale">
           <option value="zh">简体中文</option>
           <option value="en">English</option>
+          <option value="ptBR">Brazilian Portuguese</option>
         </select>
       </div>
       <div v-for="(item, key) in checkboxList" :key="key">
@@ -47,6 +48,7 @@
 import learn from './learn.json'
 import { defineComponent, reactive, ref } from 'vue'
 import Mindmap from './components/Mindmap'
+import { Locale } from './components/Mindmap/interface'
 
 type checkbox = { [key: string]: { value: boolean, disabled?: boolean } }
 
@@ -77,7 +79,7 @@ export default defineComponent({
     })
     const data = ref(learn)
     const onChange = () => console.log('update:model-value')
-    const locale = ref<'zh' | 'en'>('zh')
+    const locale = ref<Locale>('zh')
 
     return {
       data,
