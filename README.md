@@ -6,7 +6,8 @@
 
 > Mindmap component for Vue3 inspired by [MindNode](https://mindnode.com)
 
-live demo: <https://5xin.xyz/vue3-mindmap/>
+[live demo / 演示页面](https://5xin.xyz/vue3-mindmap)  
+[Directory Description / 目录说明](./Directory.md)
 
 ## Install
 
