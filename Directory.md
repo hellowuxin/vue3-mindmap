@@ -1,4 +1,4 @@
-```json
+```text
 src
 ├── App.vue // 演示页面
 ├── components // 核心组件
