@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 
 export default class Snapshot<T> {
   private length: number // 最大记录数
