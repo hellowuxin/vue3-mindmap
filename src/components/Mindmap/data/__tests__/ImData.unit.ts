@@ -1,7 +1,7 @@
 import ImData from '../ImData'
 import learnData from '@/learn.json'
 import { xGap, yGap, getSize } from './config'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 import { Data } from '../../interface'
 
 describe('思维导图数据-单元测试', () => {

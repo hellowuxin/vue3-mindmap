@@ -42,7 +42,7 @@ import { wrapperEle, svgEle, gEle, asstSvgEle, foreignEle, foreignDivEle  } from
 import { draw } from './draw'
 import { switchZoom, switchEdit, switchSelect, switchContextmenu, switchDrag, onClickMenu } from './listener'
 import Contextmenu from '../Contextmenu.vue'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 import i18next from '../../i18n'
 
 export default defineComponent({
@@ -62,7 +62,7 @@ export default defineComponent({
     branch: {
       type: Number,
       default: branch,
-      validator: (val: number) => val >= 1 && val <= 6 
+      validator: (val: number) => val >= 1 && val <= 6
     },
     scaleExtent: {
       type: Object as PropType<TwoNumber>,
