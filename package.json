@@ -34,6 +34,7 @@
     "d3-shape": "^2.1.0",
     "d3-transition": "^2.0.0",
     "d3-zoom": "^2.0.0",
+    "esbuild": "^0.17.19",
     "html2canvas": "^1.0.0-rc.7",
     "i18next": "^21.6.6",
     "lodash.clonedeep": "^4.5.0",

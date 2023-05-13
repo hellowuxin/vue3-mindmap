@@ -1,56 +1,131 @@
 [
   {
-    "name":"如何学习D3",
-    "children":
-    [
+    "name": " How to learn D3 ",
+    "children": [
       {
-        "name":"预备知识",
+        "name": " preliminary knowledge ",
         "children": [
-          { "name":"HTML & CSS" },
-          { "name":"JavaScript" },
-          { "name":"DOM" },
-          { "name":"SVG" },
-          { "name":"test\ntest" }
+          {
+            "name": "HTML & CSS",
+            "uuid": 123342
+          },
+          {
+            "name": "JavaScript"
+          },
+          {
+            "name": "DOM"
+          },
+          {
+            "name": "SVG"
+          },
+          {
+            "name": "test\ntest"
+          }
         ]
       },
-      { 
-        "name":"安装",
+      {
+        "name": " installation ",
         "collapse": true,
         "children": [
-          { "name": "折叠节点" }
+          {
+            "name": " folded node "
+          }
         ]
       },
       {
-        "name":"入门",
-        "children":[
-          { "name":"选择集" },
-          { "name":"test" },
-          { "name":"绑定数据" },
-          { "name":"添加删除元素" },
+        "name": " Getting Started ",
+        "children": [
           {
-            "name":"简单图形",
-            "children":
-            [
-              { "name":"柱形图" },
-              { "name":"折线图" },
-              { "name":"散点图" }]
+            "name": " selection "
           },
-          { "name":"比例尺" },
-          { "name":"生成器" },
-          { "name":"过渡" }
+          {
+            "name": "test"
+          },
+          {
+            "name": " Binding Data "
+          },
+          {
+            "name": " Add and remove elements "
+          },
+          {
+            "name": " Simple Graphics ",
+            "children": [
+              {
+                "name": " Histogram "
+              },
+              {
+                "name": " line chart "
+              },
+              {
+                "name": " scatterplot "
+              }
+            ]
+          },
+          {
+            "name": " scale "
+          },
+          {
+            "name": " Generator "
+          },
+          {
+            "name": " transition "
+          }
         ],
         "left": true
       },
-      { 
-        "name":"进阶",
-        "left": true 
+      {
+        "name": " Advanced ",
+        "left": true,
+        "children": [
+          {
+            "name": " selection "
+          },
+          {
+            "name": "test"
+          },
+          {
+            "name": " Binding Data "
+          },
+          {
+            "name": " Add and remove elements "
+          },
+          {
+            "name": " Simple Graphics ",
+            "children": [
+              {
+                "name": " Histogram "
+              },
+              {
+                "name": " line chart "
+              },
+              {
+                "name": " scatterplot "
+              }
+            ]
+          },
+          {
+            "name": " scale "
+          },
+          {
+            "name": " Generator "
+          },
+          {
+            "name": " transition "
+          }
+        ]
       },
       {
-        "name":"一级节点",
+        "name": " level one node ",
         "children": [
-          { "name":"子节点1" },
-          { "name":"子节点2" },
-          { "name":"子节点3" }
+          {
+            "name": " child node 1 "
+          },
+          {
+            "name": " child node 2 "
+          },
+          {
+            "name": " child node 3 "
+          }
         ]
       }
     ]
